@@ -73,7 +73,12 @@ Outputs are written to `../web/public/models/` by default; golden fixtures to
 
 ## Status
 
+**Phase 0 is cleared end-to-end:** the exported decoder + vocoder run under
+onnxruntime-web on both WASM and WebGPU and reproduce the PyTorch golden
+(`gen_phase0_golden.py` → `web/phase0.html`). See `docs/PLAN.md` for numbers and
+the WebGPU `SkipLayerNormalization` caveat.
+
 Remaining scripts (`smoke_reference.py`, `precompute_speakers.py`,
 `export_lm.py`) are **scaffolds** with the intended structure and the exact
-upstream calls to wrap (traced from `plapre/inference.py`). Phase 0 next step:
-the in-browser wasm/webgpu verification of the exported decoder + vocoder.
+upstream calls to wrap (traced from `plapre/inference.py`) — these are Phase 1
+(the LM port).

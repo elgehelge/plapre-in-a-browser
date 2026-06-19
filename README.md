@@ -83,15 +83,23 @@ These run and are covered by `npm test` (vitest) in `web/`:
 - **Audio encoders** — raw 16-bit PCM and WAV (`web/src/audio/`).
 - **OpenAI & ElevenLabs drop-in adapters** over the engine (`web/src/adapters/`).
 
-### Not yet working (needs the converted models)
+### Phase 0 cleared — decoder + vocoder run in the browser
 
-The ONNX-dependent stages (LM generation loop, Kanade decoder, HiFT vocoder)
-load model files from `web/public/models/`, which don't exist until the Python
-conversion runs. The first such milestone is **Phase 0: de-risk the vocoder** —
-get the HiFT vocoder + Kanade decoder running under `onnxruntime-web` and
-reproduce a known sentence's audio in the browser. If the vocoder will not
-export/run on the web runtime, the whole approach needs rethinking, so this is
-gated first. See [docs/PLAN.md](docs/PLAN.md).
+The make-or-break gate is done: the **Kanade decoder** and **HiFT vocoder** both
+export to ONNX and run under `onnxruntime-web` on **WASM and WebGPU**,
+reproducing the PyTorch reference to float precision (mel ≈ 1e-5, wav ≈ 1e-7).
+This required a real-valued (i)STFT rewrite of the vocoder (`conversion/
+hift_onnx.py`) since HiFT's `torch.istft`/complex ops have no ONNX support. See
+[docs/PLAN.md](docs/PLAN.md) for the full gate write-up (and the WebGPU
+`SkipLayerNormalization` caveat). Reproduce with `conversion/
+gen_phase0_golden.py` + `web/phase0.html`.
+
+### Not yet working (Phase 1+)
+
+The **LM generation loop** (text → audio tokens) is the remaining core piece;
+its export scaffolding lives in `conversion/export_lm.py`. The model files in
+`web/public/models/` are produced by the Python conversion scripts and are not
+checked in. See [docs/PLAN.md](docs/PLAN.md).
 
 ## Getting started
 

@@ -39,8 +39,18 @@ must change — so prove it before investing in the LM port.
 - [ ] Produce golden fixtures (`conversion/smoke_reference.py`): for a fixed
       sentence + built-in speaker, dump the generated audio-token ids, the
       decoder mel, and the final 24 kHz wav.
-- [ ] In the web app, load decoder + vocoder, feed the golden audio-token ids,
-      and reproduce the golden wav within tolerance. Test **WebGPU and WASM**.
+- [x] In the browser, load decoder + vocoder under onnxruntime-web, run
+      decoder → vocoder on fixed inputs, and reproduce the PyTorch golden. Tested
+      on **WASM and WebGPU** via a Vite harness (`web/phase0.html` +
+      `web/src/phase0.ts`) driven by Playwright; golden from
+      `conversion/gen_phase0_golden.py`. **Both PASS:**
+      - WASM (opt=all): mel max|diff| ≈ 1.6e-5, wav ≈ 1.1e-7; ~1.5 s/utterance.
+      - WebGPU (opt=basic): mel ≈ 6.7e-6, wav ≈ 5e-8; ~0.2 s/utterance.
+      **WebGPU caveat:** with full graph optimization the EP builds a fused
+      `SkipLayerNormalization` kernel that rejects our LayerNorm bias ("Beta
+      must be 1D"). Using `graphOptimizationLevel: "basic"` on WebGPU avoids the
+      fusion (and was fastest); `ort.ts` now does this. The ORT wasm CDN version
+      must also match the installed package (`ort.env.versions.web`).
 
 **Open follow-up (export sizes):** the decoder ONNX is ~365 MB — this is the
 *genuine* decode path (mel_prenet ≈170 MB + mel_decoder ≈185 MB), NOT WavLM
@@ -50,9 +60,10 @@ int8 less) rather than tree-shaking. Defer until after the browser gate.
 
 **Success criterion:** golden sentence decodes to correct-sounding audio in the
 browser on both backends.
-**Status:** both stages clear the ONNX/ORT-CPU gate (decoder via the dynamo
-exporter; vocoder via the real-valued (i)STFT rewrite). Remaining: the in-browser
-wasm/webgpu verification.
+**Status: GATE CLEARED.** Both stages export to ONNX and run under
+onnxruntime-web on WASM and WebGPU, reproducing the PyTorch reference to float
+precision. The in-browser numbers above are decoder+vocoder only (no LM yet);
+they give an early real-time-factor signal (WebGPU ~0.2 s for ~2 s of audio).
 
 ## Phase 1 — Port the LM generation
 

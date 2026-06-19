@@ -24,3 +24,6 @@ conversion/golden/*.wav
 
 # OS
 .DS_Store
+
+# Phase 0 browser-parity golden fixture (regenerable)
+web/public/models/phase0_golden.json

@@ -26,7 +26,8 @@ export class HiftVocoder {
     const melTensor = new ort.Tensor("float32", mel, batched);
 
     const result = await this.session.run({ mel: melTensor });
-    const wav = result.waveform ?? Object.values(result)[0];
+    // export_hift_vocoder.py names the output "wav".
+    const wav = result.wav ?? Object.values(result)[0];
     return wav.data as Float32Array;
   }
 }
