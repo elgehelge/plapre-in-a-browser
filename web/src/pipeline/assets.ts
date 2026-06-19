@@ -12,6 +12,7 @@ export interface Artifact {
 
 export const ARTIFACTS = {
   lm: { file: "lm/model.onnx", producedBy: "conversion/export_lm.py" },
+  lmMeta: { file: "lm/meta.json", producedBy: "conversion/export_lm.py" },
   kanadeDecoder: {
     file: "kanade_decoder.onnx",
     producedBy: "conversion/export_kanade_decoder.py",

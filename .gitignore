@@ -10,20 +10,24 @@ __pycache__/
 *.pyc
 conversion/build/
 
-# Model artifacts (large; not committed — see conversion/README.md)
-web/public/models/*.onnx
-web/public/models/*.onnx_data
-web/public/models/*.onnx.data
-web/public/models/*.bin
+# Model artifacts (large / generated; not committed — see conversion/README.md).
+# Recursive so model subdirs (lm/, lm_toy/, …) are covered too.
+web/public/models/**/*.onnx
+web/public/models/**/*.onnx_data
+web/public/models/**/*.onnx.data
+web/public/models/**/*.bin
 artifacts/
 *.safetensors
 *.gguf
+
+# Generated artifact metadata / goldens (regenerable via conversion/).
+web/public/models/phase0_golden.json
+web/public/models/lm/meta.json
+web/public/models/lm_toy/
+web/public/models/phase1_toy_golden.json
 
 # Golden test fixtures that are large audio
 conversion/golden/*.wav
 
 # OS
 .DS_Store
-
-# Phase 0 browser-parity golden fixture (regenerable)
-web/public/models/phase0_golden.json
