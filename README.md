@@ -46,13 +46,17 @@ web builds today — that conversion is the core of this project.
 
 | Component        | What it is                         | Size (Pico)        | Status |
 | ---------------- | ---------------------------------- | ------------------ | ------ |
-| Plapre LM        | SmolLM2/LLaMA, autoregressive      | 135M (q8 ≈ 121 MB) | to convert |
-| Kanade decoder   | tokens + speaker emb → mel         | part of ~140M codec| to convert |
-| HiFT vocoder     | mel → 24 kHz waveform              | small              | to convert (highest ONNX risk) |
+| Plapre LM        | SmolLM2/LLaMA, autoregressive      | 135M (q8 ≈ 121 MB) | loop validated; gated export written |
+| Kanade decoder   | tokens + speaker emb → mel         | ≈ 367 MB           | **converted, runs in-browser** |
+| HiFT vocoder     | mel → 24 kHz waveform              | ≈ 85 MB            | **converted, runs in-browser** |
+| Kanade clone enc | reference audio → 128-dim speaker  | 174 MB (WavLM)     | **converted, runs in-browser** |
 
-We only need the **decoder** side of Kanade. The built-in speakers
-(`tor, ida, liv, ask, kaj`) ship as precomputed embeddings in the model repo, so the
-Kanade *encoder* / WavLM frontend (needed only for voice cloning) is **out of scope**.
+The built-in speakers (`tor, ida, liv, ask, kaj`) ship as precomputed embeddings,
+so only the Kanade **decoder** is needed for built-in voices. **Voice cloning**
+(Phase 5) additionally exports the Kanade global encoder (WavLM frontend +
+GlobalEncoder) to derive a speaker embedding from reference audio entirely in the
+browser — see `Engine.cloneVoice()` and the ElevenLabs Instant Voice Cloning
+adapter.
 
 ## Repository layout
 
@@ -60,11 +64,13 @@ Kanade *encoder* / WavLM frontend (needed only for voice cloning) is **out of sc
 conversion/   Python: export the 3 models to ONNX, precompute speaker embeddings,
               and produce "golden" reference outputs for parity testing.
 web/          Vite + TypeScript app running the pipeline on onnxruntime-web.
-              Pure-JS, testable-now pieces (text normalization, Danish number words,
-              sampling) are implemented; ONNX-dependent stages are wired with clear
-              interfaces and load model files from web/public/models/.
+              The full pipeline (LM decode loop, decoder, vocoder, clone encoder),
+              the provider-neutral engine, adapters, audio, and model caching are
+              implemented and tested; ONNX stages load from web/public/models/.
+              phase0/phase1/phase5/bench .html are the in-browser gates.
 docs/         PLAN.md (phased plan + risks), ARCHITECTURE.md (data flow detail),
-              and INTERFACE.md (public engine contract + OpenAI/ElevenLabs adapters).
+              INTERFACE.md (engine contract + OpenAI/ElevenLabs adapters), and
+              EXTENSION.md (Chrome MV3 offscreen-document hosting).
 ```
 
 ## Status / where to start
@@ -86,40 +92,58 @@ These run and are covered by `npm test` (vitest) in `web/`:
   the provider's own default format (OpenAI `mp3`, ElevenLabs `mp3_44100_128`)
   so they are drop-in out of the box (`web/src/adapters/`).
 
-### Phase 0 cleared — decoder + vocoder run in the browser
+### Browser-validated in-browser (WASM + WebGPU)
 
-The make-or-break gate is done: the **Kanade decoder** and **HiFT vocoder** both
-export to ONNX and run under `onnxruntime-web` on **WASM and WebGPU**,
-reproducing the PyTorch reference to float precision (mel ≈ 1e-5, wav ≈ 1e-7).
-This required a real-valued (i)STFT rewrite of the vocoder (`conversion/
-hift_onnx.py`) since HiFT's `torch.istft`/complex ops have no ONNX support. See
-[docs/PLAN.md](docs/PLAN.md) for the full gate write-up (and the WebGPU
-`SkipLayerNormalization` caveat). Reproduce with `conversion/
-gen_phase0_golden.py` + `web/phase0.html`.
+Each stage is gated by a real in-browser test (Playwright-driven `*.html`
+harnesses), independent of the gated LM weights:
 
-### Not yet working (Phase 1+)
+- **Phase 0 — decoder + vocoder** reproduce the PyTorch reference to float
+  precision (mel ≈ 1e-5, wav ≈ 1e-7). Needed a real-valued (i)STFT rewrite of the
+  vocoder (`conversion/hift_onnx.py`). `web/phase0.html`.
+- **Phase 1 — LM decode loop.** The hand-rolled KV-cache decode loop
+  (`web/src/pipeline/lm.ts`) is proven by unit tests + a genuine **toy LM**
+  (`conversion/gen_toy_lm.py`) built to the real export contract: 30/30 golden
+  ids on both backends (`web/phase1.html`). The gated real export is written to
+  that contract (`conversion/export_lm.py`).
+- **Phase 5 — voice cloning.** The Kanade clone encoder runs under ORT-Web
+  reproducing the torch embedding (cosine 1.0) on both backends
+  (`web/phase5.html`). `Engine.cloneVoice()` + ElevenLabs `voices.add` mapping.
+- **Phase 4 — performance.** Decoder+vocoder real-time factor ≈ **3.3× on WASM**
+  and **18.6× on WebGPU** for ~2 s of audio (`web/bench.html`).
 
-The **LM generation loop** (text → audio tokens) is the remaining core piece;
-its export scaffolding lives in `conversion/export_lm.py`. The model files in
-`web/public/models/` are produced by the Python conversion scripts and are not
-checked in. See [docs/PLAN.md](docs/PLAN.md).
+### The one remaining human step (gated weights)
+
+The Plapre LM weights live in `syvai/plapre-pico`, which is license-gated. The
+browser loop and the export scripts are ready; producing the real LM artifacts
+(and the end-to-end Danish audio + quality A/B) needs:
+
+```bash
+huggingface-cli login   # after clicking "Agree" on https://huggingface.co/syvai/plapre-pico
+cd conversion && source .venv/bin/activate
+python fetch_tokenizer.py && python export_lm.py && python precompute_speakers.py && python smoke_reference.py
+```
+
+The model files in `web/public/models/` are produced by the conversion scripts
+and are not checked in. See [docs/PLAN.md](docs/PLAN.md).
 
 ## Getting started
 
 ```bash
-# Web app (runs today; pipeline reports which model files are still missing)
+# Web app + tests (run today; the pipeline reports which model files are missing)
 cd web
 npm install
-npm run dev
-npm test        # vitest: normalization, num2words, sampling, engine, adapters
+npm test        # vitest: normalization, num2words, sampling, engine, adapters, LM loop, cloning, cache
+npm run dev     # serves the harnesses: phase0/phase1/phase5/bench .html
 
-# Model conversion (Python; produces the ONNX files the web app needs)
+# Model conversion (Python). Public stages need no credentials:
 cd conversion
 python3.13 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-python export_kanade_decoder.py && python export_hift_vocoder.py && python gen_phase0_golden.py
-# then open web/phase0.html (and ?backend=webgpu) to verify in-browser parity.
-# Full recipe + what "slim"/"deterministic" mean: conversion/README.md
+python export_kanade_decoder.py && python export_hift_vocoder.py && python gen_phase0_golden.py  # Phase 0
+python gen_toy_lm.py           # Phase 1 browser gate (toy LM)
+python export_clone_encoder.py # Phase 5 clone encoder
+# then open web/phase0.html / phase1.html / phase5.html (and ?backend=webgpu).
+# Gated Phase 1 LM export + full recipe: conversion/README.md
 ```
 
 ## License / attribution

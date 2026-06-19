@@ -50,13 +50,18 @@ interface Engine {
   synthesizeToPcm(                                              // buffered convenience
     req: SynthesisRequest,
   ): Promise<{ samples: Float32Array; sampleRate: number }>;
-  cloneVoice(                                                   // optional, see Phase 5
+  canCloneVoice(): boolean;                                     // capability probe
+  cloneVoice(                                                   // see Phase 5
     audio: Float32Array,
     sampleRate: number,
-    opts?: { displayName?: string },
-  ): Promise<Voice>;
+    opts?: { id?: string; displayName?: string; lang?: string },
+  ): Promise<Voice>;                                            // CloningUnsupportedError if !canCloneVoice
 }
 ```
+
+Model loading + caching is configured on the concrete loader, not the engine:
+`loadPlapreEngine({ backend?, generation?, cache?: { cacheName?, onProgress? } })`,
+where `onProgress(loaded, total)` reports the cache-first model download.
 
 `GenerateOptions` is the existing engine-native sampling contract
 (`temperature`, `topK`, `topP`, `maxTokens`, `seed`) from `web/src/pipeline`.
@@ -136,3 +141,12 @@ no resampling, only the lossy formats need an encoder.
 
 `fromVoiceSettings` maps the subset of ElevenLabs knobs that have an engine
 analogue (e.g. expressiveness → `temperature`); unmapped settings are ignored.
+
+#### Instant Voice Cloning
+
+`createElevenLabsVoices(engine)` / `createElevenLabsClient(engine).voices` map
+`voices.add({ name, files })` onto `engine.cloneVoice()`: each file is decoded
+(via a pluggable `AudioDecoder`, WebAudio by default) and the clips are
+concatenated into the reference waveform. Returns `{ voiceId, name }`; the id is
+then usable as a normal `voice` in `convert`/`stream`. OpenAI has no cloning
+analogue.

@@ -14,9 +14,12 @@ python3.13 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-ONNX export uses the **TorchDynamo exporter** (`torch.onnx.export(dynamo=True)`),
-which needs `onnxscript`. The legacy TorchScript exporter cannot handle the
-decoder's complex-tensor RoPE (see Phase 0 findings below).
+ONNX export uses whichever exporter each model needs (both ship with torch):
+the **TorchDynamo exporter** (`dynamo=True`, needs `onnxscript`) for the Kanade
+decoder, whose complex-tensor RoPE the legacy exporter rejects; the **legacy
+exporter** (`dynamo=False`) for the LM and the clone encoder, where dynamo trips
+on data-dependent control flow (WavLM) / variadic KV-cache inputs. Each script
+picks the right one and self-checks parity.
 
 ### Hugging Face access (checked 2026-06)
 
@@ -52,14 +55,31 @@ go to `../web/public/models/` (all git-ignored):
 | `hift_onnx.py`              | nothing; `python hift_onnx.py` self-tests the real (i)STFT  |
 | `gen_num2words_fixtures.py` | `../web/src/pipeline/__fixtures__/num2words-da.json`        |
 
-**Scaffolds — Phase 1** (LM port; gated repos). Intended structure + the exact
-upstream calls to wrap, not yet runnable end-to-end:
+**Working today — Phase 5 voice cloning** (no credentials; Kanade is public):
 
-| Script                   | Will produce                                     |
-| ------------------------ | ------------------------------------------------ |
-| `smoke_reference.py`     | golden token ids for a fixed sentence/speaker    |
-| `precompute_speakers.py` | `speakers.json` (raw 128-dim + projected hidden) |
-| `export_lm.py`           | `lm/model.onnx` (+ external data)                |
+| Script                    | Produces                                                   |
+| ------------------------- | ---------------------------------------------------------- |
+| `export_clone_encoder.py` | `clone_encoder.onnx` + `clone_golden.json` (WavLM + GlobalEncoder → 128-dim; ORT-CPU cosine 1.0) |
+| `gen_toy_lm.py`           | `lm_toy/model.onnx` + `meta.json`, `phase1_toy_golden.json` — a toy LM matching the export contract, for the Phase 1 browser gate |
+
+**Gated — Phase 1 LM** (`syvai/plapre-pico`). Written to the contract the browser
+loop is already validated against; runs end-to-end once authenticated:
+
+| Script                   | Produces                                              |
+| ------------------------ | ----------------------------------------------------- |
+| `fetch_tokenizer.py`     | `tokenizer.json` (+ `config.json`)                    |
+| `export_lm.py`           | `lm/model.onnx` (+ data) + `lm/meta.json`             |
+| `precompute_speakers.py` | `speakers.json` (raw 128 + hidden) + `speaker_proj.json` |
+| `smoke_reference.py`     | `golden/tokens.json` + `kanade.json` + `mel.npy` + `reference.wav` (greedy torch oracle mirroring `lm.ts`) |
+
+`_gated.py` is the shared access check: it turns a `GatedRepoError` into one
+actionable message. Unblock with:
+
+```bash
+huggingface-cli login            # after clicking "Agree" on the model page
+python fetch_tokenizer.py && python export_lm.py && python precompute_speakers.py
+python smoke_reference.py        # golden token ids for the parity check
+```
 
 ## Reproduce the Phase 0 gate end-to-end
 
@@ -120,14 +140,36 @@ caveat (`ort.ts` uses `graphOptimizationLevel: "basic"` on WebGPU to avoid it).
   excluded). Vocoder ~83 MB. Shrinking needs fp16/int8 quantization, deferred
   until after the browser gate.
 
+## Reproduce the Phase 1 (LM loop) + Phase 5 (clone) gates
+
+Both gates are **public** — no gated weights needed (they validate the browser
+runtime against the export contract / a public model):
+
+```bash
+python gen_toy_lm.py            # toy LM (ORT-CPU greedy == torch golden)
+python export_clone_encoder.py  # clone encoder (ORT-CPU cosine 1.0 vs torch)
+```
+
+Then in a browser (from `../web`, `npm run dev`):
+
+- `phase1.html` (+ `?backend=webgpu`) — drives the real `OrtLmGraph`+`PlapreLM`
+  KV-cache loop against the toy LM; expect 30/30 golden ids on both backends.
+- `phase5.html` (+ `?backend=webgpu`) — runs the clone encoder under ORT-Web;
+  expect cosine 1.0 on both backends.
+- `bench.html?backend=webgpu&iters=10` — Phase 4 RTF/latency for the stages
+  present.
+
 ## Status
 
-**Phase 0 is cleared end-to-end:** the exported decoder + vocoder run under
-onnxruntime-web on both WASM and WebGPU and reproduce the PyTorch golden
-(`gen_phase0_golden.py` → `web/phase0.html`). See `docs/PLAN.md` for numbers and
-the WebGPU `SkipLayerNormalization` caveat.
+- **Phase 0 (decoder + vocoder)** — cleared end-to-end under onnxruntime-web on
+  WASM + WebGPU vs the PyTorch golden.
+- **Phase 1 (LM loop)** — the browser KV-cache decode loop is validated (unit
+  tests + toy-LM browser gate on both backends). The real gated export
+  (`export_lm.py`, `precompute_speakers.py`, `fetch_tokenizer.py`,
+  `smoke_reference.py`) is written to that proven contract and runs once
+  authenticated.
+- **Phase 5 (voice cloning)** — cleared: `clone_encoder.onnx` runs under
+  onnxruntime-web reproducing the torch embedding (cosine 1.0).
 
-Remaining scripts (`smoke_reference.py`, `precompute_speakers.py`,
-`export_lm.py`) are **scaffolds** with the intended structure and the exact
-upstream calls to wrap (traced from `plapre/inference.py`) — these are Phase 1
-(the LM port).
+See `docs/PLAN.md` for recorded numbers and the WebGPU `SkipLayerNormalization`
+caveat.
