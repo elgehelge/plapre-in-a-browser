@@ -1,0 +1,17 @@
+# Upstream plapre pipeline (pulls torch, transformers, kanade-tokenizer, etc.)
+# NOTE: the upstream package also depends on vLLM, which is server-only and not
+# needed for conversion. Install plapre's deps minus vLLM if vLLM install fails.
+torch
+torchaudio
+transformers
+safetensors
+soundfile
+numpy
+huggingface-hub
+num2words
+kanade-tokenizer @ git+https://github.com/frothywater/kanade-tokenizer
+
+# ONNX export + verification
+onnx
+onnxruntime
+optimum[exporters]

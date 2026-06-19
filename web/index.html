@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>plapre-in-a-browser</title>
+    <style>
+      :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+      body { max-width: 760px; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+      h1 { font-size: 1.4rem; }
+      textarea { width: 100%; min-height: 4rem; font: inherit; }
+      label { display: block; margin: 0.75rem 0 0.25rem; font-weight: 600; }
+      button { font: inherit; padding: 0.5rem 1rem; cursor: pointer; }
+      #log {
+        margin-top: 1rem; padding: 0.75rem; border-radius: 6px;
+        background: rgba(127,127,127,0.12); white-space: pre-wrap;
+        font-family: ui-monospace, monospace; font-size: 0.85rem; min-height: 6rem;
+      }
+      .row { display: flex; gap: 0.75rem; align-items: end; flex-wrap: wrap; }
+    </style>
+  </head>
+  <body>
+    <h1>Plapre — Danish TTS in the browser</h1>
+    <p>
+      Proof of concept. Pure-JS stages (text normalization, sampling) work today;
+      the ONNX stages report which converted model files are still missing.
+      See <code>docs/PLAN.md</code>.
+    </p>
+
+    <label for="speaker">Speaker</label>
+    <select id="speaker"></select>
+
+    <label for="text">Text (Danish)</label>
+    <textarea id="text">Hej, hvordan har du det i dag?</textarea>
+
+    <div class="row">
+      <button id="env">Check environment</button>
+      <button id="normalize">Preview normalization</button>
+      <button id="synthesize">Synthesize</button>
+    </div>
+
+    <div id="log"></div>
+    <audio id="player" controls style="margin-top:1rem;width:100%"></audio>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
