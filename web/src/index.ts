@@ -12,6 +12,9 @@ export * from "./engine/speech-model.js";
 // Plapre as the concrete SpeechModel + the loader that returns an Engine.
 export * from "./pipeline/plapre.js";
 
+// Model caching (Cache API) for offline / instant reloads of the large weights.
+export { fetchCached, clearModelCache, type ProgressFn } from "./pipeline/model-cache.js";
+
 // Audio serialization + sample-rate conversion + decoding (for cloning input).
 export * from "./audio/format.js";
 export * from "./audio/resample.js";

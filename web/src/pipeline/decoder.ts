@@ -6,7 +6,7 @@
 // I/O names follow conversion/export_kanade_decoder.py
 // (content_token_indices, global_embedding -> mel).
 
-import { createSession, ort } from "./ort.js";
+import { createSession, ort, type LoadOptions } from "./ort.js";
 import { artifactUrl } from "./assets.js";
 import type { Backend } from "./types.js";
 
@@ -21,9 +21,11 @@ export class KanadeDecoder {
     audioTokenStart: number,
     audioTokenEnd: number,
     backend: Backend,
+    opts: LoadOptions = {},
   ): Promise<KanadeDecoder> {
     const session = await createSession(artifactUrl("kanadeDecoder"), backend, {
       dataFile: "kanade_decoder.onnx.data",
+      ...opts,
     });
     return new KanadeDecoder(session, audioTokenStart, audioTokenEnd);
   }

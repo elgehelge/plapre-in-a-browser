@@ -21,7 +21,7 @@
 //            present.{i}.{key,value}         float32 [1, kvHeads, past+k+seq, headDim]
 
 import { type SamplingParams, sample, makeRng } from "./sampling.js";
-import { createSession, ort } from "./ort.js";
+import { createSession, ort, type LoadOptions } from "./ort.js";
 import { artifactUrl, ARTIFACTS } from "./assets.js";
 import { MissingModelError, type Backend } from "./types.js";
 
@@ -80,8 +80,12 @@ export class PlapreLM {
     private readonly tokenizer: PromptTokenizer,
   ) {}
 
-  static async load(tokenizer: PromptTokenizer, backend: Backend): Promise<PlapreLM> {
-    const graph = await OrtLmGraph.load(backend);
+  static async load(
+    tokenizer: PromptTokenizer,
+    backend: Backend,
+    opts: LoadOptions = {},
+  ): Promise<PlapreLM> {
+    const graph = await OrtLmGraph.load(backend, opts);
     return new PlapreLM(graph, tokenizer);
   }
 
@@ -143,9 +147,13 @@ export class OrtLmGraph implements LmGraph {
     return this.meta.hidden;
   }
 
-  static async load(backend: Backend): Promise<OrtLmGraph> {
-    return OrtLmGraph.fromUrls(artifactUrl("lm"), artifactUrl("lmMeta"), backend, () =>
-      new MissingModelError("lm/meta.json", ARTIFACTS.lmMeta.producedBy),
+  static async load(backend: Backend, opts: LoadOptions = {}): Promise<OrtLmGraph> {
+    return OrtLmGraph.fromUrls(
+      artifactUrl("lm"),
+      artifactUrl("lmMeta"),
+      backend,
+      () => new MissingModelError("lm/meta.json", ARTIFACTS.lmMeta.producedBy),
+      opts,
     );
   }
 
@@ -155,11 +163,15 @@ export class OrtLmGraph implements LmGraph {
     metaUrl: string,
     backend: Backend,
     onMissingMeta: () => Error = () => new Error(`missing LM meta: ${metaUrl}`),
+    opts: LoadOptions = {},
   ): Promise<OrtLmGraph> {
     const metaRes = await fetch(metaUrl);
     if (!metaRes.ok) throw onMissingMeta();
     const meta = (await metaRes.json()) as LmMeta;
-    const session = await createSession(modelUrl, backend, { dataFile: meta.externalData });
+    const session = await createSession(modelUrl, backend, {
+      dataFile: meta.externalData,
+      ...opts,
+    });
     const layers = Array.from({ length: meta.numLayers }, (_, i) => i);
     return new OrtLmGraph(session, meta, layers);
   }

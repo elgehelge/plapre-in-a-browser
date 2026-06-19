@@ -2,6 +2,7 @@
 
 import * as ort from "onnxruntime-web";
 import type { Backend } from "./types.js";
+import { fetchCached, type ProgressFn } from "./model-cache.js";
 
 let configured = false;
 
@@ -40,7 +41,17 @@ export interface SessionConfig {
    * the location string baked into the .onnx (the bare filename here).
    */
   dataFile?: string;
+  /**
+   * When set, the model (and its sidecar) are fetched cache-first via the Cache
+   * API and handed to ORT as bytes, so repeat loads are offline/instant. Off by
+   * default to preserve ORT's own URL fetching. `onProgress` reports the model
+   * download for a UI progress bar.
+   */
+  cache?: { cacheName?: string; onProgress?: ProgressFn };
 }
+
+/** Loader-level options forwarded to createSession (caching/progress). */
+export type LoadOptions = Pick<SessionConfig, "cache">;
 
 export async function createSession(
   modelUrl: string,
@@ -56,8 +67,21 @@ export async function createSession(
     // Phase 0 gate. WASM has no such issue and runs "all".
     graphOptimizationLevel: backend === "webgpu" ? "basic" : "all",
   };
+  const base = modelUrl.slice(0, modelUrl.lastIndexOf("/") + 1);
+
+  if (config.cache) {
+    // Cache-first: fetch bytes ourselves and pass them (plus any sidecar) to ORT.
+    const model = new Uint8Array(
+      await fetchCached(modelUrl, { ...config.cache, onProgress: config.cache.onProgress }),
+    );
+    if (config.dataFile) {
+      const data = new Uint8Array(await fetchCached(`${base}${config.dataFile}`, config.cache));
+      options.externalData = [{ data, path: config.dataFile }];
+    }
+    return ort.InferenceSession.create(model, options);
+  }
+
   if (config.dataFile) {
-    const base = modelUrl.slice(0, modelUrl.lastIndexOf("/") + 1);
     options.externalData = [{ data: `${base}${config.dataFile}`, path: config.dataFile }];
   }
   return ort.InferenceSession.create(modelUrl, options);

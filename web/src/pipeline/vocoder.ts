@@ -4,16 +4,17 @@
 // This is the Phase 0 gate: if hift_vocoder.onnx will not run under
 // onnxruntime-web, the whole in-browser approach must be reconsidered.
 
-import { createSession, ort } from "./ort.js";
+import { createSession, ort, type LoadOptions } from "./ort.js";
 import { artifactUrl } from "./assets.js";
 import type { Backend } from "./types.js";
 
 export class HiftVocoder {
   private constructor(private readonly session: ort.InferenceSession) {}
 
-  static async load(backend: Backend): Promise<HiftVocoder> {
+  static async load(backend: Backend, opts: LoadOptions = {}): Promise<HiftVocoder> {
     const session = await createSession(artifactUrl("vocoder"), backend, {
       dataFile: "hift_vocoder.onnx.data",
+      ...opts,
     });
     return new HiftVocoder(session);
   }

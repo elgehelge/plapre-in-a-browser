@@ -9,7 +9,7 @@
 // retired by the Phase 5 gate). speaker_proj is a single Linear shipped as JSON
 // and applied here, so the projection math is unit-tested without any session.
 
-import { createSession, ort } from "./ort.js";
+import { createSession, ort, type LoadOptions } from "./ort.js";
 import { artifactUrl, ARTIFACTS } from "./assets.js";
 import { resample } from "../audio/resample.js";
 import { MissingModelError, SAMPLE_RATE, type Backend, type SpeakerData } from "./types.js";
@@ -61,8 +61,8 @@ export class OrtCloneEmbedder implements CloneEmbedder {
     private readonly modelSampleRate: number = SAMPLE_RATE,
   ) {}
 
-  static async load(backend: Backend): Promise<OrtCloneEmbedder> {
-    const session = await createSession(artifactUrl("cloneEncoder"), backend);
+  static async load(backend: Backend, opts: LoadOptions = {}): Promise<OrtCloneEmbedder> {
+    const session = await createSession(artifactUrl("cloneEncoder"), backend, opts);
     return new OrtCloneEmbedder(session);
   }
 
@@ -87,13 +87,13 @@ export class VoiceClonerImpl {
     private readonly projection: SpeakerProjection,
   ) {}
 
-  static async load(backend: Backend): Promise<VoiceClonerImpl> {
+  static async load(backend: Backend, opts: LoadOptions = {}): Promise<VoiceClonerImpl> {
     const res = await fetch(artifactUrl("speakerProj"));
     if (!res.ok) {
       throw new MissingModelError("speaker_proj.json", ARTIFACTS.speakerProj.producedBy);
     }
     const projection = SpeakerProjection.fromJSON(await res.json());
-    const embedder = await OrtCloneEmbedder.load(backend);
+    const embedder = await OrtCloneEmbedder.load(backend, opts);
     return new VoiceClonerImpl(embedder, projection);
   }
 

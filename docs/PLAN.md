@@ -129,13 +129,18 @@ python smoke_reference.py        # writes golden token ids for the parity check
       [docs/INTERFACE.md](INTERFACE.md): streaming `synthesize() →
       AsyncIterable<PcmChunk>` + buffered `synthesizeToPcm()`, `listVoices()`,
       `AbortSignal` cancellation (`web/src/engine/`). Done and unit-tested.
-- [ ] Backend toggle (WebGPU→WASM) plumbing, and model download + Cache/OPFS
-      caching + warm-up (silent decode on load) with `onProgress`. Needs the
-      converted model artifacts.
-- [ ] Document how to host it in a Chrome MV3 **offscreen document** (not the
-      service worker, not a content script), incl. the
-      `cross_origin_embedder_policy` / `cross_origin_opener_policy` manifest keys
-      needed for threaded WASM.
+- [x] Backend toggle (WebGPU→WASM) plumbing (`pickBackend`), and model download +
+      **Cache API caching** + `onProgress`, opt-in via
+      `loadPlapreEngine({ cache: { onProgress } })` (`pipeline/model-cache.ts`,
+      wired through `createSession` and all loaders; cache-first fetch unit-tested
+      with hit/miss/fallback). `clearModelCache()` frees it. Warm-up guidance is
+      documented (a tiny throwaway synthesis after load) rather than baked in, so
+      callers control when the kernels compile.
+- [x] Documented hosting in a Chrome MV3 **offscreen document**
+      ([docs/EXTENSION.md](EXTENSION.md)): why offscreen (not the service
+      worker/content script), the `cross_origin_embedder_policy` /
+      `cross_origin_opener_policy` keys for threaded WASM, packaging the ORT wasm
+      locally (MV3 CSP), service-worker↔offscreen wiring, and caching.
 
 ## Phase 3.5 — Drop-in API adapters
 

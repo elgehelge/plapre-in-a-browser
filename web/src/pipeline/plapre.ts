@@ -10,7 +10,7 @@ import { KanadeDecoder } from "./decoder.js";
 import { HiftVocoder } from "./vocoder.js";
 import { loadSpeakers } from "./speakers.js";
 import { VoiceClonerImpl } from "./clone.js";
-import { pickBackend } from "./ort.js";
+import { pickBackend, type LoadOptions } from "./ort.js";
 import type { Backend, SpeakerTable } from "./types.js";
 import { createEngine, type Engine, type EngineOptions } from "../engine/engine.js";
 import type {
@@ -23,7 +23,7 @@ import type { Voice } from "../engine/voice.js";
 
 const DANISH = "da-DK";
 
-export interface PlapreConfig extends EngineOptions {
+export interface PlapreConfig extends EngineOptions, LoadOptions {
   backend?: Backend;
 }
 
@@ -38,20 +38,21 @@ export class PlapreSpeechModel implements SpeechModel, VoiceCloner {
     private readonly vocoder: HiftVocoder,
     private readonly speakers: SpeakerTable,
     private readonly backend: Backend,
+    private readonly loadOpts: LoadOptions,
   ) {}
 
-  static async load(backend: Backend): Promise<PlapreSpeechModel> {
+  static async load(backend: Backend, opts: LoadOptions = {}): Promise<PlapreSpeechModel> {
     const tokenizer = await PlapreTokenizer.load();
     const [lm, speakers] = await Promise.all([
-      PlapreLM.load(tokenizer, backend),
+      PlapreLM.load(tokenizer, backend, opts),
       loadSpeakers(),
     ]);
     const { audioTokenStart, audioTokenEnd } = tokenizer.special;
     const [decoder, vocoder] = await Promise.all([
-      KanadeDecoder.load(audioTokenStart, audioTokenEnd, backend),
-      HiftVocoder.load(backend),
+      KanadeDecoder.load(audioTokenStart, audioTokenEnd, backend, opts),
+      HiftVocoder.load(backend, opts),
     ]);
-    return new PlapreSpeechModel(lm, decoder, vocoder, speakers, backend);
+    return new PlapreSpeechModel(lm, decoder, vocoder, speakers, backend, opts);
   }
 
   voices(): readonly Voice[] {
@@ -68,7 +69,7 @@ export class PlapreSpeechModel implements SpeechModel, VoiceCloner {
     sampleRate: number,
     opts: CloneVoiceOptions = {},
   ): Promise<Voice> {
-    this.cloner ??= await VoiceClonerImpl.load(this.backend);
+    this.cloner ??= await VoiceClonerImpl.load(this.backend, this.loadOpts);
     const id = opts.id ?? `cloned-${++this.cloneCounter}`;
     if (this.speakers[id]) throw new Error(`voice id "${id}" already exists`);
     this.speakers[id] = await this.cloner.embedSpeaker(audio, sampleRate);
@@ -105,6 +106,9 @@ export class PlapreSpeechModel implements SpeechModel, VoiceCloner {
 /** Load the full Plapre pipeline and expose it as a provider-neutral Engine. */
 export async function loadPlapreEngine(config: PlapreConfig = {}): Promise<Engine> {
   const backend = await pickBackend(config.backend ?? "webgpu");
-  const model = await PlapreSpeechModel.load(backend);
-  return createEngine(model, { generation: config.generation });
+  const model = await PlapreSpeechModel.load(backend, { cache: config.cache });
+  return createEngine(model, {
+    generation: config.generation,
+    interSentenceSilenceSec: config.interSentenceSilenceSec,
+  });
 }
