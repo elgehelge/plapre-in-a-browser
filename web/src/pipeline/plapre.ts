@@ -77,7 +77,12 @@ export class PlapreSpeechModel implements SpeechModel, VoiceCloner {
     return { id, displayName, lang: opts.lang ?? DANISH };
   }
 
-  async synthesizeSentence({ sentence, voice, generation }: SentenceRequest): Promise<Float32Array> {
+  async synthesizeSentence({
+    sentence,
+    voice,
+    generation,
+    signal,
+  }: SentenceRequest): Promise<Float32Array> {
     const speaker = this.speakers[voice.id];
     if (!speaker) {
       // The Engine resolves voices against voices() before calling, so this is
@@ -88,6 +93,7 @@ export class PlapreSpeechModel implements SpeechModel, VoiceCloner {
       sentence,
       Float32Array.from(speaker.hidden),
       generation,
+      signal,
     );
     const kanadeIndices = this.decoder.toKanadeIndices(audioTokens);
     if (kanadeIndices.length === 0) return new Float32Array(0);

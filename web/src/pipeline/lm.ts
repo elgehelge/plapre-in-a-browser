@@ -98,6 +98,7 @@ export class PlapreLM {
     normalizedText: string,
     speakerHidden: Float32Array,
     opts: GenerateOptions,
+    signal?: AbortSignal,
   ): Promise<number[]> {
     if (speakerHidden.length !== this.graph.hidden) {
       throw new Error(
@@ -109,11 +110,15 @@ export class PlapreLM {
     const rng = makeRng(opts.seed);
     const noPrefix = new Float32Array(0);
 
+    signal?.throwIfAborted();
     // Prefill: embed the prompt and prepend the speaker hidden vector (prefixLen=1).
     let step = await this.graph.forward(promptIds, speakerHidden, 1, this.graph.emptyCache());
 
     const ids: number[] = [];
     for (let n = 0; n < opts.maxTokens; n++) {
+      // Honor cancellation mid-generation so long sentences interrupt promptly,
+      // not only between sentences.
+      signal?.throwIfAborted();
       const id = sample(step.logits, opts, rng);
       if (id === eos) break;
       ids.push(id);

@@ -106,4 +106,30 @@ describe("PlapreLM.generate decode loop", () => {
       /hidden/,
     );
   });
+
+  it("honors an AbortSignal mid-generation", async () => {
+    const { graph, calls } = fakeGraph([5]); // never reaches EOS
+    const lm = PlapreLM.withGraph(graph, tokenizer);
+    const controller = new AbortController();
+    // Abort after a few decode steps.
+    const orig = graph.forward.bind(graph);
+    graph.forward = async (...args) => {
+      if (calls.length >= 3) controller.abort();
+      return orig(...args);
+    };
+    await expect(
+      lm.generate("x", new Float32Array(HIDDEN), { ...GREEDY, maxTokens: 1000 }, controller.signal),
+    ).rejects.toThrow();
+    // Stopped early, far short of maxTokens.
+    expect(calls.length).toBeLessThan(10);
+  });
+
+  it("aborts before any work if the signal is already aborted", async () => {
+    const { graph, calls } = fakeGraph([5, EOS]);
+    const lm = PlapreLM.withGraph(graph, tokenizer);
+    await expect(
+      lm.generate("x", new Float32Array(HIDDEN), GREEDY, AbortSignal.abort()),
+    ).rejects.toThrow();
+    expect(calls.length).toBe(0);
+  });
 });

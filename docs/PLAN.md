@@ -216,11 +216,11 @@ they are not lost in commit messages:
 - [x] **Inter-sentence silence** — opt-in via
       `EngineOptions.interSentenceSilenceSec` (default 0 = contiguous); the gap is
       inserted only between audio chunks, never leading or trailing.
-- [ ] **Cancellation granularity** — `AbortSignal` is forwarded to the model but
-      not yet honored *inside* `PlapreLM.generate`; the Phase 1 decode loop
-      should check it so long sentences can be interrupted mid-generation (today
-      the engine/stream only abort between sentences). The stream→engine
-      cancellation wiring itself is done (`pcmStream` cancel handler).
+- [x] **Cancellation granularity** — `PlapreLM.generate` now takes the
+      `AbortSignal` and calls `throwIfAborted()` before prefill and on every
+      decode step, so long sentences interrupt mid-generation (not only between
+      sentences). The stream→engine wiring (`pcmStream` cancel handler) and the
+      engine→model forwarding were already in place.
 - [ ] **opus / aac / flac encoders** — OpenAI can request these; they need a
       heavier (wasm) codec, so they currently raise `UnsupportedFormatError`.
       mp3/wav/pcm cover both providers' defaults.
