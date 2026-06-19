@@ -1,7 +1,7 @@
 import { normalizeText } from "./pipeline/normalize.js";
 import { reportArtifacts, type ArtifactKey, ARTIFACTS } from "./pipeline/assets.js";
 import { isWebGpuAvailable } from "./pipeline/ort.js";
-import { Plapre } from "./pipeline/plapre.js";
+import { loadPlapreEngine } from "./pipeline/plapre.js";
 import { loadSpeakers } from "./pipeline/speakers.js";
 import { pcmToWavBlob } from "./pipeline/wav.js";
 
@@ -66,16 +66,15 @@ async function synthesize(): Promise<void> {
   clearLog();
   log("Loading pipeline…");
   try {
-    const plapre = await Plapre.load();
-    log(`Backend: ${plapre.backend}`);
+    const engine = await loadPlapreEngine();
     log("Synthesizing…");
-    const { pcm, sampleRate } = await plapre.synthesize(
-      textEl.value,
-      speakerEl.value,
-    );
-    const blob = pcmToWavBlob(pcm, sampleRate);
+    const { samples, sampleRate } = await engine.synthesizeToPcm({
+      text: textEl.value,
+      voice: speakerEl.value,
+    });
+    const blob = pcmToWavBlob(samples, sampleRate);
     player.src = URL.createObjectURL(blob);
-    log(`Done: ${(pcm.length / sampleRate).toFixed(2)}s of audio.`);
+    log(`Done: ${(samples.length / sampleRate).toFixed(2)}s of audio.`);
   } catch (err) {
     log("\n" + (err instanceof Error ? err.message : String(err)));
     log("\n(Expected until conversion + Phase 1 LM loop are complete.)");
