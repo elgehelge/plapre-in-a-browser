@@ -83,6 +83,55 @@ a format encoder over the canonical 24 kHz PCM stream.
 - [ ] Quality A/B vs reference Python output.
 - [ ] Memory footprint.
 
+## Phase 5 — Voice cloning (optional)
+
+Plapre clones a voice by deriving the same 128-dim speaker embedding that the
+built-in speakers ship as — the rest of the pipeline is unchanged. In the
+reference this is one call: `kanade.encode(wav).global_embedding`.
+
+Mini de-risk (gate this phase, like Phase 0 gates the vocoder):
+
+- [ ] Export the **clone encoder** to ONNX and reproduce one reference embedding
+      in the browser (cosine similarity vs Python `extract_speaker`).
+
+Only the *global* branch is needed (not the content/local encoder or FSQ):
+
+- [ ] WavLM-base+ truncated to its conv frontend + first 2 transformer layers
+      (`global_ssl_layers=(1,2)`), then the GlobalEncoder (ConvNext backbone +
+      AttentiveStatsPool) → 128-dim embedding. Truncation shrinks size and the
+      ONNX op surface.
+- [ ] Runtime flow: decode reference audio → resample to 16 kHz → clone encoder
+      → raw 128-dim → apply `speaker_proj` (128→hidden) → hidden; register a
+      `Voice` carrying both. This is the **only** runtime use of `speaker_proj`
+      (ship it as a small weight file or 1-op ONNX).
+- [ ] Engine API: `cloneVoice(audio, sampleRate, opts?) → Voice`, usable in
+      `synthesize()` exactly like a built-in voice. Cloning runs fully local —
+      the reference audio never leaves the browser.
+- [ ] Adapter mapping: ElevenLabs Instant Voice Cloning (`POST /v1/voices/add`)
+      maps onto `cloneVoice()`; OpenAI has no cloning analogue (unsupported).
+
+Encoder-specific risks: WavLM's gated relative-position bias and conv GroupNorm
+are the likely ORT-Web op-support pain points; minimum clip length (~3–30 s);
+resampler parity (16 kHz) against torchaudio.
+
+## Deferred / known gaps (carried forward)
+
+Things intentionally left out of the current implementation, tracked here so
+they are not lost in commit messages:
+
+- [ ] **Playback-speed (`rate`)** — omitted from `SynthesisRequest` until a
+      pitch-preserving time-stretch (WSOLA/phase vocoder) exists; a naive
+      resample would change pitch. Needed to map OpenAI `speed` and ElevenLabs
+      `voice_settings.speed`. `docs/INTERFACE.md` still lists `rate` as the
+      target shape.
+- [ ] **Inter-sentence silence** — the reference inserts `silence_duration`
+      between sentences when splitting; the engine currently emits contiguous
+      chunks.
+- [ ] **Cancellation granularity** — `AbortSignal` is forwarded to the model but
+      not yet honored *inside* `PlapreLM.generate`; the Phase 1 decode loop
+      should check it so long sentences can be interrupted mid-generation (today
+      the engine only aborts between sentences).
+
 ## Open risks (validate early, cheap first)
 
 1. **Vocoder ONNX/ORT-Web op support** — the make-or-break item (Phase 0).

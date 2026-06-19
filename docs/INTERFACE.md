@@ -50,6 +50,11 @@ interface Engine {
   synthesizeToPcm(                                              // buffered convenience
     req: SynthesisRequest,
   ): Promise<{ samples: Float32Array; sampleRate: number }>;
+  cloneVoice(                                                   // optional, see Phase 5
+    audio: Float32Array,
+    sampleRate: number,
+    opts?: { displayName?: string },
+  ): Promise<Voice>;
 }
 ```
 
@@ -64,6 +69,14 @@ We synthesize per sentence at a known 25 audio-tokens/second, so `startSec` per
 chunk is cheap to produce. This optionally backs ElevenLabs timestamped streaming
 and `chrome.ttsEngine` boundary events. It is **not** required for OpenAI /
 ElevenLabs audio parity.
+
+### Voice cloning (optional)
+
+`cloneVoice` derives the same 128-dim speaker embedding the built-in voices ship
+as, from arbitrary reference audio, and registers a `Voice` usable in
+`synthesize()` like any other. It runs fully local — the audio never leaves the
+browser. See [docs/PLAN.md](PLAN.md) Phase 5 for the encoder and risks; the
+ElevenLabs adapter maps Instant Voice Cloning onto it, OpenAI has no analogue.
 
 ## Adapters
 
