@@ -69,10 +69,29 @@ docs/         PLAN.md (phased plan + risks), ARCHITECTURE.md (data flow detail),
 
 ## Status / where to start
 
-The first milestone is **Phase 0: de-risk the vocoder** — get the HiFT vocoder +
-Kanade decoder running under `onnxruntime-web` and reproduce a known sentence's
-audio in the browser. If the vocoder will not export/run on the web runtime, the
-whole approach needs rethinking, so this is gated first. See [docs/PLAN.md](docs/PLAN.md).
+### Implemented and unit-tested today (no model files required)
+
+These run and are covered by `npm test` (vitest) in `web/`:
+
+- **Danish text normalization** + sentence splitting, matching the reference.
+- **Danish number-to-words**, reproducing `num2words(da)` exactly (locked by a
+  2037-case golden fixture).
+- **Autoregressive sampling** (temperature / top-k / top-p, seeded RNG).
+- **Provider-neutral `Engine`** — streaming `synthesize()` + buffered
+  `synthesizeToPcm()`, `listVoices()`, `AbortSignal` cancellation — over an
+  injectable `SpeechModel` seam (`web/src/engine/`).
+- **Audio encoders** — raw 16-bit PCM and WAV (`web/src/audio/`).
+- **OpenAI & ElevenLabs drop-in adapters** over the engine (`web/src/adapters/`).
+
+### Not yet working (needs the converted models)
+
+The ONNX-dependent stages (LM generation loop, Kanade decoder, HiFT vocoder)
+load model files from `web/public/models/`, which don't exist until the Python
+conversion runs. The first such milestone is **Phase 0: de-risk the vocoder** —
+get the HiFT vocoder + Kanade decoder running under `onnxruntime-web` and
+reproduce a known sentence's audio in the browser. If the vocoder will not
+export/run on the web runtime, the whole approach needs rethinking, so this is
+gated first. See [docs/PLAN.md](docs/PLAN.md).
 
 ## Getting started
 
@@ -81,6 +100,7 @@ whole approach needs rethinking, so this is gated first. See [docs/PLAN.md](docs
 cd web
 npm install
 npm run dev
+npm test        # vitest: normalization, num2words, sampling, engine, adapters
 
 # Model conversion (Python; produces the ONNX files the web app needs)
 cd conversion

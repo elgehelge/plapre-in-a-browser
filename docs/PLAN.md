@@ -50,12 +50,13 @@ browser on both backends.
 
 ## Phase 3 — Packaging for reuse (MV3-ready)
 
-- [ ] Expose the pipeline as the provider-neutral `Engine` from
+- [x] Expose the pipeline as the provider-neutral `Engine` from
       [docs/INTERFACE.md](INTERFACE.md): streaming `synthesize() →
       AsyncIterable<PcmChunk>` + buffered `synthesizeToPcm()`, `listVoices()`,
-      `AbortSignal` cancellation, backend toggle (WebGPU→WASM), and model
-      download + Cache/OPFS caching + warm-up (silent decode on load) with
-      `onProgress`.
+      `AbortSignal` cancellation (`web/src/engine/`). Done and unit-tested.
+- [ ] Backend toggle (WebGPU→WASM) plumbing, and model download + Cache/OPFS
+      caching + warm-up (silent decode on load) with `onProgress`. Needs the
+      converted model artifacts.
 - [ ] Document how to host it in a Chrome MV3 **offscreen document** (not the
       service worker, not a content script), incl. the
       `cross_origin_embedder_policy` / `cross_origin_opener_policy` manifest keys
@@ -68,14 +69,17 @@ Make the engine a plug-in replacement for the two common hosted TTS APIs (see
 adapter is a thin layer over the engine: request mapping, voice-id mapping, and
 a format encoder over the canonical 24 kHz PCM stream.
 
-- [ ] PCM-passthrough + format encoders (`wav`, `mp3`/`opus` via a wasm encoder);
-      `pcm` / `pcm_24000` need no resampling (native rate matches).
-- [ ] **OpenAI adapter** — `audio.speech.create({ input, voice, speed,
-      response_format })` shape; streaming + buffered.
-- [ ] **ElevenLabs adapter** — `textToSpeech.convert/stream(voiceId, { text,
-      voice_settings, output_format })` shape; map the subset of `voice_settings`
-      that has an engine analogue.
-- [ ] Voice-id mapping tables (provider voice names ↔ built-in Danish speakers).
+- [x] PCM + WAV encoders (`web/src/audio/format.ts`); `pcm` / `pcm_24000` need
+      no resampling (native rate matches). `mp3`/`opus` and resampled rates still
+      raise `UnsupportedFormatError` (need a wasm encoder/resampler).
+- [x] **OpenAI adapter** — `audio.speech.create({ input, voice, speed,
+      response_format })` shape, returning a web `Response`; `pcm` streams,
+      `wav` buffers.
+- [x] **ElevenLabs adapter** — `textToSpeech.convert/stream(voiceId, { text,
+      voice_settings, output_format })` shape; `voice_settings.speed != 1` is
+      rejected (pending time-stretch), other settings accepted but not applied.
+- [x] Voice-id mapping (provider voice names ↔ built-in Danish speakers),
+      overridable, validated against the engine catalog.
 
 ## Phase 4 — Validate
 
@@ -140,5 +144,6 @@ they are not lost in commit messages:
 3. **Pico-on-WASM real-time factor** — decides whether WebGPU is mandatory.
 4. **Re-hosting weights** — upstream HF repos are gated; CC-BY permits
    redistributing our ONNX exports with attribution.
-5. **num2words(da) parity** — Danish numerals are irregular (halvtreds, tres,
-   firs…); port carefully and cover with golden cases.
+5. ~~**num2words(da) parity**~~ — RESOLVED: the port reproduces num2words(da)
+   exactly, locked by a 2037-case golden fixture
+   (`conversion/gen_num2words_fixtures.py`).
