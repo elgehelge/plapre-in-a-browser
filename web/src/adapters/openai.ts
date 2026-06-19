@@ -27,15 +27,19 @@ const DEFAULT_VOICE_MAP: VoiceMap = {
   verse: "tor",
 };
 
-const FORMATS: Record<string, AudioFormat> = { pcm: "pcm", wav: "wav" };
-const CONTENT_TYPE: Record<AudioFormat, string> = { pcm: "audio/pcm", wav: "audio/wav" };
+const FORMATS: Record<string, AudioFormat> = { pcm: "pcm", wav: "wav", mp3: "mp3" };
+const CONTENT_TYPE: Record<AudioFormat, string> = {
+  pcm: "audio/pcm",
+  wav: "audio/wav",
+  mp3: "audio/mpeg",
+};
 
 export interface OpenAISpeechRequest {
   /** Accepted for compatibility; the local engine has a single model. */
   model?: string;
   voice: string;
   input: string;
-  /** OpenAI default is "mp3"; here it defaults to "wav" until an mp3 encoder exists. */
+  /** OpenAI's default; mp3/wav/pcm supported (opus/aac/flac are a typed gap). */
   response_format?: string;
   /** Only 1 is supported (see UnsupportedSpeedError). */
   speed?: number;
@@ -60,7 +64,7 @@ export function createOpenAISpeech(engine: Engine, options: OpenAISpeechOptions 
     async create(req, requestOptions = {}): Promise<Response> {
       if (req.speed !== undefined && req.speed !== 1) throw new UnsupportedSpeedError(req.speed);
 
-      const format = FORMATS[req.response_format ?? "wav"];
+      const format = FORMATS[req.response_format ?? "mp3"];
       if (!format) throw new UnsupportedFormatError(req.response_format ?? "");
 
       const voice = mapProviderVoice(engine.listVoices(), voiceMap, req.voice);

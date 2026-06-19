@@ -3,17 +3,48 @@
 // Mirrors the SDK's (voiceId, request) shape so existing call sites work
 // unchanged against local, server-free synthesis. See docs/INTERFACE.md.
 
-import type { Engine, SynthesisRequest } from "../engine/engine.js";
-import { type AudioFormat, UnsupportedFormatError } from "../audio/format.js";
+import { NATIVE_SAMPLE_RATE, type Engine, type SynthesisRequest } from "../engine/engine.js";
+import { encodeMp3, pcmToInt16LE, UnsupportedFormatError } from "../audio/format.js";
+import { resample } from "../audio/resample.js";
 import { mapProviderVoice, type VoiceMap } from "./voice-map.js";
 import { pcmStream } from "./stream.js";
 import { UnsupportedSpeedError } from "./errors.js";
 
-// ElevenLabs output_format strings → engine formats. Only 24 kHz PCM matches the
-// engine's native rate; other rates need resampling and lossy formats need an
-// encoder, so they are an explicit gap (UnsupportedFormatError).
-const FORMATS: Record<string, AudioFormat> = { pcm_24000: "pcm" };
-const CONTENT_TYPE: Record<AudioFormat, string> = { pcm: "audio/pcm", wav: "audio/wav" };
+// ElevenLabs output_format strings are `pcm_<rate>` or `mp3_<rate>_<kbps>`.
+// We resample the engine's 24 kHz PCM to the requested rate (audio/resample.ts)
+// and encode. Rates outside these sets, and other codecs (ulaw, …), are an
+// explicit gap (UnsupportedFormatError).
+const PCM_RATES = new Set([8000, 16000, 22050, 24000, 44100]);
+const MP3_RATES = new Set([22050, 44100]);
+
+interface OutputSpec {
+  readonly codec: "pcm" | "mp3";
+  readonly rate: number;
+  readonly kbps?: number;
+  readonly contentType: string;
+}
+
+function parseOutputFormat(raw: string): OutputSpec {
+  const m = /^(pcm|mp3)_(\d+)(?:_(\d+))?$/.exec(raw);
+  if (!m) throw new UnsupportedFormatError(raw);
+  const codec = m[1] as "pcm" | "mp3";
+  const rate = Number(m[2]);
+  const kbps = m[3] !== undefined ? Number(m[3]) : undefined;
+
+  if (codec === "pcm") {
+    if (kbps !== undefined || !PCM_RATES.has(rate)) throw new UnsupportedFormatError(raw);
+    return { codec, rate, contentType: "audio/pcm" };
+  }
+  if (kbps === undefined || !MP3_RATES.has(rate)) throw new UnsupportedFormatError(raw);
+  return { codec, rate, kbps, contentType: "audio/mpeg" };
+}
+
+function render(pcm: Float32Array, spec: OutputSpec): Uint8Array<ArrayBuffer> {
+  const resampled = resample(pcm, NATIVE_SAMPLE_RATE, spec.rate);
+  return spec.codec === "mp3"
+    ? encodeMp3(resampled, spec.rate, spec.kbps)
+    : pcmToInt16LE(resampled);
+}
 
 export interface ElevenLabsVoiceSettings {
   /** Only 1 is supported (see UnsupportedSpeedError). */
@@ -31,7 +62,7 @@ export interface ElevenLabsConvertRequest {
   /** Accepted for compatibility; the local engine has a single model. */
   modelId?: string;
   voiceSettings?: ElevenLabsVoiceSettings;
-  /** ElevenLabs default is "mp3_44100_128"; here it defaults to "pcm_24000". */
+  /** ElevenLabs default, matched here: "mp3_44100_128". */
   outputFormat?: string;
 }
 
@@ -62,32 +93,54 @@ export function createElevenLabsTextToSpeech(
 ): ElevenLabsTextToSpeechAdapter {
   const voiceMap = { ...options.voiceMap };
 
-  function buildRequest(
+  function plan(
     voiceId: string,
     request: ElevenLabsConvertRequest,
     options: ElevenLabsRequestOptions,
-  ): { synthReq: SynthesisRequest; format: AudioFormat } {
+  ): { synthReq: SynthesisRequest; spec: OutputSpec } {
     const speed = request.voiceSettings?.speed;
     if (speed !== undefined && speed !== 1) throw new UnsupportedSpeedError(speed);
 
-    const format = FORMATS[request.outputFormat ?? "pcm_24000"];
-    if (!format) throw new UnsupportedFormatError(request.outputFormat ?? "");
-
+    const spec = parseOutputFormat(request.outputFormat ?? "mp3_44100_128");
     const voice = mapProviderVoice(engine.listVoices(), voiceMap, voiceId);
-    return { synthReq: { text: request.text, voice, signal: options.signal }, format };
+    return { synthReq: { text: request.text, voice, signal: options.signal }, spec };
+  }
+
+  // Native 24 kHz raw PCM can stream chunk-by-chunk; resampled / MP3 output
+  // needs the whole utterance, so it is buffered then encoded.
+  const isNativePcm = (spec: OutputSpec): boolean =>
+    spec.codec === "pcm" && spec.rate === NATIVE_SAMPLE_RATE;
+
+  async function renderResponse(
+    synthReq: SynthesisRequest,
+    spec: OutputSpec,
+  ): Promise<Response> {
+    const headers = { "content-type": spec.contentType };
+    if (isNativePcm(spec)) return new Response(pcmStream(engine, synthReq), { headers });
+    const { samples } = await engine.synthesizeToPcm(synthReq);
+    return new Response(render(samples, spec), { headers });
   }
 
   return {
     async convert(voiceId, request, options = {}): Promise<Response> {
-      const { synthReq, format } = buildRequest(voiceId, request, options);
-      return new Response(pcmStream(engine, synthReq), {
-        headers: { "content-type": CONTENT_TYPE[format] },
-      });
+      const { synthReq, spec } = plan(voiceId, request, options);
+      return renderResponse(synthReq, spec);
     },
 
     stream(voiceId, request, options = {}): ReadableStream<Uint8Array> {
-      const { synthReq } = buildRequest(voiceId, request, options);
-      return pcmStream(engine, synthReq);
+      const { synthReq, spec } = plan(voiceId, request, options);
+      if (isNativePcm(spec)) return pcmStream(engine, synthReq);
+      return new ReadableStream<Uint8Array>({
+        async start(controller) {
+          try {
+            const { samples } = await engine.synthesizeToPcm(synthReq);
+            controller.enqueue(render(samples, spec));
+            controller.close();
+          } catch (err) {
+            controller.error(err);
+          }
+        },
+      });
     },
   };
 }

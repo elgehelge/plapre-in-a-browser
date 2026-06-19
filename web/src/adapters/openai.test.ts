@@ -28,10 +28,21 @@ function fakeEngine(pcm = new Float32Array([0.5, -0.5])) {
 }
 
 describe("createOpenAISpeech — output", () => {
-  it("returns a WAV Response by default", async () => {
-    const { engine } = fakeEngine();
+  it("returns an MP3 Response by default (matching OpenAI)", async () => {
+    const { engine } = fakeEngine(new Float32Array(2048).fill(0.2));
     const tts = createOpenAISpeech(engine);
     const res = await tts.create({ voice: "alloy", input: "Hej." });
+
+    expect(res.headers.get("content-type")).toBe("audio/mpeg");
+    const bytes = new Uint8Array(await res.arrayBuffer());
+    expect(bytes.length).toBeGreaterThan(0);
+    expect(bytes[0]).toBe(0xff); // MP3 frame sync
+  });
+
+  it("returns a WAV Response for response_format 'wav'", async () => {
+    const { engine } = fakeEngine();
+    const tts = createOpenAISpeech(engine);
+    const res = await tts.create({ voice: "alloy", input: "Hej.", response_format: "wav" });
 
     expect(res.headers.get("content-type")).toBe("audio/wav");
     const bytes = new Uint8Array(await res.arrayBuffer());
@@ -94,10 +105,10 @@ describe("createOpenAISpeech — rejected requests", () => {
     ).rejects.toBeInstanceOf(UnknownVoiceError);
   });
 
-  it("rejects unsupported formats", async () => {
+  it("rejects unsupported formats (opus/aac/flac)", async () => {
     const { engine } = fakeEngine();
     await expect(
-      createOpenAISpeech(engine).create({ voice: "alloy", input: "Hej.", response_format: "mp3" }),
+      createOpenAISpeech(engine).create({ voice: "alloy", input: "Hej.", response_format: "opus" }),
     ).rejects.toBeInstanceOf(UnsupportedFormatError);
   });
 

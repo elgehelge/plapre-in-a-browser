@@ -1,18 +1,31 @@
 // Audio serialization at the boundary: encode the engine's canonical mono
-// Float32 PCM (NATIVE_SAMPLE_RATE) into the byte formats adapters return.
+// Float32 PCM into the byte formats adapters return — raw 16-bit little-endian
+// PCM, a WAV container, and MP3 (via the pure-JS lamejs encoder, so it works in
+// the browser / a worker / an MV3 extension with no native deps).
 //
-// Only formats that need no extra dependency or resampling are supported here:
-// raw 16-bit little-endian PCM and a WAV container, both at the native rate.
-// Lossy/resampled formats (mp3, opus, aac, …) require an encoder and are an
-// explicit, typed gap — adapters surface them as UnsupportedFormatError.
+// Sample-rate conversion is NOT done here: callers pass already-resampled PCM
+// plus its rate (see audio/resample.ts). Formats still needing a heavier codec
+// (opus, aac, flac) are an explicit, typed gap — UnsupportedFormatError.
 
-export type AudioFormat = "pcm" | "wav";
+import { Mp3Encoder } from "@breezystack/lamejs";
+
+export type AudioFormat = "pcm" | "wav" | "mp3";
 
 export class UnsupportedFormatError extends Error {
   constructor(readonly format: string) {
     super(`Audio format "${format}" is not supported yet (needs an encoder/resampler)`);
     this.name = "UnsupportedFormatError";
   }
+}
+
+/** Quantize float samples to clamped 16-bit integers (host order). */
+function pcmToInt16(pcm: Float32Array): Int16Array {
+  const out = new Int16Array(pcm.length);
+  for (let i = 0; i < pcm.length; i++) {
+    const s = Math.max(-1, Math.min(1, pcm[i]));
+    out[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+  }
+  return out;
 }
 
 /** Quantize float samples to clamped 16-bit little-endian PCM bytes. */
@@ -24,6 +37,31 @@ export function pcmToInt16LE(pcm: Float32Array): Uint8Array<ArrayBuffer> {
     view.setInt16(i * 2, s < 0 ? s * 0x8000 : s * 0x7fff, true);
   }
   return bytes;
+}
+
+const MP3_BLOCK = 1152; // one MPEG frame's worth of samples
+
+/** Encode mono PCM to an MP3 byte stream at the given sample rate / bitrate. */
+export function encodeMp3(pcm: Float32Array, sampleRate: number, kbps = 128): Uint8Array<ArrayBuffer> {
+  const encoder = new Mp3Encoder(1, sampleRate, kbps);
+  const samples = pcmToInt16(pcm);
+  const parts: Uint8Array[] = [];
+  for (let i = 0; i < samples.length; i += MP3_BLOCK) {
+    const frame = encoder.encodeBuffer(samples.subarray(i, i + MP3_BLOCK));
+    if (frame.length > 0) parts.push(frame);
+  }
+  const tail = encoder.flush();
+  if (tail.length > 0) parts.push(tail);
+
+  let total = 0;
+  for (const p of parts) total += p.length;
+  const out = new Uint8Array(total);
+  let offset = 0;
+  for (const p of parts) {
+    out.set(p, offset);
+    offset += p.length;
+  }
+  return out;
 }
 
 /** Wrap 16-bit PCM in a canonical mono WAV container. */
@@ -62,5 +100,7 @@ export function encodeAudio(
       return pcmToInt16LE(pcm);
     case "wav":
       return encodeWav(pcm, sampleRate);
+    case "mp3":
+      return encodeMp3(pcm, sampleRate);
   }
 }

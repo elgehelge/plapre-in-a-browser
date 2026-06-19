@@ -110,15 +110,18 @@ Make the engine a plug-in replacement for the two common hosted TTS APIs (see
 adapter is a thin layer over the engine: request mapping, voice-id mapping, and
 a format encoder over the canonical 24 kHz PCM stream.
 
-- [x] PCM + WAV encoders (`web/src/audio/format.ts`); `pcm` / `pcm_24000` need
-      no resampling (native rate matches). `mp3`/`opus` and resampled rates still
-      raise `UnsupportedFormatError` (need a wasm encoder/resampler).
+- [x] PCM + WAV + **MP3** encoders (`web/src/audio/format.ts`); MP3 via the
+      pure-JS lamejs encoder (no native deps). Plus a Catmull-Rom **resampler**
+      (`web/src/audio/resample.ts`) for non-24 kHz output. `opus`/`aac`/`flac`
+      and `ulaw` remain `UnsupportedFormatError`.
 - [x] **OpenAI adapter** — `audio.speech.create({ input, voice, speed,
-      response_format })` shape, returning a web `Response`; `pcm` streams,
-      `wav` buffers.
+      response_format })` shape, returning a web `Response`. Defaults to `mp3`
+      (matching OpenAI); `mp3`/`wav` buffer, `pcm` streams.
 - [x] **ElevenLabs adapter** — `textToSpeech.convert/stream(voiceId, { text,
-      voice_settings, output_format })` shape; `voice_settings.speed != 1` is
-      rejected (pending time-stretch), other settings accepted but not applied.
+      voice_settings, output_format })` shape. Defaults to `mp3_44100_128`
+      (matching ElevenLabs); parses `mp3_<rate>_<kbps>` / `pcm_<rate>` and
+      resamples as needed. `voice_settings.speed != 1` is rejected (pending
+      time-stretch), other settings accepted but not applied.
 - [x] Voice-id mapping (provider voice names ↔ built-in Danish speakers),
       overridable, validated against the engine catalog.
 
@@ -175,7 +178,14 @@ they are not lost in commit messages:
 - [ ] **Cancellation granularity** — `AbortSignal` is forwarded to the model but
       not yet honored *inside* `PlapreLM.generate`; the Phase 1 decode loop
       should check it so long sentences can be interrupted mid-generation (today
-      the engine only aborts between sentences).
+      the engine/stream only abort between sentences). The stream→engine
+      cancellation wiring itself is done (`pcmStream` cancel handler).
+- [ ] **opus / aac / flac encoders** — OpenAI can request these; they need a
+      heavier (wasm) codec, so they currently raise `UnsupportedFormatError`.
+      mp3/wav/pcm cover both providers' defaults.
+- [ ] **Resampler quality** — `audio/resample.ts` is Catmull-Rom (not
+      band-limited). Fine for speech PoC; upgrade to windowed-sinc if 24→44.1 kHz
+      upsampling artifacts are audible.
 
 ## Open risks (validate early, cheap first)
 

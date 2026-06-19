@@ -82,8 +82,21 @@ ElevenLabs adapter maps Instant Voice Cloning onto it, OpenAI has no analogue.
 
 Each adapter is a thin mapping: translate the provider's request → `SynthesisRequest`,
 map the provider's voice id → an engine voice id, run the PCM stream through a
-format encoder, and shape the response like the provider's SDK. Encoding
-(`mp3`/`opus`/`wav`/`pcm`) is an adapter concern; PCM passes through unencoded.
+format encoder, and shape the response like the provider's SDK. Encoding is an
+adapter concern; PCM passes through unencoded.
+
+**Supported output formats** (each provider's *default* works out of the box):
+
+- OpenAI `response_format`: `mp3` (default), `wav`, `pcm`. `opus`/`aac`/`flac`
+  are a typed gap (`UnsupportedFormatError`) — they need a heavier codec.
+- ElevenLabs `output_format`: `mp3_{22050,44100}_{kbps}` (default
+  `mp3_44100_128`) and `pcm_{8000,16000,22050,24000,44100}`. Non-24 kHz rates are
+  produced by resampling the engine's 24 kHz PCM (`audio/resample.ts`, Catmull-Rom
+  — PoC-grade, swap for windowed-sinc if quality demands). `ulaw_*` is a gap.
+
+MP3 is encoded with the pure-JS lamejs encoder (no native deps; runs in the
+browser / a worker / an MV3 extension). Only native 24 kHz raw PCM streams
+chunk-by-chunk; resampled / MP3 output is buffered then encoded.
 
 ### Common mapping
 

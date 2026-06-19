@@ -31,14 +31,37 @@ async function bytesOf(stream: ReadableStream<Uint8Array>): Promise<Uint8Array> 
 }
 
 describe("createElevenLabsTextToSpeech — convert", () => {
-  it("returns raw 24 kHz PCM by default", async () => {
-    const { engine } = fakeEngine(new Float32Array([1, -1]));
+  it("returns MP3 by default (matching ElevenLabs' mp3_44100_128)", async () => {
+    const { engine } = fakeEngine(new Float32Array(2048).fill(0.2));
     const res = await createElevenLabsTextToSpeech(engine).convert("ida", { text: "Hej." });
+
+    expect(res.headers.get("content-type")).toBe("audio/mpeg");
+    const bytes = new Uint8Array(await res.arrayBuffer());
+    expect(bytes.length).toBeGreaterThan(0);
+    expect(bytes[0]).toBe(0xff); // MP3 frame sync
+  });
+
+  it("returns raw PCM for outputFormat 'pcm_24000'", async () => {
+    const { engine } = fakeEngine(new Float32Array([1, -1]));
+    const res = await createElevenLabsTextToSpeech(engine).convert("ida", {
+      text: "Hej.",
+      outputFormat: "pcm_24000",
+    });
 
     expect(res.headers.get("content-type")).toBe("audio/pcm");
     const view = new DataView(await res.arrayBuffer());
     expect(view.getInt16(0, true)).toBe(32767);
     expect(view.getInt16(2, true)).toBe(-32768);
+  });
+
+  it("resamples raw PCM to the requested rate", async () => {
+    const { engine } = fakeEngine(new Float32Array(2400).fill(0.1)); // 0.1 s @ 24 kHz
+    const res = await createElevenLabsTextToSpeech(engine).convert("ida", {
+      text: "Hej.",
+      outputFormat: "pcm_44100",
+    });
+    const samples = (await res.arrayBuffer()).byteLength / 2;
+    expect(samples).toBe(Math.round(2400 * (44100 / 24000))); // 4410
   });
 
   it("uses the voice id directly as the engine voice", async () => {
@@ -80,11 +103,22 @@ describe("createElevenLabsTextToSpeech — convert", () => {
 });
 
 describe("createElevenLabsTextToSpeech — stream", () => {
-  it("streams PCM bytes", async () => {
+  it("streams raw PCM bytes for pcm_24000", async () => {
     const { engine } = fakeEngine(new Float32Array([1, -1]));
-    const stream = createElevenLabsTextToSpeech(engine).stream("ida", { text: "Hej." });
+    const stream = createElevenLabsTextToSpeech(engine).stream("ida", {
+      text: "Hej.",
+      outputFormat: "pcm_24000",
+    });
     const bytes = await bytesOf(stream);
     expect(bytes.length).toBe(4); // 2 samples * 2 bytes
+  });
+
+  it("streams MP3 bytes by default", async () => {
+    const { engine } = fakeEngine(new Float32Array(2048).fill(0.2));
+    const stream = createElevenLabsTextToSpeech(engine).stream("ida", { text: "Hej." });
+    const bytes = await bytesOf(stream);
+    expect(bytes.length).toBeGreaterThan(0);
+    expect(bytes[0]).toBe(0xff);
   });
 
   it("validates eagerly: an unknown voice throws synchronously", () => {
@@ -103,13 +137,14 @@ describe("createElevenLabsTextToSpeech — rejected requests", () => {
     ).rejects.toBeInstanceOf(UnknownVoiceError);
   });
 
-  it("rejects unsupported output formats", async () => {
+  it("rejects unsupported output formats (codec or rate)", async () => {
     const { engine } = fakeEngine();
+    const tts = createElevenLabsTextToSpeech(engine);
     await expect(
-      createElevenLabsTextToSpeech(engine).convert("ida", {
-        text: "Hej.",
-        outputFormat: "mp3_44100_128",
-      }),
+      tts.convert("ida", { text: "Hej.", outputFormat: "ulaw_8000" }),
+    ).rejects.toBeInstanceOf(UnsupportedFormatError);
+    await expect(
+      tts.convert("ida", { text: "Hej.", outputFormat: "mp3_48000_128" }), // unsupported mp3 rate
     ).rejects.toBeInstanceOf(UnsupportedFormatError);
   });
 

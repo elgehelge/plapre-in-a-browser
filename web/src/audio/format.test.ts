@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { encodeAudio, encodeWav, pcmToInt16LE } from "./format.js";
+import { encodeAudio, encodeMp3, encodeWav, pcmToInt16LE } from "./format.js";
 
 const SAMPLE_RATE = 24000;
 
@@ -44,6 +44,17 @@ describe("encodeWav", () => {
   });
 });
 
+describe("encodeMp3", () => {
+  it("produces an MP3 stream starting with a frame sync", () => {
+    const pcm = new Float32Array(4096);
+    for (let i = 0; i < pcm.length; i++) pcm[i] = Math.sin((2 * Math.PI * 440 * i) / SAMPLE_RATE) * 0.5;
+    const mp3 = encodeMp3(pcm, SAMPLE_RATE);
+    expect(mp3.length).toBeGreaterThan(0);
+    expect(mp3[0]).toBe(0xff); // frame sync byte 1
+    expect(mp3[1] & 0xe0).toBe(0xe0); // frame sync byte 2 (top 3 bits set)
+  });
+});
+
 describe("encodeAudio", () => {
   const pcm = new Float32Array([0.1, -0.2, 0.3]);
 
@@ -53,5 +64,10 @@ describe("encodeAudio", () => {
 
   it("dispatches 'wav' to the WAV container", () => {
     expect(encodeAudio(pcm, SAMPLE_RATE, "wav")).toEqual(encodeWav(pcm, SAMPLE_RATE));
+  });
+
+  it("dispatches 'mp3' to the MP3 encoder", () => {
+    const big = new Float32Array(2048).fill(0.1);
+    expect(encodeAudio(big, SAMPLE_RATE, "mp3")).toEqual(encodeMp3(big, SAMPLE_RATE));
   });
 });

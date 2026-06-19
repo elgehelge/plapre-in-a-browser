@@ -26,7 +26,7 @@ async function byteLength(res: Response): Promise<number> {
 describe("OpenAI adapter over the real engine", () => {
   it("synthesizes each sentence and concatenates into one WAV", async () => {
     const tts = createOpenAISpeech(createEngine(model));
-    const res = await tts.create({ voice: "ida", input: "En. To. Tre." });
+    const res = await tts.create({ voice: "ida", input: "En. To. Tre.", response_format: "wav" });
     // 3 sentences * PER_SENTENCE samples * 2 bytes + 44-byte WAV header
     expect(await byteLength(res)).toBe(3 * PER_SENTENCE * 2 + 44);
   });
@@ -39,9 +39,19 @@ describe("OpenAI adapter over the real engine", () => {
 });
 
 describe("ElevenLabs adapter over the real engine", () => {
-  it("converts multi-sentence text to PCM", async () => {
+  it("converts multi-sentence text to raw PCM (pcm_24000)", async () => {
+    const tts = createElevenLabsTextToSpeech(createEngine(model));
+    const res = await tts.convert("ida", {
+      text: "En. To. Tre. Fire.",
+      outputFormat: "pcm_24000",
+    });
+    expect(await byteLength(res)).toBe(4 * PER_SENTENCE * 2);
+  });
+
+  it("converts multi-sentence text to MP3 by default", async () => {
     const tts = createElevenLabsTextToSpeech(createEngine(model));
     const res = await tts.convert("ida", { text: "En. To. Tre. Fire." });
-    expect(await byteLength(res)).toBe(4 * PER_SENTENCE * 2);
+    expect(res.headers.get("content-type")).toBe("audio/mpeg");
+    expect(await byteLength(res)).toBeGreaterThan(0);
   });
 });
