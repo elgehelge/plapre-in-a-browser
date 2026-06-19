@@ -115,9 +115,11 @@ npm test        # vitest: normalization, num2words, sampling, engine, adapters
 
 # Model conversion (Python; produces the ONNX files the web app needs)
 cd conversion
-python -m venv .venv && source .venv/bin/activate
+python3.13 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-# then follow conversion/README.md
+python export_kanade_decoder.py && python export_hift_vocoder.py && python gen_phase0_golden.py
+# then open web/phase0.html (and ?backend=webgpu) to verify in-browser parity.
+# Full recipe + what "slim"/"deterministic" mean: conversion/README.md
 ```
 
 ## License / attribution

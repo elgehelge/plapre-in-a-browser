@@ -39,18 +39,67 @@ python -m venv .venv && source .venv/bin/activate && pip install num2words
 .venv/bin/python gen_num2words_fixtures.py
 ```
 
-## Scripts (run in this order)
+## Scripts
 
-| Script                       | Produces                                   | Phase |
-| ---------------------------- | ------------------------------------------ | ----- |
-| `smoke_reference.py`         | golden token ids + mel + wav for a fixed sentence/speaker | 0 |
-| `export_kanade_decoder.py`   | `kanade_decoder.onnx`                       | 0 |
-| `export_hift_vocoder.py`     | `hift_vocoder.onnx`                         | 0 |
-| `precompute_speakers.py`     | `speakers.json` (raw 128-dim + projected hidden) | 1 |
-| `export_lm.py`               | `lm.onnx` (+ external data)                 | 1 |
+**Working today — Phase 0** (no credentials; the Kanade repo is public). Outputs
+go to `../web/public/models/` (all git-ignored):
 
-Outputs are written to `../web/public/models/` by default; golden fixtures to
-`./golden/`.
+| Script                      | Produces                                                    |
+| --------------------------- | ----------------------------------------------------------- |
+| `export_kanade_decoder.py`  | `kanade_decoder.onnx` (+ `.onnx.data`) — slim decode-only   |
+| `export_hift_vocoder.py`    | `hift_vocoder.onnx` (+ `.onnx.data`)                        |
+| `gen_phase0_golden.py`      | `phase0_golden.json` — golden mel + wav for the browser gate |
+| `hift_onnx.py`              | nothing; `python hift_onnx.py` self-tests the real (i)STFT  |
+| `gen_num2words_fixtures.py` | `../web/src/pipeline/__fixtures__/num2words-da.json`        |
+
+**Scaffolds — Phase 1** (LM port; gated repos). Intended structure + the exact
+upstream calls to wrap, not yet runnable end-to-end:
+
+| Script                   | Will produce                                     |
+| ------------------------ | ------------------------------------------------ |
+| `smoke_reference.py`     | golden token ids for a fixed sentence/speaker    |
+| `precompute_speakers.py` | `speakers.json` (raw 128-dim + projected hidden) |
+| `export_lm.py`           | `lm/model.onnx` (+ external data)                |
+
+## Reproduce the Phase 0 gate end-to-end
+
+From `conversion/` with the venv active:
+
+```bash
+# 1. Export both models. Each self-checks ORT-CPU parity vs PyTorch and refuses
+#    to write a graph that drifts past tolerance (so a green run == a good graph).
+python export_kanade_decoder.py   # slim decode-only wrapper; ~1e-5 mel parity
+python export_hift_vocoder.py     # real-valued (i)STFT rewrite; ~1e-6 wav parity
+
+# 2. Produce the golden mel+wav from the SAME wrappers, on fixed inputs.
+python gen_phase0_golden.py
+```
+
+What "slim" / "deterministic" mean here (both happen inside
+`export_kanade_decoder.py`, see its module docstring + `_disable_attention_dropout`):
+
+- **Slim:** we export a wrapper holding only the decode submodules (quantizer +
+  mel prenet/upsample/decoder/postnet), not the whole `KanadeModel`, so the WavLM
+  SSL encoder is excluded by construction. (The dynamo exporter also tree-shakes
+  it; the wrapper makes the boundary explicit. The remaining ~365 MB is the
+  genuine decode path — see size note above.)
+- **Deterministic:** we zero the upstream inference-time attention dropout, so
+  the exported graph and the golden are reproducible.
+
+Then verify in a **real browser** (from `../web`):
+
+```bash
+npm install
+npm run dev                        # serves http://localhost:5173
+# open http://localhost:5173/phase0.html                 (WASM)
+#  and http://localhost:5173/phase0.html?backend=webgpu   (WebGPU)
+```
+
+`phase0.html` loads both ONNX models via onnxruntime-web, runs decoder → vocoder
+on the golden inputs, and prints mel/wav `max|diff|` vs the golden (also on
+`window.__phase0`). Expected: both backends PASS (mel ≈ 1e-5, wav ≈ 1e-7). See
+`docs/PLAN.md` for the recorded numbers and the WebGPU `SkipLayerNormalization`
+caveat (`ort.ts` uses `graphOptimizationLevel: "basic"` on WebGPU to avoid it).
 
 ## Phase 0 gate findings (2026-06)
 
