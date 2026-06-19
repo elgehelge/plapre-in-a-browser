@@ -128,9 +128,9 @@ they are not lost in commit messages:
       resample would change pitch. Needed to map OpenAI `speed` and ElevenLabs
       `voice_settings.speed`. `docs/INTERFACE.md` still lists `rate` as the
       target shape.
-- [ ] **Inter-sentence silence** — the reference inserts `silence_duration`
-      between sentences when splitting; the engine currently emits contiguous
-      chunks.
+- [x] **Inter-sentence silence** — opt-in via
+      `EngineOptions.interSentenceSilenceSec` (default 0 = contiguous); the gap is
+      inserted only between audio chunks, never leading or trailing.
 - [ ] **Cancellation granularity** — `AbortSignal` is forwarded to the model but
       not yet honored *inside* `PlapreLM.generate`; the Phase 1 decode loop
       should check it so long sentences can be interrupted mid-generation (today

@@ -92,6 +92,29 @@ describe("createEngine — buffered", () => {
   });
 });
 
+describe("createEngine — inter-sentence silence", () => {
+  it("inserts silence between sentences but not before the first or after the last", async () => {
+    const engine = createEngine(new FakeSpeechModel(() => second(1)), {
+      interSentenceSilenceSec: 0.5,
+    });
+    const chunks = await collect(engine.synthesize({ text: "En. To. Tre.", voice: "ida" }));
+    const half = NATIVE_SAMPLE_RATE / 2;
+
+    expect(chunks).toHaveLength(3);
+    expect(chunks[0].samples.length).toBe(NATIVE_SAMPLE_RATE); // no leading silence
+    expect(chunks[1].samples.length).toBe(half + NATIVE_SAMPLE_RATE); // gap prepended
+    expect(chunks[2].samples.length).toBe(half + NATIVE_SAMPLE_RATE);
+    // start times account for the inserted gaps
+    expect(chunks.map((c) => c.startSec)).toEqual([0, 1, 2.5]);
+  });
+
+  it("defaults to no silence (contiguous chunks)", async () => {
+    const engine = createEngine(new FakeSpeechModel(() => second(1)));
+    const chunks = await collect(engine.synthesize({ text: "En. To.", voice: "ida" }));
+    expect(chunks.every((c) => c.samples.length === NATIVE_SAMPLE_RATE)).toBe(true);
+  });
+});
+
 describe("createEngine — generation options", () => {
   it("merges request generation over engine defaults", async () => {
     const model = new FakeSpeechModel(() => second(1));

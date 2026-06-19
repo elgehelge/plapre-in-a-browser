@@ -49,16 +49,22 @@ export const DEFAULT_GENERATION: GenerateOptions = {
 
 export interface EngineOptions {
   readonly generation?: Partial<GenerateOptions>;
+  /** Silence inserted between sentences (seconds). Default 0 (contiguous). */
+  readonly interSentenceSilenceSec?: number;
 }
 
 export function createEngine(model: SpeechModel, options: EngineOptions = {}): Engine {
   const baseGeneration: GenerateOptions = { ...DEFAULT_GENERATION, ...options.generation };
+  const silence = new Float32Array(
+    Math.max(0, Math.round((options.interSentenceSilenceSec ?? 0) * NATIVE_SAMPLE_RATE)),
+  );
 
   async function* synthesize(request: SynthesisRequest): AsyncIterable<PcmChunk> {
     const voice = resolveVoice(model.voices(), request.voice);
     const generation: GenerateOptions = { ...baseGeneration, ...request.generation };
 
     let startSec = 0;
+    let emitted = false;
     for (const sentence of splitSentences(request.text)) {
       request.signal?.throwIfAborted();
       const samples = await model.synthesizeSentence({
@@ -68,8 +74,11 @@ export function createEngine(model: SpeechModel, options: EngineOptions = {}): E
         signal: request.signal,
       });
       if (samples.length === 0) continue; // a sentence may yield no audio tokens
-      yield { samples, sampleRate: NATIVE_SAMPLE_RATE, startSec };
-      startSec += samples.length / NATIVE_SAMPLE_RATE;
+      // Insert the gap only *between* audio chunks, never leading or trailing.
+      const chunk = emitted && silence.length > 0 ? concat([silence, samples]) : samples;
+      yield { samples: chunk, sampleRate: NATIVE_SAMPLE_RATE, startSec };
+      startSec += chunk.length / NATIVE_SAMPLE_RATE;
+      emitted = true;
     }
   }
 
