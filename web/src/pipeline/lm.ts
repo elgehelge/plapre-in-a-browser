@@ -64,6 +64,8 @@ interface LmMeta {
   kvHeads: number;
   headDim: number;
   hidden: number;
+  /** External-data sidecar filename, if the export split one out (>2 GB). */
+  externalData?: string;
 }
 
 /** The slice of the tokenizer the decode loop needs (PlapreTokenizer satisfies it). */
@@ -157,7 +159,7 @@ export class OrtLmGraph implements LmGraph {
     const metaRes = await fetch(metaUrl);
     if (!metaRes.ok) throw onMissingMeta();
     const meta = (await metaRes.json()) as LmMeta;
-    const session = await createSession(modelUrl, backend);
+    const session = await createSession(modelUrl, backend, { dataFile: meta.externalData });
     const layers = Array.from({ length: meta.numLayers }, (_, i) => i);
     return new OrtLmGraph(session, meta, layers);
   }

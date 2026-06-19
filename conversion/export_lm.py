@@ -131,9 +131,14 @@ def main() -> None:
         dynamo=False,
     )
 
-    (OUT_DIR / "meta.json").write_text(
-        json.dumps({"numLayers": layers, "kvHeads": kv_heads, "headDim": head_dim, "hidden": hidden})
-    )
+    # torch.onnx writes external data next to the model only when tensors exceed
+    # the protobuf 2 GB limit; record the sidecar name so the runtime can mount
+    # it (ORT-Web needs it explicitly). Pico usually stays inline.
+    sidecar = out_path.name + ".data"
+    meta = {"numLayers": layers, "kvHeads": kv_heads, "headDim": head_dim, "hidden": hidden}
+    if (OUT_DIR / sidecar).exists():
+        meta["externalData"] = sidecar
+    (OUT_DIR / "meta.json").write_text(json.dumps(meta))
     print(f"exported LM -> {out_path}")
     print(f"meta: layers={layers} kvHeads={kv_heads} headDim={head_dim} hidden={hidden}")
     print("NOTE: copy tokenizer.json from the repo via fetch_tokenizer.py; then run smoke_reference.py.")

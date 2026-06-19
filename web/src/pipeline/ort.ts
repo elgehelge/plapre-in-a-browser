@@ -31,19 +31,36 @@ export async function pickBackend(preferred: Backend = "webgpu"): Promise<Backen
   return "wasm";
 }
 
+export interface SessionConfig {
+  /**
+   * Filename of the external-data sidecar (e.g. "kanade_decoder.onnx.data"),
+   * relative to the model URL. Required for models exported with external data
+   * (>2 GB tensors, or any model torch/optimum split): ORT-Web cannot fetch it
+   * implicitly — it must be mounted via `externalData`. The `path` must match
+   * the location string baked into the .onnx (the bare filename here).
+   */
+  dataFile?: string;
+}
+
 export async function createSession(
   modelUrl: string,
   backend: Backend,
+  config: SessionConfig = {},
 ): Promise<ort.InferenceSession> {
   configureOrt();
-  return ort.InferenceSession.create(modelUrl, {
+  const options: ort.InferenceSession.SessionOptions = {
     executionProviders: [backend],
     // WebGPU EP: the extended-fusion pass produces a SkipLayerNormalization
     // kernel that rejects our LayerNorm bias ("Beta must be 1D"). "basic" keeps
     // cheap optimizations and skips that fusion; it was also fastest in the
     // Phase 0 gate. WASM has no such issue and runs "all".
     graphOptimizationLevel: backend === "webgpu" ? "basic" : "all",
-  });
+  };
+  if (config.dataFile) {
+    const base = modelUrl.slice(0, modelUrl.lastIndexOf("/") + 1);
+    options.externalData = [{ data: `${base}${config.dataFile}`, path: config.dataFile }];
+  }
+  return ort.InferenceSession.create(modelUrl, options);
 }
 
 export { ort };

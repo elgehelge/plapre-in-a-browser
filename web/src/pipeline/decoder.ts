@@ -22,7 +22,9 @@ export class KanadeDecoder {
     audioTokenEnd: number,
     backend: Backend,
   ): Promise<KanadeDecoder> {
-    const session = await createSession(artifactUrl("kanadeDecoder"), backend);
+    const session = await createSession(artifactUrl("kanadeDecoder"), backend, {
+      dataFile: "kanade_decoder.onnx.data",
+    });
     return new KanadeDecoder(session, audioTokenStart, audioTokenEnd);
   }
 

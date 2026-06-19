@@ -12,7 +12,9 @@ export class HiftVocoder {
   private constructor(private readonly session: ort.InferenceSession) {}
 
   static async load(backend: Backend): Promise<HiftVocoder> {
-    const session = await createSession(artifactUrl("vocoder"), backend);
+    const session = await createSession(artifactUrl("vocoder"), backend, {
+      dataFile: "hift_vocoder.onnx.data",
+    });
     return new HiftVocoder(session);
   }
 

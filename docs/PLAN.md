@@ -161,9 +161,37 @@ a format encoder over the canonical 24 kHz PCM stream.
 
 ## Phase 4 — Validate
 
-- [ ] Real-time factor on WebGPU vs WASM (Pico, then Nano).
-- [ ] Quality A/B vs reference Python output.
-- [ ] Memory footprint.
+A reusable benchmark harness (`web/bench.html` + `src/bench.ts`) measures load
+time, per-iteration latency, and real-time factor (RTF = audio seconds / wall
+seconds) for whatever stages are present, on a selectable backend. It skips the
+gated LM until its artifacts land.
+
+- [x] **Real-time factor (Stage 3 + clone), measured in-browser** for 50 audio
+      tokens → ~2 s of audio, 8 iters, on this machine (Apple GPU):
+
+      | stage                    | WASM mean | WebGPU mean |
+      | ------------------------ | --------- | ----------- |
+      | decoder                  | 86 ms     | 30 ms       |
+      | vocoder                  | 514 ms    | 77 ms       |
+      | decoder+vocoder (chain)  | 600 ms    | 107 ms      |
+      | **chain RTF**            | **3.3×**  | **18.6×**   |
+      | clone encoder (2 s ref)  | 122 ms    | 35 ms       |
+
+      Stage 3 is comfortably faster than real time on both backends; WebGPU is
+      ~5–6× faster. The vocoder dominates on WASM.
+- [ ] **LM + full-pipeline RTF** — blocked on the gated LM weights. The decode
+      loop is O(tokens) sequential ORT calls (~25 tokens/s of audio); whether
+      Pico hits real time on WASM is the remaining open RTF question (WebGPU is
+      expected to). Re-run `bench.html` once `lm/model.onnx` is exported; the
+      harness already structures the LM slot.
+- [x] **Memory footprint** (artifact sizes, the dominant cost): decoder
+      ≈ 367 MB (1.6 MB graph + 365 MB external data), vocoder ≈ 85 MB, clone
+      encoder 174 MB (WavLM), toy LM 50 KB. Pico LM fp32 lands next to these once
+      exported (q8 ≈ 121 MB per upstream). Measured JS heap during Stage-3 bench
+      ≈ 190 MB. WebGPU also holds weights in GPU memory.
+- [ ] **Quality A/B vs reference Python output** — blocked on the gated LM. The
+      oracle is ready: `conversion/smoke_reference.py` writes `reference.wav` +
+      golden token ids; compare the browser output once authenticated.
 
 ## Phase 5 — Voice cloning
 
