@@ -5,8 +5,9 @@
 // against local, server-free synthesis. See docs/INTERFACE.md.
 
 import type { Engine, SynthesisRequest } from "../engine/engine.js";
-import { type AudioFormat, encodeAudio, pcmToInt16LE, UnsupportedFormatError } from "../audio/format.js";
+import { type AudioFormat, encodeAudio, UnsupportedFormatError } from "../audio/format.js";
 import { mapProviderVoice, type VoiceMap } from "./voice-map.js";
+import { pcmStream } from "./stream.js";
 import { UnsupportedSpeedError } from "./errors.js";
 
 // OpenAI voice names mapped onto the built-in Danish speakers. Override per
@@ -73,20 +74,4 @@ export function createOpenAISpeech(engine: Engine, options: OpenAISpeechOptions 
       return new Response(encodeAudio(samples, sampleRate, format), { headers });
     },
   };
-}
-
-/** Stream raw 16-bit PCM chunk-by-chunk as the engine produces them. */
-function pcmStream(engine: Engine, req: SynthesisRequest): ReadableStream<Uint8Array> {
-  return new ReadableStream<Uint8Array>({
-    async start(controller) {
-      try {
-        for await (const chunk of engine.synthesize(req)) {
-          controller.enqueue(pcmToInt16LE(chunk.samples));
-        }
-        controller.close();
-      } catch (err) {
-        controller.error(err);
-      }
-    },
-  });
 }
