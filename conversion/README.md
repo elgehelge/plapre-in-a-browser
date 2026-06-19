@@ -13,8 +13,26 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-The upstream HF repos (`syvai/plapre-*`) are **gated** — accept the conditions on
-Hugging Face and `huggingface-cli login` before running.
+### Hugging Face access (checked 2026-06)
+
+| Repo                            | Used by                         | Access        |
+| ------------------------------- | ------------------------------- | ------------- |
+| `frothywater/kanade-25hz-clean` | decoder + vocoder (**Phase 0**) | **public**    |
+| `syvai/plapre-pico` / `-nano`   | LM, `speaker_proj.pt`, `speakers.json` (**Phase 1**) | **gated** (`gated: auto`) |
+
+So **Phase 0 (vocoder/decoder de-risk) needs no credentials** — the Kanade repo
+is public. Phase 1 (LM export + speaker precompute) is gated: accept the
+conditions on Hugging Face and `huggingface-cli login` first.
+
+### num2words parity tooling (no model downloads)
+
+`gen_num2words_fixtures.py` only needs `num2words`; it regenerates the golden
+fixture the web `num2words-da` parity test asserts against:
+
+```bash
+python -m venv .venv && source .venv/bin/activate && pip install num2words
+.venv/bin/python gen_num2words_fixtures.py
+```
 
 ## Scripts (run in this order)
 
