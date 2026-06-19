@@ -19,30 +19,35 @@ must change — so prove it before investing in the LM port.
       **TorchDynamo exporter** (`dynamo=True`, needs `onnxscript`) decomposes it
       into real ops and exports cleanly. **ORT-CPU mel parity vs PyTorch
       max|diff| ≈ 0.008 (PASS).**
-- [ ] Export **HiFT vocoder** to ONNX — **BLOCKED.** `HiFTGenerator` runs its
-      source signal + synthesis through `torch.stft`/`torch.istft` on complex
-      tensors. Neither exporter supports `aten::istft`/`aten::complex` (dynamo:
-      "Failed to decompose the FX graph"). The Vocos variant has the same
-      `torch.istft` blocker, so it is **not** a fallback. **Remediation:**
-      re-implement the (tiny: n_fft=16, hop=4) STFT/iSTFT with real-valued DFT
-      matmul + ConvTranspose1d overlap-add, and make the sine source
-      deterministic (drop the `torch.rand` phase init). See the
-      `export_hift_vocoder.py` docstring for the concrete recipe.
+- [x] Export **HiFT vocoder** to ONNX (`conversion/export_hift_vocoder.py` +
+      `conversion/hift_onnx.py`). Stock `HiFTGenerator` is unexportable: it runs
+      its source + synthesis through `torch.stft`/`torch.istft` on complex
+      tensors (no `aten::istft`/`aten::complex` ONNX op; Vocos has the same
+      blocker, so it is **not** a fallback), and its sine source uses
+      `torch.rand`/`torch.randn`. **Fix:** `hift_onnx.patch_vocoder_for_onnx`
+      swaps in **real-valued (i)STFT** (the transforms are tiny: n_fft=16,
+      hop=4 — DFT matmul + ConvTranspose1d overlap-add; matches `torch.istft` to
+      ~1e-8) and a **deterministic source** (zeroed phase init + noise). Also
+      bypasses the `@torch.inference_mode()` `inference()` (replicating its body)
+      and feeds a normal-tensor mel. **ORT-CPU wav parity vs PyTorch
+      max|diff| ≈ 8.6e-7 (PASS).**
 - [ ] Produce golden fixtures (`conversion/smoke_reference.py`): for a fixed
       sentence + built-in speaker, dump the generated audio-token ids, the
       decoder mel, and the final 24 kHz wav.
 - [ ] In the web app, load decoder + vocoder, feed the golden audio-token ids,
       and reproduce the golden wav within tolerance. Test **WebGPU and WASM**.
 
-**Open follow-up (decoder size):** the dynamo export embeds the full
-`KanadeModel` weights (~365 MB `.onnx.data`, includes the unused WavLM encoder).
-Export only the decode submodules (quantizer + mel decoder + postnet) to shrink
-the browser download before Phase 1.
+**Open follow-up (export sizes):** the dynamo decoder export embeds the full
+`KanadeModel` (~365 MB `.onnx.data`, includes the unused WavLM encoder); the
+vocoder export is ~83 MB. Export only the decode submodules (quantizer + mel
+decoder + postnet) — and trim any unused vocoder params — to shrink the browser
+download before Phase 1.
 
 **Success criterion:** golden sentence decodes to correct-sounding audio in the
 browser on both backends.
-**Status:** decoder clears the ONNX gate; vocoder needs the real-valued (i)STFT
-rewrite before the browser step can run end-to-end.
+**Status:** both stages clear the ONNX/ORT-CPU gate (decoder via the dynamo
+exporter; vocoder via the real-valued (i)STFT rewrite). Remaining: the in-browser
+wasm/webgpu verification.
 
 ## Phase 1 — Port the LM generation
 
@@ -159,10 +164,9 @@ they are not lost in commit messages:
 ## Open risks (validate early, cheap first)
 
 1. **Vocoder ONNX/ORT-Web op support** — the make-or-break item (Phase 0).
-   PARTIALLY RESOLVED: the decoder clears the gate (dynamo export, ORT-CPU
-   parity ≈ 0.008). The HiFT vocoder is blocked on `torch.istft`/`complex` and
-   needs a real-valued (i)STFT rewrite (n_fft=16, hop=4) — tractable but not yet
-   done; in-browser wasm/webgpu verification still pending.
+   RESOLVED at the ONNX/ORT-CPU level: decoder via the dynamo exporter (parity
+   ≈ 0.008); HiFT vocoder via the real-valued (i)STFT rewrite in `hift_onnx.py`
+   (parity ≈ 9e-7). Still to confirm: in-browser wasm/webgpu execution.
 2. **`inputs_embeds` generation** on the chosen runtime — folding the speaker
    vector into a precomputed hidden avoids needing a separate projection op.
 3. **Pico-on-WASM real-time factor** — decides whether WebGPU is mandatory.

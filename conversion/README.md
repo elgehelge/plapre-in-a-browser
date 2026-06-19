@@ -58,19 +58,19 @@ Outputs are written to `../web/public/models/` by default; golden fixtures to
   self-checks ORT-CPU mel parity vs PyTorch (max|diff| ≈ 0.008). Writes
   `kanade_decoder.onnx` (+ a large `.onnx.data`; see size follow-up below).
   The legacy exporter fails here on the transformer's complex-tensor RoPE.
-- **`export_hift_vocoder.py` — blocked.** The HiFT vocoder uses
-  `torch.stft`/`torch.istft` on complex tensors, which no ONNX exporter
-  supports. The script documents the real-valued (i)STFT remediation (the
-  transforms are tiny: n_fft=16, hop=4) and refuses to emit a broken graph.
-  Vocos has the same `torch.istft` blocker, so it is not a fallback.
-- **Size follow-up:** the decoder export currently embeds the whole
-  `KanadeModel` (~365 MB, includes the unused WavLM encoder). Export only the
-  decode submodules before shipping to the browser.
+- **`export_hift_vocoder.py` — works** (via `hift_onnx.py`). Stock HiFT uses
+  `torch.stft`/`torch.istft` on complex tensors (no ONNX op; Vocos has the same
+  blocker) and a `torch.rand`/`torch.randn` sine source.
+  `hift_onnx.patch_vocoder_for_onnx` swaps in real-valued (i)STFT (n_fft=16,
+  hop=4; matches `torch.istft` to ~1e-8) and a deterministic source. ORT-CPU
+  wav parity vs PyTorch ≈ 9e-7. `python hift_onnx.py` self-tests the transforms.
+- **Size follow-up:** the decoder export embeds the whole `KanadeModel`
+  (~365 MB, includes the unused WavLM encoder); the vocoder is ~83 MB. Export
+  only the decode submodules before shipping to the browser.
 
 ## Status
 
 Remaining scripts (`smoke_reference.py`, `precompute_speakers.py`,
 `export_lm.py`) are **scaffolds** with the intended structure and the exact
 upstream calls to wrap (traced from `plapre/inference.py`). Phase 0 next step:
-implement the real-valued (i)STFT HiFT subclass, then run the in-browser
-wasm/webgpu verification.
+the in-browser wasm/webgpu verification of the exported decoder + vocoder.

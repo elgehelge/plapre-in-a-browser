@@ -1,62 +1,108 @@
 """Phase 0 (gate): export the HiFT vocoder to ONNX.
 
-mel-spectrogram -> 24 kHz waveform.
+mel-spectrogram (1, 80, T) -> 24 kHz waveform (1, samples).
 
-================================ GATE FINDING ================================
-This is the make-or-break export, and as of 2026-06 it DOES NOT export as-is.
+This was the make-or-break export. Stock `HiFTGenerator` cannot be exported:
+its source signal + synthesis run through `torch.stft`/`torch.istft` on complex
+tensors (no ONNX op), and the sine source uses `torch.rand`/`torch.randn`
+(nondeterministic). `hift_onnx.patch_vocoder_for_onnx` swaps in real-valued
+(i)STFT (the transforms are tiny: n_fft=16, hop=4) and a deterministic source;
+the real (i)STFT matches `torch.istft` to ~1e-8 (see `hift_onnx.self_test`).
 
-HiFTGenerator (kanade_tokenizer/module/hift.py) runs its harmonic source signal
-and final synthesis through torch.stft / torch.istft on complex tensors:
-
-    _stft:   torch.stft(..., return_complex=True) -> torch.view_as_real
-    _istft:  torch.complex(real, img) -> torch.istft(...)
-
-Both the legacy and the TorchDynamo ONNX exporters reject this:
-  - legacy (dynamo=False): aten::istft / aten::complex have no ONNX symbolic.
-  - dynamo=True:           "Failed to decompose the FX graph" (no decomposition
-                           for aten.istft).
-
-Switching to the `kanade-25hz` (Vocos) variant does NOT help: Vocos's ISTFTHead
-uses torch.istft too. The blocker is the (i)STFT/complex math, not HiFT itself.
-
-============================== REMEDIATION PLAN =============================
-The transforms are TINY: istft_n_fft=16, istft_hop_len=4. So replace the
-complex (i)STFT with real-valued, ONNX/ORT-Web-friendly ops on a HiFT subclass
-that keeps the trained weights:
-
-  STFT(x):   frame x (Unfold, win=16, hop=4) -> apply Hann window
-             -> matmul with precomputed real DFT cos/sin basis (16x9 each)
-             -> (real, imag)                                  # no complex dtype
-  ISTFT:     real,imag from magnitude*cos(phase), magnitude*sin(phase)
-             -> matmul with inverse DFT basis -> window -> overlap-add
-                via ConvTranspose1d -> divide by window-overlap envelope
-  source:    SourceModuleHnNSF2 seeds sine phase with torch.rand (RNG). Make it
-             deterministic (fixed/zero phase) so the graph has no RandomUniform
-             and outputs are reproducible.
-
-Validate the patched vocoder in-process against the stock `torch.istft` path
-(same mel in, compare waveforms within tolerance) before exporting, then re-run
-the dynamo export and check ORT-CPU parity like the decoder script does.
-
-NOTE: not yet implemented. This script currently documents the blocker and
-fails loudly rather than emitting a broken graph.
+Two more export gotchas, handled here:
+  * `HiFTGenerator.inference` is wrapped in `@torch.inference_mode()`, whose
+    tensors cannot be traced by `torch.export`. We replicate its body in the
+    wrapper instead (note: `inference` does NOT transpose the mel, unlike
+    `forward`).
+  * The example mel must be a *normal* tensor; a mel straight out of
+    `kanade.decode` is an inference-mode tensor and breaks `torch.export`.
 """
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
+import numpy as np
+import torch
+
+import hift_onnx
+
+REPO = "frothywater/kanade-25hz-clean"
 OUT = Path(__file__).parent.parent / "web" / "public" / "models" / "hift_vocoder.onnx"
+N_MELS = 80
+SEED = 1234
+# Tolerance on a *realistic* (decoder-produced) mel. Random mels blow up through
+# the conv_post exp() and aren't a fair conditioning test.
+WAV_ATOL = 1e-3
+
+
+class VocoderWrapper(torch.nn.Module):
+    """HiFTGenerator.inference() body without the @inference_mode() decorator."""
+
+    def __init__(self, vocoder: torch.nn.Module) -> None:
+        super().__init__()
+        self.v = vocoder
+
+    def forward(self, mel: torch.Tensor) -> torch.Tensor:  # (1, n_mels, T) -> (1, samples)
+        v = self.v
+        f0 = v.f0_predictor(mel)
+        source = v.f0_upsamp(f0[:, None]).transpose(1, 2)
+        source, _, _ = v.m_source(source)
+        source = source.transpose(1, 2)
+        return v.decode(x=mel, s=source)
+
+
+def _representative_mel() -> torch.Tensor:
+    """A realistic, well-conditioned mel from the Kanade decoder, as a *normal*
+    tensor (kanade.decode returns inference-mode tensors that break export)."""
+    from kanade_tokenizer import KanadeModel
+
+    kanade = KanadeModel.from_pretrained(REPO).eval()
+    tokens = torch.randint(0, 100, (50,), dtype=torch.long)
+    emb = torch.randn(128)
+    with torch.no_grad():
+        mel = kanade.decode(global_embedding=emb, content_token_indices=tokens)
+    return torch.from_numpy(mel.unsqueeze(0).cpu().numpy())
 
 
 def main() -> None:
-    sys.stderr.write(
-        "export_hift_vocoder: BLOCKED on torch.stft/istft/complex (see module "
-        "docstring). Implement the real-valued (i)STFT HiFT subclass before "
-        "exporting; refusing to emit a broken graph.\n"
+    from kanade_tokenizer import load_vocoder
+
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    torch.manual_seed(SEED)
+
+    vocoder = hift_onnx.patch_vocoder_for_onnx(load_vocoder("hift").eval())
+    wrapper = VocoderWrapper(vocoder).eval()
+
+    mel = _representative_mel()
+
+    with torch.no_grad():
+        reference_wav = wrapper(mel).cpu().numpy()
+
+    torch.onnx.export(
+        wrapper,
+        (mel,),
+        str(OUT),
+        input_names=["mel"],
+        output_names=["wav"],
+        dynamic_axes={"mel": {2: "frames"}, "wav": {1: "samples"}},
+        dynamo=True,
     )
-    raise SystemExit(2)
+    print(f"Exported HiFT vocoder -> {OUT}")
+
+    _validate_cpu(mel.numpy(), reference_wav)
+
+
+def _validate_cpu(mel: np.ndarray, reference_wav: np.ndarray) -> None:
+    import onnxruntime as ort
+
+    sess = ort.InferenceSession(str(OUT), providers=["CPUExecutionProvider"])
+    out = sess.run(["wav"], {"mel": mel})[0]
+    max_diff = float(np.abs(out - reference_wav).max())
+    status = "OK" if max_diff <= WAV_ATOL else "FAIL"
+    print(f"ORT-CPU wav parity: shape={out.shape} max|diff|={max_diff:.4g} [{status}]")
+    if max_diff > WAV_ATOL:
+        raise SystemExit(f"vocoder parity exceeded tolerance {WAV_ATOL}")
 
 
 if __name__ == "__main__":
