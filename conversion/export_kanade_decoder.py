@@ -31,24 +31,69 @@ REPO = "frothywater/kanade-25hz-clean"
 OUT = Path(__file__).parent.parent / "web" / "public" / "models" / "kanade_decoder.onnx"
 SPEAKER_DIM = 128
 SEED = 1234
-# Parity tolerance on the mel. Empirically ~0.011; 0.05 leaves margin for
-# different ORT builds without masking a real regression.
-MEL_ATOL = 5e-2
+# With attention dropout disabled (see _disable_attention_dropout) decode is
+# deterministic, so ORT-CPU should match torch to float32 noise.
+MEL_ATOL = 1e-3
+
+
+def _disable_attention_dropout(module: torch.nn.Module) -> int:
+    """Zero attention dropout for inference.
+
+    Upstream bug: kanade_tokenizer's non-flash attention path
+    (module/transformer.py) calls
+    `F.scaled_dot_product_attention(..., dropout_p=self.dropout)` WITHOUT the
+    `if self.training` guard the flash path has. On CPU (no FlashAttention) this
+    applies dropout at inference — making decode nondeterministic and slightly
+    degraded. Setting `.dropout = 0` on the Attention modules fixes both.
+    """
+    patched = 0
+    for m in module.modules():
+        if type(m).__name__ == "Attention" and hasattr(m, "dropout"):
+            m.dropout = 0.0
+            patched += 1
+    return patched
 
 
 class DecoderWrapper(torch.nn.Module):
+    """Decode-only path: content-token indices + speaker emb -> mel.
+
+    Holds ONLY the decode submodules (quantizer + mel prenet/upsample/decoder/
+    postnet) — NOT the WavLM SSL encoder — so the export stays small. Replicates
+    KanadeModel.decode -> forward_mel; the only thing the full model needs the
+    SSL encoder for on this path is integer length math, and that reduces to
+    mel_length = downsample_factor * seq_len = 2 * seq_len (verified exact across
+    lengths).
+    """
+
     def __init__(self, kanade: torch.nn.Module) -> None:
         super().__init__()
-        self.k = kanade
+        self.local_quantizer = kanade.local_quantizer
+        self.mel_prenet = kanade.mel_prenet
+        self.mel_conv_upsample = kanade.mel_conv_upsample
+        self.mel_decoder = kanade.mel_decoder
+        self.mel_postnet = kanade.mel_postnet
+        self.interp_mode = kanade.config.mel_interpolation_mode
+        self.upsample = kanade.downsample_factor
 
     def forward(
         self, content_token_indices: torch.Tensor, global_embedding: torch.Tensor
     ) -> torch.Tensor:
         # (seq_len,), (128,) -> (n_mels, T)
-        return self.k.decode(
-            content_token_indices=content_token_indices,
-            global_embedding=global_embedding,
-        )
+        content = self.local_quantizer.decode(content_token_indices)  # (seq_len, dim)
+        content = content.unsqueeze(0)  # (1, seq_len, dim)
+        mel_length = content_token_indices.shape[0] * self.upsample
+
+        local_latent = self.mel_prenet(content)
+        if self.mel_conv_upsample is not None:
+            local_latent = self.mel_conv_upsample(local_latent.transpose(1, 2)).transpose(1, 2)
+        local_latent = torch.nn.functional.interpolate(
+            local_latent.transpose(1, 2), size=mel_length, mode=self.interp_mode
+        ).transpose(1, 2)
+
+        condition = global_embedding.unsqueeze(0).unsqueeze(1)  # (1, 1, 128)
+        mel = self.mel_decoder(local_latent, condition=condition)
+        mel = self.mel_postnet(mel.transpose(1, 2))
+        return mel.squeeze(0)  # (n_mels, T)
 
 
 def main() -> None:
@@ -58,14 +103,25 @@ def main() -> None:
     torch.manual_seed(SEED)
 
     kanade = KanadeModel.from_pretrained(REPO).eval()
+    n_patched = _disable_attention_dropout(kanade)
+    print(f"disabled attention dropout on {n_patched} Attention module(s)")
     wrapper = DecoderWrapper(kanade).eval()
 
     # Random embedding is fine here: we validate the GRAPH, not audio quality.
     tokens = torch.randint(0, 100, (50,), dtype=torch.long)
     emb = torch.randn(SPEAKER_DIM)
 
+    # Reference = the full model's decode(); also confirm the slim wrapper
+    # reproduces it (so dropping the SSL encoder changed nothing on this path).
     with torch.no_grad():
-        reference_mel = wrapper(tokens, emb).cpu().numpy()
+        reference_mel = kanade.decode(
+            global_embedding=emb, content_token_indices=tokens
+        ).cpu().numpy()
+        slim_mel = wrapper(tokens, emb).cpu().numpy()
+    slim_diff = float(np.abs(slim_mel - reference_mel).max())
+    print(f"slim-vs-full decode max|diff|={slim_diff:.4g}")
+    if slim_diff > 1e-4:
+        raise SystemExit("slim decoder wrapper diverged from KanadeModel.decode")
 
     # dynamo=True is required: the legacy exporter chokes on the complex RoPE.
     torch.onnx.export(

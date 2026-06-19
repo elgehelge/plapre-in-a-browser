@@ -17,8 +17,13 @@ must change — so prove it before investing in the LM port.
       The transformer uses **complex-tensor RoPE**; the legacy exporter fails
       (`ScalarType ComplexFloat is an unexpected tensor scalar type`). The
       **TorchDynamo exporter** (`dynamo=True`, needs `onnxscript`) decomposes it
-      into real ops and exports cleanly. **ORT-CPU mel parity vs PyTorch
-      max|diff| ≈ 0.008 (PASS).**
+      into real ops and exports cleanly. We export a **slim decode-only wrapper**
+      (quantizer + mel prenet/upsample/decoder/postnet; mel_length = 2·seq_len)
+      that omits the SSL encoder. Also **disable attention dropout**: upstream's
+      non-flash attention applies dropout at inference (no `if self.training`
+      guard), which made decode nondeterministic and slightly degraded; with it
+      off, the slim path matches `KanadeModel.decode` exactly and **ORT-CPU mel
+      parity vs PyTorch is ≈ 1e-5 (PASS).**
 - [x] Export **HiFT vocoder** to ONNX (`conversion/export_hift_vocoder.py` +
       `conversion/hift_onnx.py`). Stock `HiFTGenerator` is unexportable: it runs
       its source + synthesis through `torch.stft`/`torch.istft` on complex
@@ -37,11 +42,11 @@ must change — so prove it before investing in the LM port.
 - [ ] In the web app, load decoder + vocoder, feed the golden audio-token ids,
       and reproduce the golden wav within tolerance. Test **WebGPU and WASM**.
 
-**Open follow-up (export sizes):** the dynamo decoder export embeds the full
-`KanadeModel` (~365 MB `.onnx.data`, includes the unused WavLM encoder); the
-vocoder export is ~83 MB. Export only the decode submodules (quantizer + mel
-decoder + postnet) — and trim any unused vocoder params — to shrink the browser
-download before Phase 1.
+**Open follow-up (export sizes):** the decoder ONNX is ~365 MB — this is the
+*genuine* decode path (mel_prenet ≈170 MB + mel_decoder ≈185 MB), NOT WavLM
+bloat (the exporter already excludes the SSL encoder). The vocoder is ~83 MB.
+Shrinking the browser download therefore needs weight quantization (fp16 ≈ half;
+int8 less) rather than tree-shaking. Defer until after the browser gate.
 
 **Success criterion:** golden sentence decodes to correct-sounding audio in the
 browser on both backends.

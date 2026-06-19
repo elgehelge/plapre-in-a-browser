@@ -54,19 +54,22 @@ Outputs are written to `../web/public/models/` by default; golden fixtures to
 
 ## Phase 0 gate findings (2026-06)
 
-- **`export_kanade_decoder.py` — works.** Exports via the dynamo exporter and
-  self-checks ORT-CPU mel parity vs PyTorch (max|diff| ≈ 0.008). Writes
-  `kanade_decoder.onnx` (+ a large `.onnx.data`; see size follow-up below).
-  The legacy exporter fails here on the transformer's complex-tensor RoPE.
+- **`export_kanade_decoder.py` — works.** Exports a slim decode-only wrapper
+  (no SSL encoder) via the dynamo exporter and self-checks ORT-CPU mel parity
+  vs PyTorch (max|diff| ≈ 1e-5). The legacy exporter fails on the transformer's
+  complex-tensor RoPE. Also disables a buggy inference-time attention dropout
+  (upstream's non-flash attention omits the `if self.training` guard), which
+  otherwise makes decode nondeterministic.
 - **`export_hift_vocoder.py` — works** (via `hift_onnx.py`). Stock HiFT uses
   `torch.stft`/`torch.istft` on complex tensors (no ONNX op; Vocos has the same
   blocker) and a `torch.rand`/`torch.randn` sine source.
   `hift_onnx.patch_vocoder_for_onnx` swaps in real-valued (i)STFT (n_fft=16,
   hop=4; matches `torch.istft` to ~1e-8) and a deterministic source. ORT-CPU
   wav parity vs PyTorch ≈ 9e-7. `python hift_onnx.py` self-tests the transforms.
-- **Size follow-up:** the decoder export embeds the whole `KanadeModel`
-  (~365 MB, includes the unused WavLM encoder); the vocoder is ~83 MB. Export
-  only the decode submodules before shipping to the browser.
+- **Size follow-up:** the decoder ONNX is ~365 MB — the genuine decode path
+  (mel_prenet ≈170 MB + mel_decoder ≈185 MB), not WavLM bloat (already
+  excluded). Vocoder ~83 MB. Shrinking needs fp16/int8 quantization, deferred
+  until after the browser gate.
 
 ## Status
 
