@@ -30,8 +30,10 @@ export function normalizeText(text: string): string {
  */
 export function splitSentences(text: string): string[] {
   const normalized = normalizeText(text);
-  // JS lookbehind supports the \w{2}[.!?] guard used in the reference.
-  const parts = normalized.split(/(?<=\w{2}[.!?])\s+/);
+  // The reference guards on \w{2}[.!?]; Python's \w is Unicode-aware, so Danish
+  // words ending in æ/ø/å count as word chars. JS \w is ASCII-only, so match the
+  // reference with an explicit Unicode word-char class under the /u flag.
+  const parts = normalized.split(/(?<=[\p{L}\p{N}_]{2}[.!?])\s+/u);
   const result: string[] = [];
   for (const part of parts) {
     const cleaned = part.trim().replace(/^[-–—]\s+/, "");
