@@ -20,12 +20,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from _gated import CHECKPOINT, SPEAKER_DIM, ensure_access
+
 OUT = Path(__file__).parent.parent / "web" / "public" / "models" / "speakers.json"
-CHECKPOINT = "syvai/plapre-pico"
-SPEAKER_DIM = 128
 
 
 def main() -> None:
+    ensure_access()
     OUT.parent.mkdir(parents=True, exist_ok=True)
 
     import torch
@@ -39,14 +40,35 @@ def main() -> None:
     speakers_path = hf_hub_download(CHECKPOINT, "speakers.json")
     raw = json.loads(Path(speakers_path).read_text())
 
+    # speakers.json may map name -> [floats] or name -> {"embedding"/"emb": [...]}.
+    def to_vec(v: object) -> list[float]:
+        if isinstance(v, dict):
+            for key in ("embedding", "emb", "raw", "vector"):
+                if key in v:
+                    return list(v[key])  # type: ignore[arg-type]
+            raise ValueError(f"unrecognized speaker entry keys: {list(v)}")
+        return list(v)  # type: ignore[arg-type]
+
+    # speaker_proj.pt may be an nn.Linear state_dict ({weight,bias}) or a bare
+    # weight tensor; handle both.
     proj = nn.Linear(SPEAKER_DIM, hidden)
-    proj.load_state_dict(torch.load(hf_hub_download(CHECKPOINT, "speaker_proj.pt"), map_location="cpu"))
+    sd = torch.load(hf_hub_download(CHECKPOINT, "speaker_proj.pt"), map_location="cpu")
+    if isinstance(sd, dict) and any(k.endswith("weight") for k in sd):
+        # tolerate prefixed keys (e.g. "speaker_proj.weight")
+        clean = {k.split(".")[-1]: v for k, v in sd.items() if k.split(".")[-1] in ("weight", "bias")}
+        proj.load_state_dict(clean)
+    elif torch.is_tensor(sd):
+        with torch.no_grad():
+            proj.weight.copy_(sd)
+            proj.bias.zero_()
+    else:
+        proj.load_state_dict(sd)
     proj = proj.float().eval()
 
     out: dict[str, dict[str, list[float]]] = {}
     with torch.no_grad():
         for name, emb in raw.items():
-            t = torch.tensor(emb, dtype=torch.float32)
+            t = torch.tensor(to_vec(emb), dtype=torch.float32)
             hidden_vec = proj(t)
             out[name] = {"raw": t.tolist(), "hidden": hidden_vec.tolist()}
 

@@ -67,17 +67,51 @@ they give an early real-time-factor signal (WebGPU ~0.2 s for ~2 s of audio).
 
 ## Phase 1 — Port the LM generation
 
-- [ ] Export **Plapre Pico LM** to ONNX with `inputs_embeds` input + KV cache
-      (`conversion/export_lm.py`, via `optimum`). Nano later if Pico holds.
-- [ ] Precompute speaker hidden vectors offline: `speaker_proj @ speakers[name]`
-      for the 5 built-in voices, ship as a small JSON/bin
-      (`conversion/precompute_speakers.py`). This removes the projection layer
-      from the runtime entirely.
-- [ ] JS: BPE tokenize via the HF `tokenizer.json`; build prompt
-      `[<text>] + ids + [<audio>]`; embed tokens; prepend the speaker hidden vec.
-- [ ] JS: autoregressive loop with KV cache + temperature/top-k/top-p sampling,
-      stop at EOS / `max_tokens`, collect audio-token ids.
-- [ ] Parity-check generated token ids against golden (greedy/seeded) output.
+**Status: runtime PROVEN; gated export written + UNVALIDATED.** The browser
+decode loop is implemented and validated; the real export of the gated weights is
+the one human-gated step (see "Gated blocker" below).
+
+- [x] JS: BPE tokenize via the HF `tokenizer.json`; build prompt
+      `[<text>] + ids + [<audio>]` (`web/src/pipeline/tokenizer.ts`).
+- [x] JS: autoregressive loop with KV cache + temperature/top-k/top-p sampling,
+      stop at EOS / `max_tokens`, collect audio-token ids
+      (`web/src/pipeline/lm.ts`). The loop talks to the model through the narrow
+      `LmGraph` seam (prefill prepends the speaker hidden as `prefix_embeds`,
+      decode feeds one token; `present.*` → `past_key_values.*`).
+- [x] **Validated without gated weights**: 6 unit tests for the loop logic, plus
+      a genuine causal-attention **toy LM** (`conversion/gen_toy_lm.py`) that
+      follows the exact export contract — ORT-CPU greedy matches the torch golden,
+      and the real `OrtLmGraph`+`PlapreLM` reproduce 30/30 golden ids in-browser
+      on **WASM and WebGPU** (`web/phase1.html`).
+- [x] Export **Plapre Pico LM** to ONNX (`input_ids` + `prefix_embeds` + KV cache
+      → `logits` + `present`) via a custom wrapper (`conversion/export_lm.py`)
+      that embeds ids internally and prepends the speaker row; emits `meta.json`
+      with `{numLayers,kvHeads,headDim,hidden}`. Written to the proven contract;
+      runs once authenticated. (optimum-cli can't express `inputs_embeds` + the
+      speaker prepend, hence the wrapper.)
+- [x] Precompute speaker hidden vectors offline: `speaker_proj @ speakers[name]`
+      → `speakers.json` (`conversion/precompute_speakers.py`); robust to the
+      repo's speaker/proj shapes. Removes the projection from the runtime.
+- [x] `conversion/fetch_tokenizer.py` copies `tokenizer.json`/`config.json`.
+- [x] `conversion/smoke_reference.py` is a self-contained greedy torch reference
+      that mirrors `lm.ts` exactly (no vLLM), producing `tokens.json` /
+      `kanade.json` / `mel.npy` / `reference.wav` as the cross-language oracle.
+- [ ] **Parity-check generated token ids against golden** — blocked: needs the
+      gated weights to produce the golden ids (loop + reference are ready).
+
+### Gated blocker (the one human step)
+
+`syvai/plapre-pico` is `gated: auto`. Downloading the weights needs a license
+acceptance + login that an agent must not do on the user's behalf. Everything
+that does not need the weights is complete and tested; the gated scripts print a
+single actionable message (`conversion/_gated.py`). To finish Phase 1/4 e2e:
+
+```
+huggingface-cli login            # after clicking “Agree” on the model page
+cd conversion && source .venv/bin/activate
+python fetch_tokenizer.py && python export_lm.py && python precompute_speakers.py
+python smoke_reference.py        # writes golden token ids for the parity check
+```
 
 ## Phase 2 — Wire the full chain + Danish normalization
 
