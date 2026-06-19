@@ -114,12 +114,21 @@ describe("createOpenAISpeech — rejected requests", () => {
     ).rejects.toBeInstanceOf(UnsupportedFormatError);
   });
 
-  it("rejects non-unit speed but accepts 1", async () => {
+  it("passes speed through as a pitch-preserving rate", async () => {
+    const { engine, requests } = fakeEngine();
+    const tts = createOpenAISpeech(engine);
+    await tts.create({ voice: "alloy", input: "Hej.", response_format: "wav", speed: 1.5 });
+    expect(requests.at(-1)?.rate).toBe(1.5);
+  });
+
+  it("rejects speed outside OpenAI's 0.25–4 range", async () => {
     const { engine } = fakeEngine();
     const tts = createOpenAISpeech(engine);
-    await expect(tts.create({ voice: "alloy", input: "Hej.", speed: 1.5 })).rejects.toBeInstanceOf(
+    await expect(tts.create({ voice: "alloy", input: "Hej.", speed: 5 })).rejects.toBeInstanceOf(
       UnsupportedSpeedError,
     );
-    await expect(tts.create({ voice: "alloy", input: "Hej.", speed: 1 })).resolves.toBeInstanceOf(Response);
+    await expect(
+      tts.create({ voice: "alloy", input: "Hej.", response_format: "wav", speed: 4 }),
+    ).resolves.toBeInstanceOf(Response);
   });
 });

@@ -48,7 +48,7 @@ function render(pcm: Float32Array, spec: OutputSpec): Uint8Array<ArrayBuffer> {
 }
 
 export interface ElevenLabsVoiceSettings {
-  /** Only 1 is supported (see UnsupportedSpeedError). */
+  /** Playback speed (pitch-preserving). ElevenLabs range 0.7–1.2; default 1. */
   speed?: number;
   // Accepted for compatibility but not applied — the local model has no analogue
   // for these ElevenLabs-specific knobs.
@@ -124,12 +124,12 @@ export function createElevenLabsTextToSpeech(
     request: ElevenLabsConvertRequest,
     options: ElevenLabsRequestOptions,
   ): { synthReq: SynthesisRequest; spec: OutputSpec } {
-    const speed = request.voiceSettings?.speed;
-    if (speed !== undefined && speed !== 1) throw new UnsupportedSpeedError(speed);
+    const rate = request.voiceSettings?.speed ?? 1;
+    if (rate < 0.7 || rate > 1.2) throw new UnsupportedSpeedError(rate, 0.7, 1.2);
 
     const spec = parseOutputFormat(request.outputFormat ?? "mp3_44100_128");
     const voice = mapProviderVoice(engine.listVoices(), voiceMap, voiceId);
-    return { synthReq: { text: request.text, voice, signal: options.signal }, spec };
+    return { synthReq: { text: request.text, voice, rate, signal: options.signal }, spec };
   }
 
   // Native 24 kHz raw PCM can stream chunk-by-chunk; resampled / MP3 output

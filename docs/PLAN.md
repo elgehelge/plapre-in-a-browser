@@ -159,8 +159,9 @@ a format encoder over the canonical 24 kHz PCM stream.
 - [x] **ElevenLabs adapter** — `textToSpeech.convert/stream(voiceId, { text,
       voice_settings, output_format })` shape. Defaults to `mp3_44100_128`
       (matching ElevenLabs); parses `mp3_<rate>_<kbps>` / `pcm_<rate>` and
-      resamples as needed. `voice_settings.speed != 1` is rejected (pending
-      time-stretch), other settings accepted but not applied.
+      resamples as needed. `voice_settings.speed` maps to the engine `rate`
+      (pitch-preserving, clamped to ElevenLabs' 0.7–1.2); other settings
+      accepted but not applied.
 - [x] Voice-id mapping (provider voice names ↔ built-in Danish speakers),
       overridable, validated against the engine catalog.
 
@@ -241,11 +242,12 @@ backends. Remaining nuance tracked in deferred: waveform-padding parity (cosine
 Things intentionally left out of the current implementation, tracked here so
 they are not lost in commit messages:
 
-- [ ] **Playback-speed (`rate`)** — omitted from `SynthesisRequest` until a
-      pitch-preserving time-stretch (WSOLA/phase vocoder) exists; a naive
-      resample would change pitch. Needed to map OpenAI `speed` and ElevenLabs
-      `voice_settings.speed`. `docs/INTERFACE.md` still lists `rate` as the
-      target shape.
+- [x] **Playback-speed (`rate`)** — `SynthesisRequest.rate` applies a
+      pitch-preserving WSOLA time-stretch (`web/src/audio/time-stretch.ts`,
+      per sentence so no cross-sentence continuity is needed). OpenAI `speed`
+      (0.25–4) and ElevenLabs `voice_settings.speed` (0.7–1.2) map onto it;
+      out-of-range values raise `UnsupportedSpeedError`. Tested for duration
+      scaling + pitch preservation.
 - [x] **Inter-sentence silence** — opt-in via
       `EngineOptions.interSentenceSilenceSec` (default 0 = contiguous); the gap is
       inserted only between audio chunks, never leading or trailing.

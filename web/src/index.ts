@@ -19,6 +19,7 @@ export { fetchCached, clearModelCache, type ProgressFn } from "./pipeline/model-
 export * from "./audio/format.js";
 export * from "./audio/resample.js";
 export * from "./audio/decode.js";
+export { timeStretch } from "./audio/time-stretch.js";
 
 // Drop-in API adapters.
 export * from "./adapters/openai.js";

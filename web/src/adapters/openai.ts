@@ -41,7 +41,7 @@ export interface OpenAISpeechRequest {
   input: string;
   /** OpenAI's default; mp3/wav/pcm supported (opus/aac/flac are a typed gap). */
   response_format?: string;
-  /** Only 1 is supported (see UnsupportedSpeedError). */
+  /** Playback speed (pitch-preserving). OpenAI range 0.25–4.0; default 1. */
   speed?: number;
 }
 
@@ -62,13 +62,19 @@ export function createOpenAISpeech(engine: Engine, options: OpenAISpeechOptions 
 
   return {
     async create(req, requestOptions = {}): Promise<Response> {
-      if (req.speed !== undefined && req.speed !== 1) throw new UnsupportedSpeedError(req.speed);
+      const rate = req.speed ?? 1;
+      if (rate < 0.25 || rate > 4) throw new UnsupportedSpeedError(rate, 0.25, 4);
 
       const format = FORMATS[req.response_format ?? "mp3"];
       if (!format) throw new UnsupportedFormatError(req.response_format ?? "");
 
       const voice = mapProviderVoice(engine.listVoices(), voiceMap, req.voice);
-      const synthReq: SynthesisRequest = { text: req.input, voice, signal: requestOptions.signal };
+      const synthReq: SynthesisRequest = {
+        text: req.input,
+        voice,
+        rate,
+        signal: requestOptions.signal,
+      };
       const headers = { "content-type": CONTENT_TYPE[format] };
 
       if (format === "pcm") {

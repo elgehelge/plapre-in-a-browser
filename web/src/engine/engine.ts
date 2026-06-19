@@ -6,6 +6,7 @@
 
 import { SAMPLE_RATE } from "../pipeline/types.js";
 import { splitSentences } from "../pipeline/normalize.js";
+import { timeStretch } from "../audio/time-stretch.js";
 import type { GenerateOptions } from "../pipeline/lm.js";
 import {
   supportsCloning,
@@ -32,6 +33,8 @@ export interface SynthesisRequest {
   readonly voice: string; // adapters map their own voice ids onto an engine voice id
   readonly signal?: AbortSignal;
   readonly generation?: Partial<GenerateOptions>;
+  /** Playback speed; pitch-preserving. >1 faster, <1 slower. Default 1. */
+  readonly rate?: number;
 }
 
 export class CloningUnsupportedError extends Error {
@@ -86,16 +89,20 @@ export function createEngine(model: SpeechModel, options: EngineOptions = {}): E
     const voice = resolveVoice(model.voices(), request.voice);
     const generation: GenerateOptions = { ...baseGeneration, ...request.generation };
 
+    const rate = request.rate ?? 1;
     let startSec = 0;
     let emitted = false;
     for (const sentence of splitSentences(request.text)) {
       request.signal?.throwIfAborted();
-      const samples = await model.synthesizeSentence({
+      const raw = await model.synthesizeSentence({
         sentence,
         voice,
         generation,
         signal: request.signal,
       });
+      // Pitch-preserving speed is applied per sentence (each is independent
+      // audio, so WSOLA needs no cross-sentence continuity).
+      const samples = rate === 1 ? raw : timeStretch(raw, rate);
       if (samples.length === 0) continue; // a sentence may yield no audio tokens
       // Insert the gap only *between* audio chunks, never leading or trailing.
       const chunk = emitted && silence.length > 0 ? concat([silence, samples]) : samples;

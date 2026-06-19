@@ -160,15 +160,14 @@ describe("createElevenLabsTextToSpeech — rejected requests", () => {
     ).rejects.toBeInstanceOf(UnsupportedFormatError);
   });
 
-  it("rejects non-unit speed but accepts 1", async () => {
-    const { engine } = fakeEngine();
+  it("passes in-range speed through as a rate, rejects out-of-range", async () => {
+    const { engine, requests } = fakeEngine();
     const tts = createElevenLabsTextToSpeech(engine);
+    await tts.convert("ida", { text: "Hej.", voiceSettings: { speed: 0.8 } });
+    expect(requests.at(-1)?.rate).toBe(0.8);
     await expect(
-      tts.convert("ida", { text: "Hej.", voiceSettings: { speed: 0.8 } }),
+      tts.convert("ida", { text: "Hej.", voiceSettings: { speed: 0.5 } }),
     ).rejects.toBeInstanceOf(UnsupportedSpeedError);
-    await expect(
-      tts.convert("ida", { text: "Hej.", voiceSettings: { speed: 1 } }),
-    ).resolves.toBeInstanceOf(Response);
   });
 });
 
