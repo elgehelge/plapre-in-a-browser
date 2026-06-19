@@ -1,0 +1,8150 @@
+[
+[
+"0",
+"nul"
+],
+[
+"1",
+"et"
+],
+[
+"2",
+"to"
+],
+[
+"3",
+"tre"
+],
+[
+"4",
+"fire"
+],
+[
+"5",
+"fem"
+],
+[
+"6",
+"seks"
+],
+[
+"7",
+"syv"
+],
+[
+"8",
+"otte"
+],
+[
+"9",
+"ni"
+],
+[
+"10",
+"ti"
+],
+[
+"11",
+"elleve"
+],
+[
+"12",
+"tolv"
+],
+[
+"13",
+"tretten"
+],
+[
+"14",
+"fjorten"
+],
+[
+"15",
+"femten"
+],
+[
+"16",
+"seksten"
+],
+[
+"17",
+"sytten"
+],
+[
+"18",
+"atten"
+],
+[
+"19",
+"nitten"
+],
+[
+"20",
+"tyve"
+],
+[
+"21",
+"enogtyve"
+],
+[
+"22",
+"toogtyve"
+],
+[
+"23",
+"treogtyve"
+],
+[
+"24",
+"fireogtyve"
+],
+[
+"25",
+"femogtyve"
+],
+[
+"26",
+"seksogtyve"
+],
+[
+"27",
+"syvogtyve"
+],
+[
+"28",
+"otteogtyve"
+],
+[
+"29",
+"niogtyve"
+],
+[
+"30",
+"tredive"
+],
+[
+"31",
+"enogtredive"
+],
+[
+"32",
+"toogtredive"
+],
+[
+"33",
+"treogtredive"
+],
+[
+"34",
+"fireogtredive"
+],
+[
+"35",
+"femogtredive"
+],
+[
+"36",
+"seksogtredive"
+],
+[
+"37",
+"syvogtredive"
+],
+[
+"38",
+"otteogtredive"
+],
+[
+"39",
+"niogtredive"
+],
+[
+"40",
+"fyrre"
+],
+[
+"41",
+"enogfyrre"
+],
+[
+"42",
+"toogfyrre"
+],
+[
+"43",
+"treogfyrre"
+],
+[
+"44",
+"fireogfyrre"
+],
+[
+"45",
+"femogfyrre"
+],
+[
+"46",
+"seksogfyrre"
+],
+[
+"47",
+"syvogfyrre"
+],
+[
+"48",
+"otteogfyrre"
+],
+[
+"49",
+"niogfyrre"
+],
+[
+"50",
+"halvtreds"
+],
+[
+"51",
+"enoghalvtreds"
+],
+[
+"52",
+"tooghalvtreds"
+],
+[
+"53",
+"treoghalvtreds"
+],
+[
+"54",
+"fireoghalvtreds"
+],
+[
+"55",
+"femoghalvtreds"
+],
+[
+"56",
+"seksoghalvtreds"
+],
+[
+"57",
+"syvoghalvtreds"
+],
+[
+"58",
+"otteoghalvtreds"
+],
+[
+"59",
+"nioghalvtreds"
+],
+[
+"60",
+"treds"
+],
+[
+"61",
+"enogtreds"
+],
+[
+"62",
+"toogtreds"
+],
+[
+"63",
+"treogtreds"
+],
+[
+"64",
+"fireogtreds"
+],
+[
+"65",
+"femogtreds"
+],
+[
+"66",
+"seksogtreds"
+],
+[
+"67",
+"syvogtreds"
+],
+[
+"68",
+"otteogtreds"
+],
+[
+"69",
+"niogtreds"
+],
+[
+"70",
+"halvfjerds"
+],
+[
+"71",
+"enoghalvfjerds"
+],
+[
+"72",
+"tooghalvfjerds"
+],
+[
+"73",
+"treoghalvfjerds"
+],
+[
+"74",
+"fireoghalvfjerds"
+],
+[
+"75",
+"femoghalvfjerds"
+],
+[
+"76",
+"seksoghalvfjerds"
+],
+[
+"77",
+"syvoghalvfjerds"
+],
+[
+"78",
+"otteoghalvfjerds"
+],
+[
+"79",
+"nioghalvfjerds"
+],
+[
+"80",
+"firs"
+],
+[
+"81",
+"enogfirs"
+],
+[
+"82",
+"toogfirs"
+],
+[
+"83",
+"treogfirs"
+],
+[
+"84",
+"fireogfirs"
+],
+[
+"85",
+"femogfirs"
+],
+[
+"86",
+"seksogfirs"
+],
+[
+"87",
+"syvogfirs"
+],
+[
+"88",
+"otteogfirs"
+],
+[
+"89",
+"niogfirs"
+],
+[
+"90",
+"halvfems"
+],
+[
+"91",
+"enoghalvfems"
+],
+[
+"92",
+"tooghalvfems"
+],
+[
+"93",
+"treoghalvfems"
+],
+[
+"94",
+"fireoghalvfems"
+],
+[
+"95",
+"femoghalvfems"
+],
+[
+"96",
+"seksoghalvfems"
+],
+[
+"97",
+"syvoghalvfems"
+],
+[
+"98",
+"otteoghalvfems"
+],
+[
+"99",
+"nioghalvfems"
+],
+[
+"100",
+"ethundrede"
+],
+[
+"101",
+"ethundrede og et"
+],
+[
+"102",
+"ethundrede og to"
+],
+[
+"103",
+"ethundrede og tre"
+],
+[
+"104",
+"ethundrede og fire"
+],
+[
+"105",
+"ethundrede og fem"
+],
+[
+"106",
+"ethundrede og seks"
+],
+[
+"107",
+"ethundrede og syv"
+],
+[
+"108",
+"ethundrede og otte"
+],
+[
+"109",
+"ethundrede og ni"
+],
+[
+"110",
+"ethundrede og ti"
+],
+[
+"111",
+"ethundrede og elleve"
+],
+[
+"112",
+"ethundrede og tolv"
+],
+[
+"113",
+"ethundrede og tretten"
+],
+[
+"114",
+"ethundrede og fjorten"
+],
+[
+"115",
+"ethundrede og femten"
+],
+[
+"116",
+"ethundrede og seksten"
+],
+[
+"117",
+"ethundrede og sytten"
+],
+[
+"118",
+"ethundrede og atten"
+],
+[
+"119",
+"ethundrede og nitten"
+],
+[
+"120",
+"ethundrede og tyve"
+],
+[
+"121",
+"ethundrede og enogtyve"
+],
+[
+"122",
+"ethundrede og toogtyve"
+],
+[
+"123",
+"ethundrede og treogtyve"
+],
+[
+"124",
+"ethundrede og fireogtyve"
+],
+[
+"125",
+"ethundrede og femogtyve"
+],
+[
+"126",
+"ethundrede og seksogtyve"
+],
+[
+"127",
+"ethundrede og syvogtyve"
+],
+[
+"128",
+"ethundrede og otteogtyve"
+],
+[
+"129",
+"ethundrede og niogtyve"
+],
+[
+"130",
+"ethundrede og tredive"
+],
+[
+"131",
+"ethundrede og enogtredive"
+],
+[
+"132",
+"ethundrede og toogtredive"
+],
+[
+"133",
+"ethundrede og treogtredive"
+],
+[
+"134",
+"ethundrede og fireogtredive"
+],
+[
+"135",
+"ethundrede og femogtredive"
+],
+[
+"136",
+"ethundrede og seksogtredive"
+],
+[
+"137",
+"ethundrede og syvogtredive"
+],
+[
+"138",
+"ethundrede og otteogtredive"
+],
+[
+"139",
+"ethundrede og niogtredive"
+],
+[
+"140",
+"ethundrede og fyrre"
+],
+[
+"141",
+"ethundrede og enogfyrre"
+],
+[
+"142",
+"ethundrede og toogfyrre"
+],
+[
+"143",
+"ethundrede og treogfyrre"
+],
+[
+"144",
+"ethundrede og fireogfyrre"
+],
+[
+"145",
+"ethundrede og femogfyrre"
+],
+[
+"146",
+"ethundrede og seksogfyrre"
+],
+[
+"147",
+"ethundrede og syvogfyrre"
+],
+[
+"148",
+"ethundrede og otteogfyrre"
+],
+[
+"149",
+"ethundrede og niogfyrre"
+],
+[
+"150",
+"ethundrede og halvtreds"
+],
+[
+"151",
+"ethundrede og enoghalvtreds"
+],
+[
+"152",
+"ethundrede og tooghalvtreds"
+],
+[
+"153",
+"ethundrede og treoghalvtreds"
+],
+[
+"154",
+"ethundrede og fireoghalvtreds"
+],
+[
+"155",
+"ethundrede og femoghalvtreds"
+],
+[
+"156",
+"ethundrede og seksoghalvtreds"
+],
+[
+"157",
+"ethundrede og syvoghalvtreds"
+],
+[
+"158",
+"ethundrede og otteoghalvtreds"
+],
+[
+"159",
+"ethundrede og nioghalvtreds"
+],
+[
+"160",
+"ethundrede og treds"
+],
+[
+"161",
+"ethundrede og enogtreds"
+],
+[
+"162",
+"ethundrede og toogtreds"
+],
+[
+"163",
+"ethundrede og treogtreds"
+],
+[
+"164",
+"ethundrede og fireogtreds"
+],
+[
+"165",
+"ethundrede og femogtreds"
+],
+[
+"166",
+"ethundrede og seksogtreds"
+],
+[
+"167",
+"ethundrede og syvogtreds"
+],
+[
+"168",
+"ethundrede og otteogtreds"
+],
+[
+"169",
+"ethundrede og niogtreds"
+],
+[
+"170",
+"ethundrede og halvfjerds"
+],
+[
+"171",
+"ethundrede og enoghalvfjerds"
+],
+[
+"172",
+"ethundrede og tooghalvfjerds"
+],
+[
+"173",
+"ethundrede og treoghalvfjerds"
+],
+[
+"174",
+"ethundrede og fireoghalvfjerds"
+],
+[
+"175",
+"ethundrede og femoghalvfjerds"
+],
+[
+"176",
+"ethundrede og seksoghalvfjerds"
+],
+[
+"177",
+"ethundrede og syvoghalvfjerds"
+],
+[
+"178",
+"ethundrede og otteoghalvfjerds"
+],
+[
+"179",
+"ethundrede og nioghalvfjerds"
+],
+[
+"180",
+"ethundrede og firs"
+],
+[
+"181",
+"ethundrede og enogfirs"
+],
+[
+"182",
+"ethundrede og toogfirs"
+],
+[
+"183",
+"ethundrede og treogfirs"
+],
+[
+"184",
+"ethundrede og fireogfirs"
+],
+[
+"185",
+"ethundrede og femogfirs"
+],
+[
+"186",
+"ethundrede og seksogfirs"
+],
+[
+"187",
+"ethundrede og syvogfirs"
+],
+[
+"188",
+"ethundrede og otteogfirs"
+],
+[
+"189",
+"ethundrede og niogfirs"
+],
+[
+"190",
+"ethundrede og halvfems"
+],
+[
+"191",
+"ethundrede og enoghalvfems"
+],
+[
+"192",
+"ethundrede og tooghalvfems"
+],
+[
+"193",
+"ethundrede og treoghalvfems"
+],
+[
+"194",
+"ethundrede og fireoghalvfems"
+],
+[
+"195",
+"ethundrede og femoghalvfems"
+],
+[
+"196",
+"ethundrede og seksoghalvfems"
+],
+[
+"197",
+"ethundrede og syvoghalvfems"
+],
+[
+"198",
+"ethundrede og otteoghalvfems"
+],
+[
+"199",
+"ethundrede og nioghalvfems"
+],
+[
+"200",
+"tohundrede"
+],
+[
+"201",
+"tohundrede og et"
+],
+[
+"202",
+"tohundrede og to"
+],
+[
+"203",
+"tohundrede og tre"
+],
+[
+"204",
+"tohundrede og fire"
+],
+[
+"205",
+"tohundrede og fem"
+],
+[
+"206",
+"tohundrede og seks"
+],
+[
+"207",
+"tohundrede og syv"
+],
+[
+"208",
+"tohundrede og otte"
+],
+[
+"209",
+"tohundrede og ni"
+],
+[
+"210",
+"tohundrede og ti"
+],
+[
+"211",
+"tohundrede og elleve"
+],
+[
+"212",
+"tohundrede og tolv"
+],
+[
+"213",
+"tohundrede og tretten"
+],
+[
+"214",
+"tohundrede og fjorten"
+],
+[
+"215",
+"tohundrede og femten"
+],
+[
+"216",
+"tohundrede og seksten"
+],
+[
+"217",
+"tohundrede og sytten"
+],
+[
+"218",
+"tohundrede og atten"
+],
+[
+"219",
+"tohundrede og nitten"
+],
+[
+"220",
+"tohundrede og tyve"
+],
+[
+"221",
+"tohundrede og enogtyve"
+],
+[
+"222",
+"tohundrede og toogtyve"
+],
+[
+"223",
+"tohundrede og treogtyve"
+],
+[
+"224",
+"tohundrede og fireogtyve"
+],
+[
+"225",
+"tohundrede og femogtyve"
+],
+[
+"226",
+"tohundrede og seksogtyve"
+],
+[
+"227",
+"tohundrede og syvogtyve"
+],
+[
+"228",
+"tohundrede og otteogtyve"
+],
+[
+"229",
+"tohundrede og niogtyve"
+],
+[
+"230",
+"tohundrede og tredive"
+],
+[
+"231",
+"tohundrede og enogtredive"
+],
+[
+"232",
+"tohundrede og toogtredive"
+],
+[
+"233",
+"tohundrede og treogtredive"
+],
+[
+"234",
+"tohundrede og fireogtredive"
+],
+[
+"235",
+"tohundrede og femogtredive"
+],
+[
+"236",
+"tohundrede og seksogtredive"
+],
+[
+"237",
+"tohundrede og syvogtredive"
+],
+[
+"238",
+"tohundrede og otteogtredive"
+],
+[
+"239",
+"tohundrede og niogtredive"
+],
+[
+"240",
+"tohundrede og fyrre"
+],
+[
+"241",
+"tohundrede og enogfyrre"
+],
+[
+"242",
+"tohundrede og toogfyrre"
+],
+[
+"243",
+"tohundrede og treogfyrre"
+],
+[
+"244",
+"tohundrede og fireogfyrre"
+],
+[
+"245",
+"tohundrede og femogfyrre"
+],
+[
+"246",
+"tohundrede og seksogfyrre"
+],
+[
+"247",
+"tohundrede og syvogfyrre"
+],
+[
+"248",
+"tohundrede og otteogfyrre"
+],
+[
+"249",
+"tohundrede og niogfyrre"
+],
+[
+"250",
+"tohundrede og halvtreds"
+],
+[
+"251",
+"tohundrede og enoghalvtreds"
+],
+[
+"252",
+"tohundrede og tooghalvtreds"
+],
+[
+"253",
+"tohundrede og treoghalvtreds"
+],
+[
+"254",
+"tohundrede og fireoghalvtreds"
+],
+[
+"255",
+"tohundrede og femoghalvtreds"
+],
+[
+"256",
+"tohundrede og seksoghalvtreds"
+],
+[
+"257",
+"tohundrede og syvoghalvtreds"
+],
+[
+"258",
+"tohundrede og otteoghalvtreds"
+],
+[
+"259",
+"tohundrede og nioghalvtreds"
+],
+[
+"260",
+"tohundrede og treds"
+],
+[
+"261",
+"tohundrede og enogtreds"
+],
+[
+"262",
+"tohundrede og toogtreds"
+],
+[
+"263",
+"tohundrede og treogtreds"
+],
+[
+"264",
+"tohundrede og fireogtreds"
+],
+[
+"265",
+"tohundrede og femogtreds"
+],
+[
+"266",
+"tohundrede og seksogtreds"
+],
+[
+"267",
+"tohundrede og syvogtreds"
+],
+[
+"268",
+"tohundrede og otteogtreds"
+],
+[
+"269",
+"tohundrede og niogtreds"
+],
+[
+"270",
+"tohundrede og halvfjerds"
+],
+[
+"271",
+"tohundrede og enoghalvfjerds"
+],
+[
+"272",
+"tohundrede og tooghalvfjerds"
+],
+[
+"273",
+"tohundrede og treoghalvfjerds"
+],
+[
+"274",
+"tohundrede og fireoghalvfjerds"
+],
+[
+"275",
+"tohundrede og femoghalvfjerds"
+],
+[
+"276",
+"tohundrede og seksoghalvfjerds"
+],
+[
+"277",
+"tohundrede og syvoghalvfjerds"
+],
+[
+"278",
+"tohundrede og otteoghalvfjerds"
+],
+[
+"279",
+"tohundrede og nioghalvfjerds"
+],
+[
+"280",
+"tohundrede og firs"
+],
+[
+"281",
+"tohundrede og enogfirs"
+],
+[
+"282",
+"tohundrede og toogfirs"
+],
+[
+"283",
+"tohundrede og treogfirs"
+],
+[
+"284",
+"tohundrede og fireogfirs"
+],
+[
+"285",
+"tohundrede og femogfirs"
+],
+[
+"286",
+"tohundrede og seksogfirs"
+],
+[
+"287",
+"tohundrede og syvogfirs"
+],
+[
+"288",
+"tohundrede og otteogfirs"
+],
+[
+"289",
+"tohundrede og niogfirs"
+],
+[
+"290",
+"tohundrede og halvfems"
+],
+[
+"291",
+"tohundrede og enoghalvfems"
+],
+[
+"292",
+"tohundrede og tooghalvfems"
+],
+[
+"293",
+"tohundrede og treoghalvfems"
+],
+[
+"294",
+"tohundrede og fireoghalvfems"
+],
+[
+"295",
+"tohundrede og femoghalvfems"
+],
+[
+"296",
+"tohundrede og seksoghalvfems"
+],
+[
+"297",
+"tohundrede og syvoghalvfems"
+],
+[
+"298",
+"tohundrede og otteoghalvfems"
+],
+[
+"299",
+"tohundrede og nioghalvfems"
+],
+[
+"300",
+"trehundrede"
+],
+[
+"301",
+"trehundrede og et"
+],
+[
+"302",
+"trehundrede og to"
+],
+[
+"303",
+"trehundrede og tre"
+],
+[
+"304",
+"trehundrede og fire"
+],
+[
+"305",
+"trehundrede og fem"
+],
+[
+"306",
+"trehundrede og seks"
+],
+[
+"307",
+"trehundrede og syv"
+],
+[
+"308",
+"trehundrede og otte"
+],
+[
+"309",
+"trehundrede og ni"
+],
+[
+"310",
+"trehundrede og ti"
+],
+[
+"311",
+"trehundrede og elleve"
+],
+[
+"312",
+"trehundrede og tolv"
+],
+[
+"313",
+"trehundrede og tretten"
+],
+[
+"314",
+"trehundrede og fjorten"
+],
+[
+"315",
+"trehundrede og femten"
+],
+[
+"316",
+"trehundrede og seksten"
+],
+[
+"317",
+"trehundrede og sytten"
+],
+[
+"318",
+"trehundrede og atten"
+],
+[
+"319",
+"trehundrede og nitten"
+],
+[
+"320",
+"trehundrede og tyve"
+],
+[
+"321",
+"trehundrede og enogtyve"
+],
+[
+"322",
+"trehundrede og toogtyve"
+],
+[
+"323",
+"trehundrede og treogtyve"
+],
+[
+"324",
+"trehundrede og fireogtyve"
+],
+[
+"325",
+"trehundrede og femogtyve"
+],
+[
+"326",
+"trehundrede og seksogtyve"
+],
+[
+"327",
+"trehundrede og syvogtyve"
+],
+[
+"328",
+"trehundrede og otteogtyve"
+],
+[
+"329",
+"trehundrede og niogtyve"
+],
+[
+"330",
+"trehundrede og tredive"
+],
+[
+"331",
+"trehundrede og enogtredive"
+],
+[
+"332",
+"trehundrede og toogtredive"
+],
+[
+"333",
+"trehundrede og treogtredive"
+],
+[
+"334",
+"trehundrede og fireogtredive"
+],
+[
+"335",
+"trehundrede og femogtredive"
+],
+[
+"336",
+"trehundrede og seksogtredive"
+],
+[
+"337",
+"trehundrede og syvogtredive"
+],
+[
+"338",
+"trehundrede og otteogtredive"
+],
+[
+"339",
+"trehundrede og niogtredive"
+],
+[
+"340",
+"trehundrede og fyrre"
+],
+[
+"341",
+"trehundrede og enogfyrre"
+],
+[
+"342",
+"trehundrede og toogfyrre"
+],
+[
+"343",
+"trehundrede og treogfyrre"
+],
+[
+"344",
+"trehundrede og fireogfyrre"
+],
+[
+"345",
+"trehundrede og femogfyrre"
+],
+[
+"346",
+"trehundrede og seksogfyrre"
+],
+[
+"347",
+"trehundrede og syvogfyrre"
+],
+[
+"348",
+"trehundrede og otteogfyrre"
+],
+[
+"349",
+"trehundrede og niogfyrre"
+],
+[
+"350",
+"trehundrede og halvtreds"
+],
+[
+"351",
+"trehundrede og enoghalvtreds"
+],
+[
+"352",
+"trehundrede og tooghalvtreds"
+],
+[
+"353",
+"trehundrede og treoghalvtreds"
+],
+[
+"354",
+"trehundrede og fireoghalvtreds"
+],
+[
+"355",
+"trehundrede og femoghalvtreds"
+],
+[
+"356",
+"trehundrede og seksoghalvtreds"
+],
+[
+"357",
+"trehundrede og syvoghalvtreds"
+],
+[
+"358",
+"trehundrede og otteoghalvtreds"
+],
+[
+"359",
+"trehundrede og nioghalvtreds"
+],
+[
+"360",
+"trehundrede og treds"
+],
+[
+"361",
+"trehundrede og enogtreds"
+],
+[
+"362",
+"trehundrede og toogtreds"
+],
+[
+"363",
+"trehundrede og treogtreds"
+],
+[
+"364",
+"trehundrede og fireogtreds"
+],
+[
+"365",
+"trehundrede og femogtreds"
+],
+[
+"366",
+"trehundrede og seksogtreds"
+],
+[
+"367",
+"trehundrede og syvogtreds"
+],
+[
+"368",
+"trehundrede og otteogtreds"
+],
+[
+"369",
+"trehundrede og niogtreds"
+],
+[
+"370",
+"trehundrede og halvfjerds"
+],
+[
+"371",
+"trehundrede og enoghalvfjerds"
+],
+[
+"372",
+"trehundrede og tooghalvfjerds"
+],
+[
+"373",
+"trehundrede og treoghalvfjerds"
+],
+[
+"374",
+"trehundrede og fireoghalvfjerds"
+],
+[
+"375",
+"trehundrede og femoghalvfjerds"
+],
+[
+"376",
+"trehundrede og seksoghalvfjerds"
+],
+[
+"377",
+"trehundrede og syvoghalvfjerds"
+],
+[
+"378",
+"trehundrede og otteoghalvfjerds"
+],
+[
+"379",
+"trehundrede og nioghalvfjerds"
+],
+[
+"380",
+"trehundrede og firs"
+],
+[
+"381",
+"trehundrede og enogfirs"
+],
+[
+"382",
+"trehundrede og toogfirs"
+],
+[
+"383",
+"trehundrede og treogfirs"
+],
+[
+"384",
+"trehundrede og fireogfirs"
+],
+[
+"385",
+"trehundrede og femogfirs"
+],
+[
+"386",
+"trehundrede og seksogfirs"
+],
+[
+"387",
+"trehundrede og syvogfirs"
+],
+[
+"388",
+"trehundrede og otteogfirs"
+],
+[
+"389",
+"trehundrede og niogfirs"
+],
+[
+"390",
+"trehundrede og halvfems"
+],
+[
+"391",
+"trehundrede og enoghalvfems"
+],
+[
+"392",
+"trehundrede og tooghalvfems"
+],
+[
+"393",
+"trehundrede og treoghalvfems"
+],
+[
+"394",
+"trehundrede og fireoghalvfems"
+],
+[
+"395",
+"trehundrede og femoghalvfems"
+],
+[
+"396",
+"trehundrede og seksoghalvfems"
+],
+[
+"397",
+"trehundrede og syvoghalvfems"
+],
+[
+"398",
+"trehundrede og otteoghalvfems"
+],
+[
+"399",
+"trehundrede og nioghalvfems"
+],
+[
+"400",
+"firehundrede"
+],
+[
+"401",
+"firehundrede og et"
+],
+[
+"402",
+"firehundrede og to"
+],
+[
+"403",
+"firehundrede og tre"
+],
+[
+"404",
+"firehundrede og fire"
+],
+[
+"405",
+"firehundrede og fem"
+],
+[
+"406",
+"firehundrede og seks"
+],
+[
+"407",
+"firehundrede og syv"
+],
+[
+"408",
+"firehundrede og otte"
+],
+[
+"409",
+"firehundrede og ni"
+],
+[
+"410",
+"firehundrede og ti"
+],
+[
+"411",
+"firehundrede og elleve"
+],
+[
+"412",
+"firehundrede og tolv"
+],
+[
+"413",
+"firehundrede og tretten"
+],
+[
+"414",
+"firehundrede og fjorten"
+],
+[
+"415",
+"firehundrede og femten"
+],
+[
+"416",
+"firehundrede og seksten"
+],
+[
+"417",
+"firehundrede og sytten"
+],
+[
+"418",
+"firehundrede og atten"
+],
+[
+"419",
+"firehundrede og nitten"
+],
+[
+"420",
+"firehundrede og tyve"
+],
+[
+"421",
+"firehundrede og enogtyve"
+],
+[
+"422",
+"firehundrede og toogtyve"
+],
+[
+"423",
+"firehundrede og treogtyve"
+],
+[
+"424",
+"firehundrede og fireogtyve"
+],
+[
+"425",
+"firehundrede og femogtyve"
+],
+[
+"426",
+"firehundrede og seksogtyve"
+],
+[
+"427",
+"firehundrede og syvogtyve"
+],
+[
+"428",
+"firehundrede og otteogtyve"
+],
+[
+"429",
+"firehundrede og niogtyve"
+],
+[
+"430",
+"firehundrede og tredive"
+],
+[
+"431",
+"firehundrede og enogtredive"
+],
+[
+"432",
+"firehundrede og toogtredive"
+],
+[
+"433",
+"firehundrede og treogtredive"
+],
+[
+"434",
+"firehundrede og fireogtredive"
+],
+[
+"435",
+"firehundrede og femogtredive"
+],
+[
+"436",
+"firehundrede og seksogtredive"
+],
+[
+"437",
+"firehundrede og syvogtredive"
+],
+[
+"438",
+"firehundrede og otteogtredive"
+],
+[
+"439",
+"firehundrede og niogtredive"
+],
+[
+"440",
+"firehundrede og fyrre"
+],
+[
+"441",
+"firehundrede og enogfyrre"
+],
+[
+"442",
+"firehundrede og toogfyrre"
+],
+[
+"443",
+"firehundrede og treogfyrre"
+],
+[
+"444",
+"firehundrede og fireogfyrre"
+],
+[
+"445",
+"firehundrede og femogfyrre"
+],
+[
+"446",
+"firehundrede og seksogfyrre"
+],
+[
+"447",
+"firehundrede og syvogfyrre"
+],
+[
+"448",
+"firehundrede og otteogfyrre"
+],
+[
+"449",
+"firehundrede og niogfyrre"
+],
+[
+"450",
+"firehundrede og halvtreds"
+],
+[
+"451",
+"firehundrede og enoghalvtreds"
+],
+[
+"452",
+"firehundrede og tooghalvtreds"
+],
+[
+"453",
+"firehundrede og treoghalvtreds"
+],
+[
+"454",
+"firehundrede og fireoghalvtreds"
+],
+[
+"455",
+"firehundrede og femoghalvtreds"
+],
+[
+"456",
+"firehundrede og seksoghalvtreds"
+],
+[
+"457",
+"firehundrede og syvoghalvtreds"
+],
+[
+"458",
+"firehundrede og otteoghalvtreds"
+],
+[
+"459",
+"firehundrede og nioghalvtreds"
+],
+[
+"460",
+"firehundrede og treds"
+],
+[
+"461",
+"firehundrede og enogtreds"
+],
+[
+"462",
+"firehundrede og toogtreds"
+],
+[
+"463",
+"firehundrede og treogtreds"
+],
+[
+"464",
+"firehundrede og fireogtreds"
+],
+[
+"465",
+"firehundrede og femogtreds"
+],
+[
+"466",
+"firehundrede og seksogtreds"
+],
+[
+"467",
+"firehundrede og syvogtreds"
+],
+[
+"468",
+"firehundrede og otteogtreds"
+],
+[
+"469",
+"firehundrede og niogtreds"
+],
+[
+"470",
+"firehundrede og halvfjerds"
+],
+[
+"471",
+"firehundrede og enoghalvfjerds"
+],
+[
+"472",
+"firehundrede og tooghalvfjerds"
+],
+[
+"473",
+"firehundrede og treoghalvfjerds"
+],
+[
+"474",
+"firehundrede og fireoghalvfjerds"
+],
+[
+"475",
+"firehundrede og femoghalvfjerds"
+],
+[
+"476",
+"firehundrede og seksoghalvfjerds"
+],
+[
+"477",
+"firehundrede og syvoghalvfjerds"
+],
+[
+"478",
+"firehundrede og otteoghalvfjerds"
+],
+[
+"479",
+"firehundrede og nioghalvfjerds"
+],
+[
+"480",
+"firehundrede og firs"
+],
+[
+"481",
+"firehundrede og enogfirs"
+],
+[
+"482",
+"firehundrede og toogfirs"
+],
+[
+"483",
+"firehundrede og treogfirs"
+],
+[
+"484",
+"firehundrede og fireogfirs"
+],
+[
+"485",
+"firehundrede og femogfirs"
+],
+[
+"486",
+"firehundrede og seksogfirs"
+],
+[
+"487",
+"firehundrede og syvogfirs"
+],
+[
+"488",
+"firehundrede og otteogfirs"
+],
+[
+"489",
+"firehundrede og niogfirs"
+],
+[
+"490",
+"firehundrede og halvfems"
+],
+[
+"491",
+"firehundrede og enoghalvfems"
+],
+[
+"492",
+"firehundrede og tooghalvfems"
+],
+[
+"493",
+"firehundrede og treoghalvfems"
+],
+[
+"494",
+"firehundrede og fireoghalvfems"
+],
+[
+"495",
+"firehundrede og femoghalvfems"
+],
+[
+"496",
+"firehundrede og seksoghalvfems"
+],
+[
+"497",
+"firehundrede og syvoghalvfems"
+],
+[
+"498",
+"firehundrede og otteoghalvfems"
+],
+[
+"499",
+"firehundrede og nioghalvfems"
+],
+[
+"500",
+"femhundrede"
+],
+[
+"501",
+"femhundrede og et"
+],
+[
+"502",
+"femhundrede og to"
+],
+[
+"503",
+"femhundrede og tre"
+],
+[
+"504",
+"femhundrede og fire"
+],
+[
+"505",
+"femhundrede og fem"
+],
+[
+"506",
+"femhundrede og seks"
+],
+[
+"507",
+"femhundrede og syv"
+],
+[
+"508",
+"femhundrede og otte"
+],
+[
+"509",
+"femhundrede og ni"
+],
+[
+"510",
+"femhundrede og ti"
+],
+[
+"511",
+"femhundrede og elleve"
+],
+[
+"512",
+"femhundrede og tolv"
+],
+[
+"513",
+"femhundrede og tretten"
+],
+[
+"514",
+"femhundrede og fjorten"
+],
+[
+"515",
+"femhundrede og femten"
+],
+[
+"516",
+"femhundrede og seksten"
+],
+[
+"517",
+"femhundrede og sytten"
+],
+[
+"518",
+"femhundrede og atten"
+],
+[
+"519",
+"femhundrede og nitten"
+],
+[
+"520",
+"femhundrede og tyve"
+],
+[
+"521",
+"femhundrede og enogtyve"
+],
+[
+"522",
+"femhundrede og toogtyve"
+],
+[
+"523",
+"femhundrede og treogtyve"
+],
+[
+"524",
+"femhundrede og fireogtyve"
+],
+[
+"525",
+"femhundrede og femogtyve"
+],
+[
+"526",
+"femhundrede og seksogtyve"
+],
+[
+"527",
+"femhundrede og syvogtyve"
+],
+[
+"528",
+"femhundrede og otteogtyve"
+],
+[
+"529",
+"femhundrede og niogtyve"
+],
+[
+"530",
+"femhundrede og tredive"
+],
+[
+"531",
+"femhundrede og enogtredive"
+],
+[
+"532",
+"femhundrede og toogtredive"
+],
+[
+"533",
+"femhundrede og treogtredive"
+],
+[
+"534",
+"femhundrede og fireogtredive"
+],
+[
+"535",
+"femhundrede og femogtredive"
+],
+[
+"536",
+"femhundrede og seksogtredive"
+],
+[
+"537",
+"femhundrede og syvogtredive"
+],
+[
+"538",
+"femhundrede og otteogtredive"
+],
+[
+"539",
+"femhundrede og niogtredive"
+],
+[
+"540",
+"femhundrede og fyrre"
+],
+[
+"541",
+"femhundrede og enogfyrre"
+],
+[
+"542",
+"femhundrede og toogfyrre"
+],
+[
+"543",
+"femhundrede og treogfyrre"
+],
+[
+"544",
+"femhundrede og fireogfyrre"
+],
+[
+"545",
+"femhundrede og femogfyrre"
+],
+[
+"546",
+"femhundrede og seksogfyrre"
+],
+[
+"547",
+"femhundrede og syvogfyrre"
+],
+[
+"548",
+"femhundrede og otteogfyrre"
+],
+[
+"549",
+"femhundrede og niogfyrre"
+],
+[
+"550",
+"femhundrede og halvtreds"
+],
+[
+"551",
+"femhundrede og enoghalvtreds"
+],
+[
+"552",
+"femhundrede og tooghalvtreds"
+],
+[
+"553",
+"femhundrede og treoghalvtreds"
+],
+[
+"554",
+"femhundrede og fireoghalvtreds"
+],
+[
+"555",
+"femhundrede og femoghalvtreds"
+],
+[
+"556",
+"femhundrede og seksoghalvtreds"
+],
+[
+"557",
+"femhundrede og syvoghalvtreds"
+],
+[
+"558",
+"femhundrede og otteoghalvtreds"
+],
+[
+"559",
+"femhundrede og nioghalvtreds"
+],
+[
+"560",
+"femhundrede og treds"
+],
+[
+"561",
+"femhundrede og enogtreds"
+],
+[
+"562",
+"femhundrede og toogtreds"
+],
+[
+"563",
+"femhundrede og treogtreds"
+],
+[
+"564",
+"femhundrede og fireogtreds"
+],
+[
+"565",
+"femhundrede og femogtreds"
+],
+[
+"566",
+"femhundrede og seksogtreds"
+],
+[
+"567",
+"femhundrede og syvogtreds"
+],
+[
+"568",
+"femhundrede og otteogtreds"
+],
+[
+"569",
+"femhundrede og niogtreds"
+],
+[
+"570",
+"femhundrede og halvfjerds"
+],
+[
+"571",
+"femhundrede og enoghalvfjerds"
+],
+[
+"572",
+"femhundrede og tooghalvfjerds"
+],
+[
+"573",
+"femhundrede og treoghalvfjerds"
+],
+[
+"574",
+"femhundrede og fireoghalvfjerds"
+],
+[
+"575",
+"femhundrede og femoghalvfjerds"
+],
+[
+"576",
+"femhundrede og seksoghalvfjerds"
+],
+[
+"577",
+"femhundrede og syvoghalvfjerds"
+],
+[
+"578",
+"femhundrede og otteoghalvfjerds"
+],
+[
+"579",
+"femhundrede og nioghalvfjerds"
+],
+[
+"580",
+"femhundrede og firs"
+],
+[
+"581",
+"femhundrede og enogfirs"
+],
+[
+"582",
+"femhundrede og toogfirs"
+],
+[
+"583",
+"femhundrede og treogfirs"
+],
+[
+"584",
+"femhundrede og fireogfirs"
+],
+[
+"585",
+"femhundrede og femogfirs"
+],
+[
+"586",
+"femhundrede og seksogfirs"
+],
+[
+"587",
+"femhundrede og syvogfirs"
+],
+[
+"588",
+"femhundrede og otteogfirs"
+],
+[
+"589",
+"femhundrede og niogfirs"
+],
+[
+"590",
+"femhundrede og halvfems"
+],
+[
+"591",
+"femhundrede og enoghalvfems"
+],
+[
+"592",
+"femhundrede og tooghalvfems"
+],
+[
+"593",
+"femhundrede og treoghalvfems"
+],
+[
+"594",
+"femhundrede og fireoghalvfems"
+],
+[
+"595",
+"femhundrede og femoghalvfems"
+],
+[
+"596",
+"femhundrede og seksoghalvfems"
+],
+[
+"597",
+"femhundrede og syvoghalvfems"
+],
+[
+"598",
+"femhundrede og otteoghalvfems"
+],
+[
+"599",
+"femhundrede og nioghalvfems"
+],
+[
+"600",
+"sekshundrede"
+],
+[
+"601",
+"sekshundrede og et"
+],
+[
+"602",
+"sekshundrede og to"
+],
+[
+"603",
+"sekshundrede og tre"
+],
+[
+"604",
+"sekshundrede og fire"
+],
+[
+"605",
+"sekshundrede og fem"
+],
+[
+"606",
+"sekshundrede og seks"
+],
+[
+"607",
+"sekshundrede og syv"
+],
+[
+"608",
+"sekshundrede og otte"
+],
+[
+"609",
+"sekshundrede og ni"
+],
+[
+"610",
+"sekshundrede og ti"
+],
+[
+"611",
+"sekshundrede og elleve"
+],
+[
+"612",
+"sekshundrede og tolv"
+],
+[
+"613",
+"sekshundrede og tretten"
+],
+[
+"614",
+"sekshundrede og fjorten"
+],
+[
+"615",
+"sekshundrede og femten"
+],
+[
+"616",
+"sekshundrede og seksten"
+],
+[
+"617",
+"sekshundrede og sytten"
+],
+[
+"618",
+"sekshundrede og atten"
+],
+[
+"619",
+"sekshundrede og nitten"
+],
+[
+"620",
+"sekshundrede og tyve"
+],
+[
+"621",
+"sekshundrede og enogtyve"
+],
+[
+"622",
+"sekshundrede og toogtyve"
+],
+[
+"623",
+"sekshundrede og treogtyve"
+],
+[
+"624",
+"sekshundrede og fireogtyve"
+],
+[
+"625",
+"sekshundrede og femogtyve"
+],
+[
+"626",
+"sekshundrede og seksogtyve"
+],
+[
+"627",
+"sekshundrede og syvogtyve"
+],
+[
+"628",
+"sekshundrede og otteogtyve"
+],
+[
+"629",
+"sekshundrede og niogtyve"
+],
+[
+"630",
+"sekshundrede og tredive"
+],
+[
+"631",
+"sekshundrede og enogtredive"
+],
+[
+"632",
+"sekshundrede og toogtredive"
+],
+[
+"633",
+"sekshundrede og treogtredive"
+],
+[
+"634",
+"sekshundrede og fireogtredive"
+],
+[
+"635",
+"sekshundrede og femogtredive"
+],
+[
+"636",
+"sekshundrede og seksogtredive"
+],
+[
+"637",
+"sekshundrede og syvogtredive"
+],
+[
+"638",
+"sekshundrede og otteogtredive"
+],
+[
+"639",
+"sekshundrede og niogtredive"
+],
+[
+"640",
+"sekshundrede og fyrre"
+],
+[
+"641",
+"sekshundrede og enogfyrre"
+],
+[
+"642",
+"sekshundrede og toogfyrre"
+],
+[
+"643",
+"sekshundrede og treogfyrre"
+],
+[
+"644",
+"sekshundrede og fireogfyrre"
+],
+[
+"645",
+"sekshundrede og femogfyrre"
+],
+[
+"646",
+"sekshundrede og seksogfyrre"
+],
+[
+"647",
+"sekshundrede og syvogfyrre"
+],
+[
+"648",
+"sekshundrede og otteogfyrre"
+],
+[
+"649",
+"sekshundrede og niogfyrre"
+],
+[
+"650",
+"sekshundrede og halvtreds"
+],
+[
+"651",
+"sekshundrede og enoghalvtreds"
+],
+[
+"652",
+"sekshundrede og tooghalvtreds"
+],
+[
+"653",
+"sekshundrede og treoghalvtreds"
+],
+[
+"654",
+"sekshundrede og fireoghalvtreds"
+],
+[
+"655",
+"sekshundrede og femoghalvtreds"
+],
+[
+"656",
+"sekshundrede og seksoghalvtreds"
+],
+[
+"657",
+"sekshundrede og syvoghalvtreds"
+],
+[
+"658",
+"sekshundrede og otteoghalvtreds"
+],
+[
+"659",
+"sekshundrede og nioghalvtreds"
+],
+[
+"660",
+"sekshundrede og treds"
+],
+[
+"661",
+"sekshundrede og enogtreds"
+],
+[
+"662",
+"sekshundrede og toogtreds"
+],
+[
+"663",
+"sekshundrede og treogtreds"
+],
+[
+"664",
+"sekshundrede og fireogtreds"
+],
+[
+"665",
+"sekshundrede og femogtreds"
+],
+[
+"666",
+"sekshundrede og seksogtreds"
+],
+[
+"667",
+"sekshundrede og syvogtreds"
+],
+[
+"668",
+"sekshundrede og otteogtreds"
+],
+[
+"669",
+"sekshundrede og niogtreds"
+],
+[
+"670",
+"sekshundrede og halvfjerds"
+],
+[
+"671",
+"sekshundrede og enoghalvfjerds"
+],
+[
+"672",
+"sekshundrede og tooghalvfjerds"
+],
+[
+"673",
+"sekshundrede og treoghalvfjerds"
+],
+[
+"674",
+"sekshundrede og fireoghalvfjerds"
+],
+[
+"675",
+"sekshundrede og femoghalvfjerds"
+],
+[
+"676",
+"sekshundrede og seksoghalvfjerds"
+],
+[
+"677",
+"sekshundrede og syvoghalvfjerds"
+],
+[
+"678",
+"sekshundrede og otteoghalvfjerds"
+],
+[
+"679",
+"sekshundrede og nioghalvfjerds"
+],
+[
+"680",
+"sekshundrede og firs"
+],
+[
+"681",
+"sekshundrede og enogfirs"
+],
+[
+"682",
+"sekshundrede og toogfirs"
+],
+[
+"683",
+"sekshundrede og treogfirs"
+],
+[
+"684",
+"sekshundrede og fireogfirs"
+],
+[
+"685",
+"sekshundrede og femogfirs"
+],
+[
+"686",
+"sekshundrede og seksogfirs"
+],
+[
+"687",
+"sekshundrede og syvogfirs"
+],
+[
+"688",
+"sekshundrede og otteogfirs"
+],
+[
+"689",
+"sekshundrede og niogfirs"
+],
+[
+"690",
+"sekshundrede og halvfems"
+],
+[
+"691",
+"sekshundrede og enoghalvfems"
+],
+[
+"692",
+"sekshundrede og tooghalvfems"
+],
+[
+"693",
+"sekshundrede og treoghalvfems"
+],
+[
+"694",
+"sekshundrede og fireoghalvfems"
+],
+[
+"695",
+"sekshundrede og femoghalvfems"
+],
+[
+"696",
+"sekshundrede og seksoghalvfems"
+],
+[
+"697",
+"sekshundrede og syvoghalvfems"
+],
+[
+"698",
+"sekshundrede og otteoghalvfems"
+],
+[
+"699",
+"sekshundrede og nioghalvfems"
+],
+[
+"700",
+"syvhundrede"
+],
+[
+"701",
+"syvhundrede og et"
+],
+[
+"702",
+"syvhundrede og to"
+],
+[
+"703",
+"syvhundrede og tre"
+],
+[
+"704",
+"syvhundrede og fire"
+],
+[
+"705",
+"syvhundrede og fem"
+],
+[
+"706",
+"syvhundrede og seks"
+],
+[
+"707",
+"syvhundrede og syv"
+],
+[
+"708",
+"syvhundrede og otte"
+],
+[
+"709",
+"syvhundrede og ni"
+],
+[
+"710",
+"syvhundrede og ti"
+],
+[
+"711",
+"syvhundrede og elleve"
+],
+[
+"712",
+"syvhundrede og tolv"
+],
+[
+"713",
+"syvhundrede og tretten"
+],
+[
+"714",
+"syvhundrede og fjorten"
+],
+[
+"715",
+"syvhundrede og femten"
+],
+[
+"716",
+"syvhundrede og seksten"
+],
+[
+"717",
+"syvhundrede og sytten"
+],
+[
+"718",
+"syvhundrede og atten"
+],
+[
+"719",
+"syvhundrede og nitten"
+],
+[
+"720",
+"syvhundrede og tyve"
+],
+[
+"721",
+"syvhundrede og enogtyve"
+],
+[
+"722",
+"syvhundrede og toogtyve"
+],
+[
+"723",
+"syvhundrede og treogtyve"
+],
+[
+"724",
+"syvhundrede og fireogtyve"
+],
+[
+"725",
+"syvhundrede og femogtyve"
+],
+[
+"726",
+"syvhundrede og seksogtyve"
+],
+[
+"727",
+"syvhundrede og syvogtyve"
+],
+[
+"728",
+"syvhundrede og otteogtyve"
+],
+[
+"729",
+"syvhundrede og niogtyve"
+],
+[
+"730",
+"syvhundrede og tredive"
+],
+[
+"731",
+"syvhundrede og enogtredive"
+],
+[
+"732",
+"syvhundrede og toogtredive"
+],
+[
+"733",
+"syvhundrede og treogtredive"
+],
+[
+"734",
+"syvhundrede og fireogtredive"
+],
+[
+"735",
+"syvhundrede og femogtredive"
+],
+[
+"736",
+"syvhundrede og seksogtredive"
+],
+[
+"737",
+"syvhundrede og syvogtredive"
+],
+[
+"738",
+"syvhundrede og otteogtredive"
+],
+[
+"739",
+"syvhundrede og niogtredive"
+],
+[
+"740",
+"syvhundrede og fyrre"
+],
+[
+"741",
+"syvhundrede og enogfyrre"
+],
+[
+"742",
+"syvhundrede og toogfyrre"
+],
+[
+"743",
+"syvhundrede og treogfyrre"
+],
+[
+"744",
+"syvhundrede og fireogfyrre"
+],
+[
+"745",
+"syvhundrede og femogfyrre"
+],
+[
+"746",
+"syvhundrede og seksogfyrre"
+],
+[
+"747",
+"syvhundrede og syvogfyrre"
+],
+[
+"748",
+"syvhundrede og otteogfyrre"
+],
+[
+"749",
+"syvhundrede og niogfyrre"
+],
+[
+"750",
+"syvhundrede og halvtreds"
+],
+[
+"751",
+"syvhundrede og enoghalvtreds"
+],
+[
+"752",
+"syvhundrede og tooghalvtreds"
+],
+[
+"753",
+"syvhundrede og treoghalvtreds"
+],
+[
+"754",
+"syvhundrede og fireoghalvtreds"
+],
+[
+"755",
+"syvhundrede og femoghalvtreds"
+],
+[
+"756",
+"syvhundrede og seksoghalvtreds"
+],
+[
+"757",
+"syvhundrede og syvoghalvtreds"
+],
+[
+"758",
+"syvhundrede og otteoghalvtreds"
+],
+[
+"759",
+"syvhundrede og nioghalvtreds"
+],
+[
+"760",
+"syvhundrede og treds"
+],
+[
+"761",
+"syvhundrede og enogtreds"
+],
+[
+"762",
+"syvhundrede og toogtreds"
+],
+[
+"763",
+"syvhundrede og treogtreds"
+],
+[
+"764",
+"syvhundrede og fireogtreds"
+],
+[
+"765",
+"syvhundrede og femogtreds"
+],
+[
+"766",
+"syvhundrede og seksogtreds"
+],
+[
+"767",
+"syvhundrede og syvogtreds"
+],
+[
+"768",
+"syvhundrede og otteogtreds"
+],
+[
+"769",
+"syvhundrede og niogtreds"
+],
+[
+"770",
+"syvhundrede og halvfjerds"
+],
+[
+"771",
+"syvhundrede og enoghalvfjerds"
+],
+[
+"772",
+"syvhundrede og tooghalvfjerds"
+],
+[
+"773",
+"syvhundrede og treoghalvfjerds"
+],
+[
+"774",
+"syvhundrede og fireoghalvfjerds"
+],
+[
+"775",
+"syvhundrede og femoghalvfjerds"
+],
+[
+"776",
+"syvhundrede og seksoghalvfjerds"
+],
+[
+"777",
+"syvhundrede og syvoghalvfjerds"
+],
+[
+"778",
+"syvhundrede og otteoghalvfjerds"
+],
+[
+"779",
+"syvhundrede og nioghalvfjerds"
+],
+[
+"780",
+"syvhundrede og firs"
+],
+[
+"781",
+"syvhundrede og enogfirs"
+],
+[
+"782",
+"syvhundrede og toogfirs"
+],
+[
+"783",
+"syvhundrede og treogfirs"
+],
+[
+"784",
+"syvhundrede og fireogfirs"
+],
+[
+"785",
+"syvhundrede og femogfirs"
+],
+[
+"786",
+"syvhundrede og seksogfirs"
+],
+[
+"787",
+"syvhundrede og syvogfirs"
+],
+[
+"788",
+"syvhundrede og otteogfirs"
+],
+[
+"789",
+"syvhundrede og niogfirs"
+],
+[
+"790",
+"syvhundrede og halvfems"
+],
+[
+"791",
+"syvhundrede og enoghalvfems"
+],
+[
+"792",
+"syvhundrede og tooghalvfems"
+],
+[
+"793",
+"syvhundrede og treoghalvfems"
+],
+[
+"794",
+"syvhundrede og fireoghalvfems"
+],
+[
+"795",
+"syvhundrede og femoghalvfems"
+],
+[
+"796",
+"syvhundrede og seksoghalvfems"
+],
+[
+"797",
+"syvhundrede og syvoghalvfems"
+],
+[
+"798",
+"syvhundrede og otteoghalvfems"
+],
+[
+"799",
+"syvhundrede og nioghalvfems"
+],
+[
+"800",
+"ottehundrede"
+],
+[
+"801",
+"ottehundrede og et"
+],
+[
+"802",
+"ottehundrede og to"
+],
+[
+"803",
+"ottehundrede og tre"
+],
+[
+"804",
+"ottehundrede og fire"
+],
+[
+"805",
+"ottehundrede og fem"
+],
+[
+"806",
+"ottehundrede og seks"
+],
+[
+"807",
+"ottehundrede og syv"
+],
+[
+"808",
+"ottehundrede og otte"
+],
+[
+"809",
+"ottehundrede og ni"
+],
+[
+"810",
+"ottehundrede og ti"
+],
+[
+"811",
+"ottehundrede og elleve"
+],
+[
+"812",
+"ottehundrede og tolv"
+],
+[
+"813",
+"ottehundrede og tretten"
+],
+[
+"814",
+"ottehundrede og fjorten"
+],
+[
+"815",
+"ottehundrede og femten"
+],
+[
+"816",
+"ottehundrede og seksten"
+],
+[
+"817",
+"ottehundrede og sytten"
+],
+[
+"818",
+"ottehundrede og atten"
+],
+[
+"819",
+"ottehundrede og nitten"
+],
+[
+"820",
+"ottehundrede og tyve"
+],
+[
+"821",
+"ottehundrede og enogtyve"
+],
+[
+"822",
+"ottehundrede og toogtyve"
+],
+[
+"823",
+"ottehundrede og treogtyve"
+],
+[
+"824",
+"ottehundrede og fireogtyve"
+],
+[
+"825",
+"ottehundrede og femogtyve"
+],
+[
+"826",
+"ottehundrede og seksogtyve"
+],
+[
+"827",
+"ottehundrede og syvogtyve"
+],
+[
+"828",
+"ottehundrede og otteogtyve"
+],
+[
+"829",
+"ottehundrede og niogtyve"
+],
+[
+"830",
+"ottehundrede og tredive"
+],
+[
+"831",
+"ottehundrede og enogtredive"
+],
+[
+"832",
+"ottehundrede og toogtredive"
+],
+[
+"833",
+"ottehundrede og treogtredive"
+],
+[
+"834",
+"ottehundrede og fireogtredive"
+],
+[
+"835",
+"ottehundrede og femogtredive"
+],
+[
+"836",
+"ottehundrede og seksogtredive"
+],
+[
+"837",
+"ottehundrede og syvogtredive"
+],
+[
+"838",
+"ottehundrede og otteogtredive"
+],
+[
+"839",
+"ottehundrede og niogtredive"
+],
+[
+"840",
+"ottehundrede og fyrre"
+],
+[
+"841",
+"ottehundrede og enogfyrre"
+],
+[
+"842",
+"ottehundrede og toogfyrre"
+],
+[
+"843",
+"ottehundrede og treogfyrre"
+],
+[
+"844",
+"ottehundrede og fireogfyrre"
+],
+[
+"845",
+"ottehundrede og femogfyrre"
+],
+[
+"846",
+"ottehundrede og seksogfyrre"
+],
+[
+"847",
+"ottehundrede og syvogfyrre"
+],
+[
+"848",
+"ottehundrede og otteogfyrre"
+],
+[
+"849",
+"ottehundrede og niogfyrre"
+],
+[
+"850",
+"ottehundrede og halvtreds"
+],
+[
+"851",
+"ottehundrede og enoghalvtreds"
+],
+[
+"852",
+"ottehundrede og tooghalvtreds"
+],
+[
+"853",
+"ottehundrede og treoghalvtreds"
+],
+[
+"854",
+"ottehundrede og fireoghalvtreds"
+],
+[
+"855",
+"ottehundrede og femoghalvtreds"
+],
+[
+"856",
+"ottehundrede og seksoghalvtreds"
+],
+[
+"857",
+"ottehundrede og syvoghalvtreds"
+],
+[
+"858",
+"ottehundrede og otteoghalvtreds"
+],
+[
+"859",
+"ottehundrede og nioghalvtreds"
+],
+[
+"860",
+"ottehundrede og treds"
+],
+[
+"861",
+"ottehundrede og enogtreds"
+],
+[
+"862",
+"ottehundrede og toogtreds"
+],
+[
+"863",
+"ottehundrede og treogtreds"
+],
+[
+"864",
+"ottehundrede og fireogtreds"
+],
+[
+"865",
+"ottehundrede og femogtreds"
+],
+[
+"866",
+"ottehundrede og seksogtreds"
+],
+[
+"867",
+"ottehundrede og syvogtreds"
+],
+[
+"868",
+"ottehundrede og otteogtreds"
+],
+[
+"869",
+"ottehundrede og niogtreds"
+],
+[
+"870",
+"ottehundrede og halvfjerds"
+],
+[
+"871",
+"ottehundrede og enoghalvfjerds"
+],
+[
+"872",
+"ottehundrede og tooghalvfjerds"
+],
+[
+"873",
+"ottehundrede og treoghalvfjerds"
+],
+[
+"874",
+"ottehundrede og fireoghalvfjerds"
+],
+[
+"875",
+"ottehundrede og femoghalvfjerds"
+],
+[
+"876",
+"ottehundrede og seksoghalvfjerds"
+],
+[
+"877",
+"ottehundrede og syvoghalvfjerds"
+],
+[
+"878",
+"ottehundrede og otteoghalvfjerds"
+],
+[
+"879",
+"ottehundrede og nioghalvfjerds"
+],
+[
+"880",
+"ottehundrede og firs"
+],
+[
+"881",
+"ottehundrede og enogfirs"
+],
+[
+"882",
+"ottehundrede og toogfirs"
+],
+[
+"883",
+"ottehundrede og treogfirs"
+],
+[
+"884",
+"ottehundrede og fireogfirs"
+],
+[
+"885",
+"ottehundrede og femogfirs"
+],
+[
+"886",
+"ottehundrede og seksogfirs"
+],
+[
+"887",
+"ottehundrede og syvogfirs"
+],
+[
+"888",
+"ottehundrede og otteogfirs"
+],
+[
+"889",
+"ottehundrede og niogfirs"
+],
+[
+"890",
+"ottehundrede og halvfems"
+],
+[
+"891",
+"ottehundrede og enoghalvfems"
+],
+[
+"892",
+"ottehundrede og tooghalvfems"
+],
+[
+"893",
+"ottehundrede og treoghalvfems"
+],
+[
+"894",
+"ottehundrede og fireoghalvfems"
+],
+[
+"895",
+"ottehundrede og femoghalvfems"
+],
+[
+"896",
+"ottehundrede og seksoghalvfems"
+],
+[
+"897",
+"ottehundrede og syvoghalvfems"
+],
+[
+"898",
+"ottehundrede og otteoghalvfems"
+],
+[
+"899",
+"ottehundrede og nioghalvfems"
+],
+[
+"900",
+"nihundrede"
+],
+[
+"901",
+"nihundrede og et"
+],
+[
+"902",
+"nihundrede og to"
+],
+[
+"903",
+"nihundrede og tre"
+],
+[
+"904",
+"nihundrede og fire"
+],
+[
+"905",
+"nihundrede og fem"
+],
+[
+"906",
+"nihundrede og seks"
+],
+[
+"907",
+"nihundrede og syv"
+],
+[
+"908",
+"nihundrede og otte"
+],
+[
+"909",
+"nihundrede og ni"
+],
+[
+"910",
+"nihundrede og ti"
+],
+[
+"911",
+"nihundrede og elleve"
+],
+[
+"912",
+"nihundrede og tolv"
+],
+[
+"913",
+"nihundrede og tretten"
+],
+[
+"914",
+"nihundrede og fjorten"
+],
+[
+"915",
+"nihundrede og femten"
+],
+[
+"916",
+"nihundrede og seksten"
+],
+[
+"917",
+"nihundrede og sytten"
+],
+[
+"918",
+"nihundrede og atten"
+],
+[
+"919",
+"nihundrede og nitten"
+],
+[
+"920",
+"nihundrede og tyve"
+],
+[
+"921",
+"nihundrede og enogtyve"
+],
+[
+"922",
+"nihundrede og toogtyve"
+],
+[
+"923",
+"nihundrede og treogtyve"
+],
+[
+"924",
+"nihundrede og fireogtyve"
+],
+[
+"925",
+"nihundrede og femogtyve"
+],
+[
+"926",
+"nihundrede og seksogtyve"
+],
+[
+"927",
+"nihundrede og syvogtyve"
+],
+[
+"928",
+"nihundrede og otteogtyve"
+],
+[
+"929",
+"nihundrede og niogtyve"
+],
+[
+"930",
+"nihundrede og tredive"
+],
+[
+"931",
+"nihundrede og enogtredive"
+],
+[
+"932",
+"nihundrede og toogtredive"
+],
+[
+"933",
+"nihundrede og treogtredive"
+],
+[
+"934",
+"nihundrede og fireogtredive"
+],
+[
+"935",
+"nihundrede og femogtredive"
+],
+[
+"936",
+"nihundrede og seksogtredive"
+],
+[
+"937",
+"nihundrede og syvogtredive"
+],
+[
+"938",
+"nihundrede og otteogtredive"
+],
+[
+"939",
+"nihundrede og niogtredive"
+],
+[
+"940",
+"nihundrede og fyrre"
+],
+[
+"941",
+"nihundrede og enogfyrre"
+],
+[
+"942",
+"nihundrede og toogfyrre"
+],
+[
+"943",
+"nihundrede og treogfyrre"
+],
+[
+"944",
+"nihundrede og fireogfyrre"
+],
+[
+"945",
+"nihundrede og femogfyrre"
+],
+[
+"946",
+"nihundrede og seksogfyrre"
+],
+[
+"947",
+"nihundrede og syvogfyrre"
+],
+[
+"948",
+"nihundrede og otteogfyrre"
+],
+[
+"949",
+"nihundrede og niogfyrre"
+],
+[
+"950",
+"nihundrede og halvtreds"
+],
+[
+"951",
+"nihundrede og enoghalvtreds"
+],
+[
+"952",
+"nihundrede og tooghalvtreds"
+],
+[
+"953",
+"nihundrede og treoghalvtreds"
+],
+[
+"954",
+"nihundrede og fireoghalvtreds"
+],
+[
+"955",
+"nihundrede og femoghalvtreds"
+],
+[
+"956",
+"nihundrede og seksoghalvtreds"
+],
+[
+"957",
+"nihundrede og syvoghalvtreds"
+],
+[
+"958",
+"nihundrede og otteoghalvtreds"
+],
+[
+"959",
+"nihundrede og nioghalvtreds"
+],
+[
+"960",
+"nihundrede og treds"
+],
+[
+"961",
+"nihundrede og enogtreds"
+],
+[
+"962",
+"nihundrede og toogtreds"
+],
+[
+"963",
+"nihundrede og treogtreds"
+],
+[
+"964",
+"nihundrede og fireogtreds"
+],
+[
+"965",
+"nihundrede og femogtreds"
+],
+[
+"966",
+"nihundrede og seksogtreds"
+],
+[
+"967",
+"nihundrede og syvogtreds"
+],
+[
+"968",
+"nihundrede og otteogtreds"
+],
+[
+"969",
+"nihundrede og niogtreds"
+],
+[
+"970",
+"nihundrede og halvfjerds"
+],
+[
+"971",
+"nihundrede og enoghalvfjerds"
+],
+[
+"972",
+"nihundrede og tooghalvfjerds"
+],
+[
+"973",
+"nihundrede og treoghalvfjerds"
+],
+[
+"974",
+"nihundrede og fireoghalvfjerds"
+],
+[
+"975",
+"nihundrede og femoghalvfjerds"
+],
+[
+"976",
+"nihundrede og seksoghalvfjerds"
+],
+[
+"977",
+"nihundrede og syvoghalvfjerds"
+],
+[
+"978",
+"nihundrede og otteoghalvfjerds"
+],
+[
+"979",
+"nihundrede og nioghalvfjerds"
+],
+[
+"980",
+"nihundrede og firs"
+],
+[
+"981",
+"nihundrede og enogfirs"
+],
+[
+"982",
+"nihundrede og toogfirs"
+],
+[
+"983",
+"nihundrede og treogfirs"
+],
+[
+"984",
+"nihundrede og fireogfirs"
+],
+[
+"985",
+"nihundrede og femogfirs"
+],
+[
+"986",
+"nihundrede og seksogfirs"
+],
+[
+"987",
+"nihundrede og syvogfirs"
+],
+[
+"988",
+"nihundrede og otteogfirs"
+],
+[
+"989",
+"nihundrede og niogfirs"
+],
+[
+"990",
+"nihundrede og halvfems"
+],
+[
+"991",
+"nihundrede og enoghalvfems"
+],
+[
+"992",
+"nihundrede og tooghalvfems"
+],
+[
+"993",
+"nihundrede og treoghalvfems"
+],
+[
+"994",
+"nihundrede og fireoghalvfems"
+],
+[
+"995",
+"nihundrede og femoghalvfems"
+],
+[
+"996",
+"nihundrede og seksoghalvfems"
+],
+[
+"997",
+"nihundrede og syvoghalvfems"
+],
+[
+"998",
+"nihundrede og otteoghalvfems"
+],
+[
+"999",
+"nihundrede og nioghalvfems"
+],
+[
+"1000",
+"ettusind"
+],
+[
+"1001",
+"ettusinde og et"
+],
+[
+"1002",
+"ettusinde og to"
+],
+[
+"1003",
+"ettusinde og tre"
+],
+[
+"1004",
+"ettusinde og fire"
+],
+[
+"1005",
+"ettusinde og fem"
+],
+[
+"1006",
+"ettusinde og seks"
+],
+[
+"1007",
+"ettusinde og syv"
+],
+[
+"1008",
+"ettusinde og otte"
+],
+[
+"1009",
+"ettusinde og ni"
+],
+[
+"1010",
+"ettusinde og ti"
+],
+[
+"1011",
+"ettusinde og elleve"
+],
+[
+"1012",
+"ettusinde og tolv"
+],
+[
+"1013",
+"ettusinde og tretten"
+],
+[
+"1014",
+"ettusinde og fjorten"
+],
+[
+"1015",
+"ettusinde og femten"
+],
+[
+"1016",
+"ettusinde og seksten"
+],
+[
+"1017",
+"ettusinde og sytten"
+],
+[
+"1018",
+"ettusinde og atten"
+],
+[
+"1019",
+"ettusinde og nitten"
+],
+[
+"1020",
+"ettusinde og tyve"
+],
+[
+"1021",
+"ettusinde og enogtyve"
+],
+[
+"1022",
+"ettusinde og toogtyve"
+],
+[
+"1023",
+"ettusinde og treogtyve"
+],
+[
+"1024",
+"ettusinde og fireogtyve"
+],
+[
+"1025",
+"ettusinde og femogtyve"
+],
+[
+"1026",
+"ettusinde og seksogtyve"
+],
+[
+"1027",
+"ettusinde og syvogtyve"
+],
+[
+"1028",
+"ettusinde og otteogtyve"
+],
+[
+"1029",
+"ettusinde og niogtyve"
+],
+[
+"1030",
+"ettusinde og tredive"
+],
+[
+"1031",
+"ettusinde og enogtredive"
+],
+[
+"1032",
+"ettusinde og toogtredive"
+],
+[
+"1033",
+"ettusinde og treogtredive"
+],
+[
+"1034",
+"ettusinde og fireogtredive"
+],
+[
+"1035",
+"ettusinde og femogtredive"
+],
+[
+"1036",
+"ettusinde og seksogtredive"
+],
+[
+"1037",
+"ettusinde og syvogtredive"
+],
+[
+"1038",
+"ettusinde og otteogtredive"
+],
+[
+"1039",
+"ettusinde og niogtredive"
+],
+[
+"1040",
+"ettusinde og fyrre"
+],
+[
+"1041",
+"ettusinde og enogfyrre"
+],
+[
+"1042",
+"ettusinde og toogfyrre"
+],
+[
+"1043",
+"ettusinde og treogfyrre"
+],
+[
+"1044",
+"ettusinde og fireogfyrre"
+],
+[
+"1045",
+"ettusinde og femogfyrre"
+],
+[
+"1046",
+"ettusinde og seksogfyrre"
+],
+[
+"1047",
+"ettusinde og syvogfyrre"
+],
+[
+"1048",
+"ettusinde og otteogfyrre"
+],
+[
+"1049",
+"ettusinde og niogfyrre"
+],
+[
+"1050",
+"ettusinde og halvtreds"
+],
+[
+"1051",
+"ettusinde og enoghalvtreds"
+],
+[
+"1052",
+"ettusinde og tooghalvtreds"
+],
+[
+"1053",
+"ettusinde og treoghalvtreds"
+],
+[
+"1054",
+"ettusinde og fireoghalvtreds"
+],
+[
+"1055",
+"ettusinde og femoghalvtreds"
+],
+[
+"1056",
+"ettusinde og seksoghalvtreds"
+],
+[
+"1057",
+"ettusinde og syvoghalvtreds"
+],
+[
+"1058",
+"ettusinde og otteoghalvtreds"
+],
+[
+"1059",
+"ettusinde og nioghalvtreds"
+],
+[
+"1060",
+"ettusinde og treds"
+],
+[
+"1061",
+"ettusinde og enogtreds"
+],
+[
+"1062",
+"ettusinde og toogtreds"
+],
+[
+"1063",
+"ettusinde og treogtreds"
+],
+[
+"1064",
+"ettusinde og fireogtreds"
+],
+[
+"1065",
+"ettusinde og femogtreds"
+],
+[
+"1066",
+"ettusinde og seksogtreds"
+],
+[
+"1067",
+"ettusinde og syvogtreds"
+],
+[
+"1068",
+"ettusinde og otteogtreds"
+],
+[
+"1069",
+"ettusinde og niogtreds"
+],
+[
+"1070",
+"ettusinde og halvfjerds"
+],
+[
+"1071",
+"ettusinde og enoghalvfjerds"
+],
+[
+"1072",
+"ettusinde og tooghalvfjerds"
+],
+[
+"1073",
+"ettusinde og treoghalvfjerds"
+],
+[
+"1074",
+"ettusinde og fireoghalvfjerds"
+],
+[
+"1075",
+"ettusinde og femoghalvfjerds"
+],
+[
+"1076",
+"ettusinde og seksoghalvfjerds"
+],
+[
+"1077",
+"ettusinde og syvoghalvfjerds"
+],
+[
+"1078",
+"ettusinde og otteoghalvfjerds"
+],
+[
+"1079",
+"ettusinde og nioghalvfjerds"
+],
+[
+"1080",
+"ettusinde og firs"
+],
+[
+"1081",
+"ettusinde og enogfirs"
+],
+[
+"1082",
+"ettusinde og toogfirs"
+],
+[
+"1083",
+"ettusinde og treogfirs"
+],
+[
+"1084",
+"ettusinde og fireogfirs"
+],
+[
+"1085",
+"ettusinde og femogfirs"
+],
+[
+"1086",
+"ettusinde og seksogfirs"
+],
+[
+"1087",
+"ettusinde og syvogfirs"
+],
+[
+"1088",
+"ettusinde og otteogfirs"
+],
+[
+"1089",
+"ettusinde og niogfirs"
+],
+[
+"1090",
+"ettusinde og halvfems"
+],
+[
+"1091",
+"ettusinde og enoghalvfems"
+],
+[
+"1092",
+"ettusinde og tooghalvfems"
+],
+[
+"1093",
+"ettusinde og treoghalvfems"
+],
+[
+"1094",
+"ettusinde og fireoghalvfems"
+],
+[
+"1095",
+"ettusinde og femoghalvfems"
+],
+[
+"1096",
+"ettusinde og seksoghalvfems"
+],
+[
+"1097",
+"ettusinde og syvoghalvfems"
+],
+[
+"1098",
+"ettusinde og otteoghalvfems"
+],
+[
+"1099",
+"ettusinde og nioghalvfems"
+],
+[
+"1100",
+"ettusinde og ethundrede"
+],
+[
+"1101",
+"ettusinde og ethundrede og et"
+],
+[
+"1102",
+"ettusinde og ethundrede og to"
+],
+[
+"1103",
+"ettusinde og ethundrede og tre"
+],
+[
+"1104",
+"ettusinde og ethundrede og fire"
+],
+[
+"1105",
+"ettusinde og ethundrede og fem"
+],
+[
+"1106",
+"ettusinde og ethundrede og seks"
+],
+[
+"1107",
+"ettusinde og ethundrede og syv"
+],
+[
+"1108",
+"ettusinde og ethundrede og otte"
+],
+[
+"1109",
+"ettusinde og ethundrede og ni"
+],
+[
+"1110",
+"ettusinde og ethundrede og ti"
+],
+[
+"1111",
+"ettusinde og ethundrede og elleve"
+],
+[
+"1112",
+"ettusinde og ethundrede og tolv"
+],
+[
+"1113",
+"ettusinde og ethundrede og tretten"
+],
+[
+"1114",
+"ettusinde og ethundrede og fjorten"
+],
+[
+"1115",
+"ettusinde og ethundrede og femten"
+],
+[
+"1116",
+"ettusinde og ethundrede og seksten"
+],
+[
+"1117",
+"ettusinde og ethundrede og sytten"
+],
+[
+"1118",
+"ettusinde og ethundrede og atten"
+],
+[
+"1119",
+"ettusinde og ethundrede og nitten"
+],
+[
+"1120",
+"ettusinde og ethundrede og tyve"
+],
+[
+"1121",
+"ettusinde og ethundrede og enogtyve"
+],
+[
+"1122",
+"ettusinde og ethundrede og toogtyve"
+],
+[
+"1123",
+"ettusinde og ethundrede og treogtyve"
+],
+[
+"1124",
+"ettusinde og ethundrede og fireogtyve"
+],
+[
+"1125",
+"ettusinde og ethundrede og femogtyve"
+],
+[
+"1126",
+"ettusinde og ethundrede og seksogtyve"
+],
+[
+"1127",
+"ettusinde og ethundrede og syvogtyve"
+],
+[
+"1128",
+"ettusinde og ethundrede og otteogtyve"
+],
+[
+"1129",
+"ettusinde og ethundrede og niogtyve"
+],
+[
+"1130",
+"ettusinde og ethundrede og tredive"
+],
+[
+"1131",
+"ettusinde og ethundrede og enogtredive"
+],
+[
+"1132",
+"ettusinde og ethundrede og toogtredive"
+],
+[
+"1133",
+"ettusinde og ethundrede og treogtredive"
+],
+[
+"1134",
+"ettusinde og ethundrede og fireogtredive"
+],
+[
+"1135",
+"ettusinde og ethundrede og femogtredive"
+],
+[
+"1136",
+"ettusinde og ethundrede og seksogtredive"
+],
+[
+"1137",
+"ettusinde og ethundrede og syvogtredive"
+],
+[
+"1138",
+"ettusinde og ethundrede og otteogtredive"
+],
+[
+"1139",
+"ettusinde og ethundrede og niogtredive"
+],
+[
+"1140",
+"ettusinde og ethundrede og fyrre"
+],
+[
+"1141",
+"ettusinde og ethundrede og enogfyrre"
+],
+[
+"1142",
+"ettusinde og ethundrede og toogfyrre"
+],
+[
+"1143",
+"ettusinde og ethundrede og treogfyrre"
+],
+[
+"1144",
+"ettusinde og ethundrede og fireogfyrre"
+],
+[
+"1145",
+"ettusinde og ethundrede og femogfyrre"
+],
+[
+"1146",
+"ettusinde og ethundrede og seksogfyrre"
+],
+[
+"1147",
+"ettusinde og ethundrede og syvogfyrre"
+],
+[
+"1148",
+"ettusinde og ethundrede og otteogfyrre"
+],
+[
+"1149",
+"ettusinde og ethundrede og niogfyrre"
+],
+[
+"1150",
+"ettusinde og ethundrede og halvtreds"
+],
+[
+"1151",
+"ettusinde og ethundrede og enoghalvtreds"
+],
+[
+"1152",
+"ettusinde og ethundrede og tooghalvtreds"
+],
+[
+"1153",
+"ettusinde og ethundrede og treoghalvtreds"
+],
+[
+"1154",
+"ettusinde og ethundrede og fireoghalvtreds"
+],
+[
+"1155",
+"ettusinde og ethundrede og femoghalvtreds"
+],
+[
+"1156",
+"ettusinde og ethundrede og seksoghalvtreds"
+],
+[
+"1157",
+"ettusinde og ethundrede og syvoghalvtreds"
+],
+[
+"1158",
+"ettusinde og ethundrede og otteoghalvtreds"
+],
+[
+"1159",
+"ettusinde og ethundrede og nioghalvtreds"
+],
+[
+"1160",
+"ettusinde og ethundrede og treds"
+],
+[
+"1161",
+"ettusinde og ethundrede og enogtreds"
+],
+[
+"1162",
+"ettusinde og ethundrede og toogtreds"
+],
+[
+"1163",
+"ettusinde og ethundrede og treogtreds"
+],
+[
+"1164",
+"ettusinde og ethundrede og fireogtreds"
+],
+[
+"1165",
+"ettusinde og ethundrede og femogtreds"
+],
+[
+"1166",
+"ettusinde og ethundrede og seksogtreds"
+],
+[
+"1167",
+"ettusinde og ethundrede og syvogtreds"
+],
+[
+"1168",
+"ettusinde og ethundrede og otteogtreds"
+],
+[
+"1169",
+"ettusinde og ethundrede og niogtreds"
+],
+[
+"1170",
+"ettusinde og ethundrede og halvfjerds"
+],
+[
+"1171",
+"ettusinde og ethundrede og enoghalvfjerds"
+],
+[
+"1172",
+"ettusinde og ethundrede og tooghalvfjerds"
+],
+[
+"1173",
+"ettusinde og ethundrede og treoghalvfjerds"
+],
+[
+"1174",
+"ettusinde og ethundrede og fireoghalvfjerds"
+],
+[
+"1175",
+"ettusinde og ethundrede og femoghalvfjerds"
+],
+[
+"1176",
+"ettusinde og ethundrede og seksoghalvfjerds"
+],
+[
+"1177",
+"ettusinde og ethundrede og syvoghalvfjerds"
+],
+[
+"1178",
+"ettusinde og ethundrede og otteoghalvfjerds"
+],
+[
+"1179",
+"ettusinde og ethundrede og nioghalvfjerds"
+],
+[
+"1180",
+"ettusinde og ethundrede og firs"
+],
+[
+"1181",
+"ettusinde og ethundrede og enogfirs"
+],
+[
+"1182",
+"ettusinde og ethundrede og toogfirs"
+],
+[
+"1183",
+"ettusinde og ethundrede og treogfirs"
+],
+[
+"1184",
+"ettusinde og ethundrede og fireogfirs"
+],
+[
+"1185",
+"ettusinde og ethundrede og femogfirs"
+],
+[
+"1186",
+"ettusinde og ethundrede og seksogfirs"
+],
+[
+"1187",
+"ettusinde og ethundrede og syvogfirs"
+],
+[
+"1188",
+"ettusinde og ethundrede og otteogfirs"
+],
+[
+"1189",
+"ettusinde og ethundrede og niogfirs"
+],
+[
+"1190",
+"ettusinde og ethundrede og halvfems"
+],
+[
+"1191",
+"ettusinde og ethundrede og enoghalvfems"
+],
+[
+"1192",
+"ettusinde og ethundrede og tooghalvfems"
+],
+[
+"1193",
+"ettusinde og ethundrede og treoghalvfems"
+],
+[
+"1194",
+"ettusinde og ethundrede og fireoghalvfems"
+],
+[
+"1195",
+"ettusinde og ethundrede og femoghalvfems"
+],
+[
+"1196",
+"ettusinde og ethundrede og seksoghalvfems"
+],
+[
+"1197",
+"ettusinde og ethundrede og syvoghalvfems"
+],
+[
+"1198",
+"ettusinde og ethundrede og otteoghalvfems"
+],
+[
+"1199",
+"ettusinde og ethundrede og nioghalvfems"
+],
+[
+"1200",
+"ettusinde og tohundrede"
+],
+[
+"1201",
+"ettusinde og tohundrede og et"
+],
+[
+"1202",
+"ettusinde og tohundrede og to"
+],
+[
+"1203",
+"ettusinde og tohundrede og tre"
+],
+[
+"1204",
+"ettusinde og tohundrede og fire"
+],
+[
+"1205",
+"ettusinde og tohundrede og fem"
+],
+[
+"1206",
+"ettusinde og tohundrede og seks"
+],
+[
+"1207",
+"ettusinde og tohundrede og syv"
+],
+[
+"1208",
+"ettusinde og tohundrede og otte"
+],
+[
+"1209",
+"ettusinde og tohundrede og ni"
+],
+[
+"1210",
+"ettusinde og tohundrede og ti"
+],
+[
+"1211",
+"ettusinde og tohundrede og elleve"
+],
+[
+"1212",
+"ettusinde og tohundrede og tolv"
+],
+[
+"1213",
+"ettusinde og tohundrede og tretten"
+],
+[
+"1214",
+"ettusinde og tohundrede og fjorten"
+],
+[
+"1215",
+"ettusinde og tohundrede og femten"
+],
+[
+"1216",
+"ettusinde og tohundrede og seksten"
+],
+[
+"1217",
+"ettusinde og tohundrede og sytten"
+],
+[
+"1218",
+"ettusinde og tohundrede og atten"
+],
+[
+"1219",
+"ettusinde og tohundrede og nitten"
+],
+[
+"1220",
+"ettusinde og tohundrede og tyve"
+],
+[
+"1221",
+"ettusinde og tohundrede og enogtyve"
+],
+[
+"1222",
+"ettusinde og tohundrede og toogtyve"
+],
+[
+"1223",
+"ettusinde og tohundrede og treogtyve"
+],
+[
+"1224",
+"ettusinde og tohundrede og fireogtyve"
+],
+[
+"1225",
+"ettusinde og tohundrede og femogtyve"
+],
+[
+"1226",
+"ettusinde og tohundrede og seksogtyve"
+],
+[
+"1227",
+"ettusinde og tohundrede og syvogtyve"
+],
+[
+"1228",
+"ettusinde og tohundrede og otteogtyve"
+],
+[
+"1229",
+"ettusinde og tohundrede og niogtyve"
+],
+[
+"1230",
+"ettusinde og tohundrede og tredive"
+],
+[
+"1231",
+"ettusinde og tohundrede og enogtredive"
+],
+[
+"1232",
+"ettusinde og tohundrede og toogtredive"
+],
+[
+"1233",
+"ettusinde og tohundrede og treogtredive"
+],
+[
+"1234",
+"ettusinde og tohundrede og fireogtredive"
+],
+[
+"1235",
+"ettusinde og tohundrede og femogtredive"
+],
+[
+"1236",
+"ettusinde og tohundrede og seksogtredive"
+],
+[
+"1237",
+"ettusinde og tohundrede og syvogtredive"
+],
+[
+"1238",
+"ettusinde og tohundrede og otteogtredive"
+],
+[
+"1239",
+"ettusinde og tohundrede og niogtredive"
+],
+[
+"1240",
+"ettusinde og tohundrede og fyrre"
+],
+[
+"1241",
+"ettusinde og tohundrede og enogfyrre"
+],
+[
+"1242",
+"ettusinde og tohundrede og toogfyrre"
+],
+[
+"1243",
+"ettusinde og tohundrede og treogfyrre"
+],
+[
+"1244",
+"ettusinde og tohundrede og fireogfyrre"
+],
+[
+"1245",
+"ettusinde og tohundrede og femogfyrre"
+],
+[
+"1246",
+"ettusinde og tohundrede og seksogfyrre"
+],
+[
+"1247",
+"ettusinde og tohundrede og syvogfyrre"
+],
+[
+"1248",
+"ettusinde og tohundrede og otteogfyrre"
+],
+[
+"1249",
+"ettusinde og tohundrede og niogfyrre"
+],
+[
+"1250",
+"ettusinde og tohundrede og halvtreds"
+],
+[
+"1251",
+"ettusinde og tohundrede og enoghalvtreds"
+],
+[
+"1252",
+"ettusinde og tohundrede og tooghalvtreds"
+],
+[
+"1253",
+"ettusinde og tohundrede og treoghalvtreds"
+],
+[
+"1254",
+"ettusinde og tohundrede og fireoghalvtreds"
+],
+[
+"1255",
+"ettusinde og tohundrede og femoghalvtreds"
+],
+[
+"1256",
+"ettusinde og tohundrede og seksoghalvtreds"
+],
+[
+"1257",
+"ettusinde og tohundrede og syvoghalvtreds"
+],
+[
+"1258",
+"ettusinde og tohundrede og otteoghalvtreds"
+],
+[
+"1259",
+"ettusinde og tohundrede og nioghalvtreds"
+],
+[
+"1260",
+"ettusinde og tohundrede og treds"
+],
+[
+"1261",
+"ettusinde og tohundrede og enogtreds"
+],
+[
+"1262",
+"ettusinde og tohundrede og toogtreds"
+],
+[
+"1263",
+"ettusinde og tohundrede og treogtreds"
+],
+[
+"1264",
+"ettusinde og tohundrede og fireogtreds"
+],
+[
+"1265",
+"ettusinde og tohundrede og femogtreds"
+],
+[
+"1266",
+"ettusinde og tohundrede og seksogtreds"
+],
+[
+"1267",
+"ettusinde og tohundrede og syvogtreds"
+],
+[
+"1268",
+"ettusinde og tohundrede og otteogtreds"
+],
+[
+"1269",
+"ettusinde og tohundrede og niogtreds"
+],
+[
+"1270",
+"ettusinde og tohundrede og halvfjerds"
+],
+[
+"1271",
+"ettusinde og tohundrede og enoghalvfjerds"
+],
+[
+"1272",
+"ettusinde og tohundrede og tooghalvfjerds"
+],
+[
+"1273",
+"ettusinde og tohundrede og treoghalvfjerds"
+],
+[
+"1274",
+"ettusinde og tohundrede og fireoghalvfjerds"
+],
+[
+"1275",
+"ettusinde og tohundrede og femoghalvfjerds"
+],
+[
+"1276",
+"ettusinde og tohundrede og seksoghalvfjerds"
+],
+[
+"1277",
+"ettusinde og tohundrede og syvoghalvfjerds"
+],
+[
+"1278",
+"ettusinde og tohundrede og otteoghalvfjerds"
+],
+[
+"1279",
+"ettusinde og tohundrede og nioghalvfjerds"
+],
+[
+"1280",
+"ettusinde og tohundrede og firs"
+],
+[
+"1281",
+"ettusinde og tohundrede og enogfirs"
+],
+[
+"1282",
+"ettusinde og tohundrede og toogfirs"
+],
+[
+"1283",
+"ettusinde og tohundrede og treogfirs"
+],
+[
+"1284",
+"ettusinde og tohundrede og fireogfirs"
+],
+[
+"1285",
+"ettusinde og tohundrede og femogfirs"
+],
+[
+"1286",
+"ettusinde og tohundrede og seksogfirs"
+],
+[
+"1287",
+"ettusinde og tohundrede og syvogfirs"
+],
+[
+"1288",
+"ettusinde og tohundrede og otteogfirs"
+],
+[
+"1289",
+"ettusinde og tohundrede og niogfirs"
+],
+[
+"1290",
+"ettusinde og tohundrede og halvfems"
+],
+[
+"1291",
+"ettusinde og tohundrede og enoghalvfems"
+],
+[
+"1292",
+"ettusinde og tohundrede og tooghalvfems"
+],
+[
+"1293",
+"ettusinde og tohundrede og treoghalvfems"
+],
+[
+"1294",
+"ettusinde og tohundrede og fireoghalvfems"
+],
+[
+"1295",
+"ettusinde og tohundrede og femoghalvfems"
+],
+[
+"1296",
+"ettusinde og tohundrede og seksoghalvfems"
+],
+[
+"1297",
+"ettusinde og tohundrede og syvoghalvfems"
+],
+[
+"1298",
+"ettusinde og tohundrede og otteoghalvfems"
+],
+[
+"1299",
+"ettusinde og tohundrede og nioghalvfems"
+],
+[
+"1300",
+"ettusinde og trehundrede"
+],
+[
+"1301",
+"ettusinde og trehundrede og et"
+],
+[
+"1302",
+"ettusinde og trehundrede og to"
+],
+[
+"1303",
+"ettusinde og trehundrede og tre"
+],
+[
+"1304",
+"ettusinde og trehundrede og fire"
+],
+[
+"1305",
+"ettusinde og trehundrede og fem"
+],
+[
+"1306",
+"ettusinde og trehundrede og seks"
+],
+[
+"1307",
+"ettusinde og trehundrede og syv"
+],
+[
+"1308",
+"ettusinde og trehundrede og otte"
+],
+[
+"1309",
+"ettusinde og trehundrede og ni"
+],
+[
+"1310",
+"ettusinde og trehundrede og ti"
+],
+[
+"1311",
+"ettusinde og trehundrede og elleve"
+],
+[
+"1312",
+"ettusinde og trehundrede og tolv"
+],
+[
+"1313",
+"ettusinde og trehundrede og tretten"
+],
+[
+"1314",
+"ettusinde og trehundrede og fjorten"
+],
+[
+"1315",
+"ettusinde og trehundrede og femten"
+],
+[
+"1316",
+"ettusinde og trehundrede og seksten"
+],
+[
+"1317",
+"ettusinde og trehundrede og sytten"
+],
+[
+"1318",
+"ettusinde og trehundrede og atten"
+],
+[
+"1319",
+"ettusinde og trehundrede og nitten"
+],
+[
+"1320",
+"ettusinde og trehundrede og tyve"
+],
+[
+"1321",
+"ettusinde og trehundrede og enogtyve"
+],
+[
+"1322",
+"ettusinde og trehundrede og toogtyve"
+],
+[
+"1323",
+"ettusinde og trehundrede og treogtyve"
+],
+[
+"1324",
+"ettusinde og trehundrede og fireogtyve"
+],
+[
+"1325",
+"ettusinde og trehundrede og femogtyve"
+],
+[
+"1326",
+"ettusinde og trehundrede og seksogtyve"
+],
+[
+"1327",
+"ettusinde og trehundrede og syvogtyve"
+],
+[
+"1328",
+"ettusinde og trehundrede og otteogtyve"
+],
+[
+"1329",
+"ettusinde og trehundrede og niogtyve"
+],
+[
+"1330",
+"ettusinde og trehundrede og tredive"
+],
+[
+"1331",
+"ettusinde og trehundrede og enogtredive"
+],
+[
+"1332",
+"ettusinde og trehundrede og toogtredive"
+],
+[
+"1333",
+"ettusinde og trehundrede og treogtredive"
+],
+[
+"1334",
+"ettusinde og trehundrede og fireogtredive"
+],
+[
+"1335",
+"ettusinde og trehundrede og femogtredive"
+],
+[
+"1336",
+"ettusinde og trehundrede og seksogtredive"
+],
+[
+"1337",
+"ettusinde og trehundrede og syvogtredive"
+],
+[
+"1338",
+"ettusinde og trehundrede og otteogtredive"
+],
+[
+"1339",
+"ettusinde og trehundrede og niogtredive"
+],
+[
+"1340",
+"ettusinde og trehundrede og fyrre"
+],
+[
+"1341",
+"ettusinde og trehundrede og enogfyrre"
+],
+[
+"1342",
+"ettusinde og trehundrede og toogfyrre"
+],
+[
+"1343",
+"ettusinde og trehundrede og treogfyrre"
+],
+[
+"1344",
+"ettusinde og trehundrede og fireogfyrre"
+],
+[
+"1345",
+"ettusinde og trehundrede og femogfyrre"
+],
+[
+"1346",
+"ettusinde og trehundrede og seksogfyrre"
+],
+[
+"1347",
+"ettusinde og trehundrede og syvogfyrre"
+],
+[
+"1348",
+"ettusinde og trehundrede og otteogfyrre"
+],
+[
+"1349",
+"ettusinde og trehundrede og niogfyrre"
+],
+[
+"1350",
+"ettusinde og trehundrede og halvtreds"
+],
+[
+"1351",
+"ettusinde og trehundrede og enoghalvtreds"
+],
+[
+"1352",
+"ettusinde og trehundrede og tooghalvtreds"
+],
+[
+"1353",
+"ettusinde og trehundrede og treoghalvtreds"
+],
+[
+"1354",
+"ettusinde og trehundrede og fireoghalvtreds"
+],
+[
+"1355",
+"ettusinde og trehundrede og femoghalvtreds"
+],
+[
+"1356",
+"ettusinde og trehundrede og seksoghalvtreds"
+],
+[
+"1357",
+"ettusinde og trehundrede og syvoghalvtreds"
+],
+[
+"1358",
+"ettusinde og trehundrede og otteoghalvtreds"
+],
+[
+"1359",
+"ettusinde og trehundrede og nioghalvtreds"
+],
+[
+"1360",
+"ettusinde og trehundrede og treds"
+],
+[
+"1361",
+"ettusinde og trehundrede og enogtreds"
+],
+[
+"1362",
+"ettusinde og trehundrede og toogtreds"
+],
+[
+"1363",
+"ettusinde og trehundrede og treogtreds"
+],
+[
+"1364",
+"ettusinde og trehundrede og fireogtreds"
+],
+[
+"1365",
+"ettusinde og trehundrede og femogtreds"
+],
+[
+"1366",
+"ettusinde og trehundrede og seksogtreds"
+],
+[
+"1367",
+"ettusinde og trehundrede og syvogtreds"
+],
+[
+"1368",
+"ettusinde og trehundrede og otteogtreds"
+],
+[
+"1369",
+"ettusinde og trehundrede og niogtreds"
+],
+[
+"1370",
+"ettusinde og trehundrede og halvfjerds"
+],
+[
+"1371",
+"ettusinde og trehundrede og enoghalvfjerds"
+],
+[
+"1372",
+"ettusinde og trehundrede og tooghalvfjerds"
+],
+[
+"1373",
+"ettusinde og trehundrede og treoghalvfjerds"
+],
+[
+"1374",
+"ettusinde og trehundrede og fireoghalvfjerds"
+],
+[
+"1375",
+"ettusinde og trehundrede og femoghalvfjerds"
+],
+[
+"1376",
+"ettusinde og trehundrede og seksoghalvfjerds"
+],
+[
+"1377",
+"ettusinde og trehundrede og syvoghalvfjerds"
+],
+[
+"1378",
+"ettusinde og trehundrede og otteoghalvfjerds"
+],
+[
+"1379",
+"ettusinde og trehundrede og nioghalvfjerds"
+],
+[
+"1380",
+"ettusinde og trehundrede og firs"
+],
+[
+"1381",
+"ettusinde og trehundrede og enogfirs"
+],
+[
+"1382",
+"ettusinde og trehundrede og toogfirs"
+],
+[
+"1383",
+"ettusinde og trehundrede og treogfirs"
+],
+[
+"1384",
+"ettusinde og trehundrede og fireogfirs"
+],
+[
+"1385",
+"ettusinde og trehundrede og femogfirs"
+],
+[
+"1386",
+"ettusinde og trehundrede og seksogfirs"
+],
+[
+"1387",
+"ettusinde og trehundrede og syvogfirs"
+],
+[
+"1388",
+"ettusinde og trehundrede og otteogfirs"
+],
+[
+"1389",
+"ettusinde og trehundrede og niogfirs"
+],
+[
+"1390",
+"ettusinde og trehundrede og halvfems"
+],
+[
+"1391",
+"ettusinde og trehundrede og enoghalvfems"
+],
+[
+"1392",
+"ettusinde og trehundrede og tooghalvfems"
+],
+[
+"1393",
+"ettusinde og trehundrede og treoghalvfems"
+],
+[
+"1394",
+"ettusinde og trehundrede og fireoghalvfems"
+],
+[
+"1395",
+"ettusinde og trehundrede og femoghalvfems"
+],
+[
+"1396",
+"ettusinde og trehundrede og seksoghalvfems"
+],
+[
+"1397",
+"ettusinde og trehundrede og syvoghalvfems"
+],
+[
+"1398",
+"ettusinde og trehundrede og otteoghalvfems"
+],
+[
+"1399",
+"ettusinde og trehundrede og nioghalvfems"
+],
+[
+"1400",
+"ettusinde og firehundrede"
+],
+[
+"1401",
+"ettusinde og firehundrede og et"
+],
+[
+"1402",
+"ettusinde og firehundrede og to"
+],
+[
+"1403",
+"ettusinde og firehundrede og tre"
+],
+[
+"1404",
+"ettusinde og firehundrede og fire"
+],
+[
+"1405",
+"ettusinde og firehundrede og fem"
+],
+[
+"1406",
+"ettusinde og firehundrede og seks"
+],
+[
+"1407",
+"ettusinde og firehundrede og syv"
+],
+[
+"1408",
+"ettusinde og firehundrede og otte"
+],
+[
+"1409",
+"ettusinde og firehundrede og ni"
+],
+[
+"1410",
+"ettusinde og firehundrede og ti"
+],
+[
+"1411",
+"ettusinde og firehundrede og elleve"
+],
+[
+"1412",
+"ettusinde og firehundrede og tolv"
+],
+[
+"1413",
+"ettusinde og firehundrede og tretten"
+],
+[
+"1414",
+"ettusinde og firehundrede og fjorten"
+],
+[
+"1415",
+"ettusinde og firehundrede og femten"
+],
+[
+"1416",
+"ettusinde og firehundrede og seksten"
+],
+[
+"1417",
+"ettusinde og firehundrede og sytten"
+],
+[
+"1418",
+"ettusinde og firehundrede og atten"
+],
+[
+"1419",
+"ettusinde og firehundrede og nitten"
+],
+[
+"1420",
+"ettusinde og firehundrede og tyve"
+],
+[
+"1421",
+"ettusinde og firehundrede og enogtyve"
+],
+[
+"1422",
+"ettusinde og firehundrede og toogtyve"
+],
+[
+"1423",
+"ettusinde og firehundrede og treogtyve"
+],
+[
+"1424",
+"ettusinde og firehundrede og fireogtyve"
+],
+[
+"1425",
+"ettusinde og firehundrede og femogtyve"
+],
+[
+"1426",
+"ettusinde og firehundrede og seksogtyve"
+],
+[
+"1427",
+"ettusinde og firehundrede og syvogtyve"
+],
+[
+"1428",
+"ettusinde og firehundrede og otteogtyve"
+],
+[
+"1429",
+"ettusinde og firehundrede og niogtyve"
+],
+[
+"1430",
+"ettusinde og firehundrede og tredive"
+],
+[
+"1431",
+"ettusinde og firehundrede og enogtredive"
+],
+[
+"1432",
+"ettusinde og firehundrede og toogtredive"
+],
+[
+"1433",
+"ettusinde og firehundrede og treogtredive"
+],
+[
+"1434",
+"ettusinde og firehundrede og fireogtredive"
+],
+[
+"1435",
+"ettusinde og firehundrede og femogtredive"
+],
+[
+"1436",
+"ettusinde og firehundrede og seksogtredive"
+],
+[
+"1437",
+"ettusinde og firehundrede og syvogtredive"
+],
+[
+"1438",
+"ettusinde og firehundrede og otteogtredive"
+],
+[
+"1439",
+"ettusinde og firehundrede og niogtredive"
+],
+[
+"1440",
+"ettusinde og firehundrede og fyrre"
+],
+[
+"1441",
+"ettusinde og firehundrede og enogfyrre"
+],
+[
+"1442",
+"ettusinde og firehundrede og toogfyrre"
+],
+[
+"1443",
+"ettusinde og firehundrede og treogfyrre"
+],
+[
+"1444",
+"ettusinde og firehundrede og fireogfyrre"
+],
+[
+"1445",
+"ettusinde og firehundrede og femogfyrre"
+],
+[
+"1446",
+"ettusinde og firehundrede og seksogfyrre"
+],
+[
+"1447",
+"ettusinde og firehundrede og syvogfyrre"
+],
+[
+"1448",
+"ettusinde og firehundrede og otteogfyrre"
+],
+[
+"1449",
+"ettusinde og firehundrede og niogfyrre"
+],
+[
+"1450",
+"ettusinde og firehundrede og halvtreds"
+],
+[
+"1451",
+"ettusinde og firehundrede og enoghalvtreds"
+],
+[
+"1452",
+"ettusinde og firehundrede og tooghalvtreds"
+],
+[
+"1453",
+"ettusinde og firehundrede og treoghalvtreds"
+],
+[
+"1454",
+"ettusinde og firehundrede og fireoghalvtreds"
+],
+[
+"1455",
+"ettusinde og firehundrede og femoghalvtreds"
+],
+[
+"1456",
+"ettusinde og firehundrede og seksoghalvtreds"
+],
+[
+"1457",
+"ettusinde og firehundrede og syvoghalvtreds"
+],
+[
+"1458",
+"ettusinde og firehundrede og otteoghalvtreds"
+],
+[
+"1459",
+"ettusinde og firehundrede og nioghalvtreds"
+],
+[
+"1460",
+"ettusinde og firehundrede og treds"
+],
+[
+"1461",
+"ettusinde og firehundrede og enogtreds"
+],
+[
+"1462",
+"ettusinde og firehundrede og toogtreds"
+],
+[
+"1463",
+"ettusinde og firehundrede og treogtreds"
+],
+[
+"1464",
+"ettusinde og firehundrede og fireogtreds"
+],
+[
+"1465",
+"ettusinde og firehundrede og femogtreds"
+],
+[
+"1466",
+"ettusinde og firehundrede og seksogtreds"
+],
+[
+"1467",
+"ettusinde og firehundrede og syvogtreds"
+],
+[
+"1468",
+"ettusinde og firehundrede og otteogtreds"
+],
+[
+"1469",
+"ettusinde og firehundrede og niogtreds"
+],
+[
+"1470",
+"ettusinde og firehundrede og halvfjerds"
+],
+[
+"1471",
+"ettusinde og firehundrede og enoghalvfjerds"
+],
+[
+"1472",
+"ettusinde og firehundrede og tooghalvfjerds"
+],
+[
+"1473",
+"ettusinde og firehundrede og treoghalvfjerds"
+],
+[
+"1474",
+"ettusinde og firehundrede og fireoghalvfjerds"
+],
+[
+"1475",
+"ettusinde og firehundrede og femoghalvfjerds"
+],
+[
+"1476",
+"ettusinde og firehundrede og seksoghalvfjerds"
+],
+[
+"1477",
+"ettusinde og firehundrede og syvoghalvfjerds"
+],
+[
+"1478",
+"ettusinde og firehundrede og otteoghalvfjerds"
+],
+[
+"1479",
+"ettusinde og firehundrede og nioghalvfjerds"
+],
+[
+"1480",
+"ettusinde og firehundrede og firs"
+],
+[
+"1481",
+"ettusinde og firehundrede og enogfirs"
+],
+[
+"1482",
+"ettusinde og firehundrede og toogfirs"
+],
+[
+"1483",
+"ettusinde og firehundrede og treogfirs"
+],
+[
+"1484",
+"ettusinde og firehundrede og fireogfirs"
+],
+[
+"1485",
+"ettusinde og firehundrede og femogfirs"
+],
+[
+"1486",
+"ettusinde og firehundrede og seksogfirs"
+],
+[
+"1487",
+"ettusinde og firehundrede og syvogfirs"
+],
+[
+"1488",
+"ettusinde og firehundrede og otteogfirs"
+],
+[
+"1489",
+"ettusinde og firehundrede og niogfirs"
+],
+[
+"1490",
+"ettusinde og firehundrede og halvfems"
+],
+[
+"1491",
+"ettusinde og firehundrede og enoghalvfems"
+],
+[
+"1492",
+"ettusinde og firehundrede og tooghalvfems"
+],
+[
+"1493",
+"ettusinde og firehundrede og treoghalvfems"
+],
+[
+"1494",
+"ettusinde og firehundrede og fireoghalvfems"
+],
+[
+"1495",
+"ettusinde og firehundrede og femoghalvfems"
+],
+[
+"1496",
+"ettusinde og firehundrede og seksoghalvfems"
+],
+[
+"1497",
+"ettusinde og firehundrede og syvoghalvfems"
+],
+[
+"1498",
+"ettusinde og firehundrede og otteoghalvfems"
+],
+[
+"1499",
+"ettusinde og firehundrede og nioghalvfems"
+],
+[
+"1500",
+"ettusinde og femhundrede"
+],
+[
+"1501",
+"ettusinde og femhundrede og et"
+],
+[
+"1502",
+"ettusinde og femhundrede og to"
+],
+[
+"1503",
+"ettusinde og femhundrede og tre"
+],
+[
+"1504",
+"ettusinde og femhundrede og fire"
+],
+[
+"1505",
+"ettusinde og femhundrede og fem"
+],
+[
+"1506",
+"ettusinde og femhundrede og seks"
+],
+[
+"1507",
+"ettusinde og femhundrede og syv"
+],
+[
+"1508",
+"ettusinde og femhundrede og otte"
+],
+[
+"1509",
+"ettusinde og femhundrede og ni"
+],
+[
+"1510",
+"ettusinde og femhundrede og ti"
+],
+[
+"1511",
+"ettusinde og femhundrede og elleve"
+],
+[
+"1512",
+"ettusinde og femhundrede og tolv"
+],
+[
+"1513",
+"ettusinde og femhundrede og tretten"
+],
+[
+"1514",
+"ettusinde og femhundrede og fjorten"
+],
+[
+"1515",
+"ettusinde og femhundrede og femten"
+],
+[
+"1516",
+"ettusinde og femhundrede og seksten"
+],
+[
+"1517",
+"ettusinde og femhundrede og sytten"
+],
+[
+"1518",
+"ettusinde og femhundrede og atten"
+],
+[
+"1519",
+"ettusinde og femhundrede og nitten"
+],
+[
+"1520",
+"ettusinde og femhundrede og tyve"
+],
+[
+"1521",
+"ettusinde og femhundrede og enogtyve"
+],
+[
+"1522",
+"ettusinde og femhundrede og toogtyve"
+],
+[
+"1523",
+"ettusinde og femhundrede og treogtyve"
+],
+[
+"1524",
+"ettusinde og femhundrede og fireogtyve"
+],
+[
+"1525",
+"ettusinde og femhundrede og femogtyve"
+],
+[
+"1526",
+"ettusinde og femhundrede og seksogtyve"
+],
+[
+"1527",
+"ettusinde og femhundrede og syvogtyve"
+],
+[
+"1528",
+"ettusinde og femhundrede og otteogtyve"
+],
+[
+"1529",
+"ettusinde og femhundrede og niogtyve"
+],
+[
+"1530",
+"ettusinde og femhundrede og tredive"
+],
+[
+"1531",
+"ettusinde og femhundrede og enogtredive"
+],
+[
+"1532",
+"ettusinde og femhundrede og toogtredive"
+],
+[
+"1533",
+"ettusinde og femhundrede og treogtredive"
+],
+[
+"1534",
+"ettusinde og femhundrede og fireogtredive"
+],
+[
+"1535",
+"ettusinde og femhundrede og femogtredive"
+],
+[
+"1536",
+"ettusinde og femhundrede og seksogtredive"
+],
+[
+"1537",
+"ettusinde og femhundrede og syvogtredive"
+],
+[
+"1538",
+"ettusinde og femhundrede og otteogtredive"
+],
+[
+"1539",
+"ettusinde og femhundrede og niogtredive"
+],
+[
+"1540",
+"ettusinde og femhundrede og fyrre"
+],
+[
+"1541",
+"ettusinde og femhundrede og enogfyrre"
+],
+[
+"1542",
+"ettusinde og femhundrede og toogfyrre"
+],
+[
+"1543",
+"ettusinde og femhundrede og treogfyrre"
+],
+[
+"1544",
+"ettusinde og femhundrede og fireogfyrre"
+],
+[
+"1545",
+"ettusinde og femhundrede og femogfyrre"
+],
+[
+"1546",
+"ettusinde og femhundrede og seksogfyrre"
+],
+[
+"1547",
+"ettusinde og femhundrede og syvogfyrre"
+],
+[
+"1548",
+"ettusinde og femhundrede og otteogfyrre"
+],
+[
+"1549",
+"ettusinde og femhundrede og niogfyrre"
+],
+[
+"1550",
+"ettusinde og femhundrede og halvtreds"
+],
+[
+"1551",
+"ettusinde og femhundrede og enoghalvtreds"
+],
+[
+"1552",
+"ettusinde og femhundrede og tooghalvtreds"
+],
+[
+"1553",
+"ettusinde og femhundrede og treoghalvtreds"
+],
+[
+"1554",
+"ettusinde og femhundrede og fireoghalvtreds"
+],
+[
+"1555",
+"ettusinde og femhundrede og femoghalvtreds"
+],
+[
+"1556",
+"ettusinde og femhundrede og seksoghalvtreds"
+],
+[
+"1557",
+"ettusinde og femhundrede og syvoghalvtreds"
+],
+[
+"1558",
+"ettusinde og femhundrede og otteoghalvtreds"
+],
+[
+"1559",
+"ettusinde og femhundrede og nioghalvtreds"
+],
+[
+"1560",
+"ettusinde og femhundrede og treds"
+],
+[
+"1561",
+"ettusinde og femhundrede og enogtreds"
+],
+[
+"1562",
+"ettusinde og femhundrede og toogtreds"
+],
+[
+"1563",
+"ettusinde og femhundrede og treogtreds"
+],
+[
+"1564",
+"ettusinde og femhundrede og fireogtreds"
+],
+[
+"1565",
+"ettusinde og femhundrede og femogtreds"
+],
+[
+"1566",
+"ettusinde og femhundrede og seksogtreds"
+],
+[
+"1567",
+"ettusinde og femhundrede og syvogtreds"
+],
+[
+"1568",
+"ettusinde og femhundrede og otteogtreds"
+],
+[
+"1569",
+"ettusinde og femhundrede og niogtreds"
+],
+[
+"1570",
+"ettusinde og femhundrede og halvfjerds"
+],
+[
+"1571",
+"ettusinde og femhundrede og enoghalvfjerds"
+],
+[
+"1572",
+"ettusinde og femhundrede og tooghalvfjerds"
+],
+[
+"1573",
+"ettusinde og femhundrede og treoghalvfjerds"
+],
+[
+"1574",
+"ettusinde og femhundrede og fireoghalvfjerds"
+],
+[
+"1575",
+"ettusinde og femhundrede og femoghalvfjerds"
+],
+[
+"1576",
+"ettusinde og femhundrede og seksoghalvfjerds"
+],
+[
+"1577",
+"ettusinde og femhundrede og syvoghalvfjerds"
+],
+[
+"1578",
+"ettusinde og femhundrede og otteoghalvfjerds"
+],
+[
+"1579",
+"ettusinde og femhundrede og nioghalvfjerds"
+],
+[
+"1580",
+"ettusinde og femhundrede og firs"
+],
+[
+"1581",
+"ettusinde og femhundrede og enogfirs"
+],
+[
+"1582",
+"ettusinde og femhundrede og toogfirs"
+],
+[
+"1583",
+"ettusinde og femhundrede og treogfirs"
+],
+[
+"1584",
+"ettusinde og femhundrede og fireogfirs"
+],
+[
+"1585",
+"ettusinde og femhundrede og femogfirs"
+],
+[
+"1586",
+"ettusinde og femhundrede og seksogfirs"
+],
+[
+"1587",
+"ettusinde og femhundrede og syvogfirs"
+],
+[
+"1588",
+"ettusinde og femhundrede og otteogfirs"
+],
+[
+"1589",
+"ettusinde og femhundrede og niogfirs"
+],
+[
+"1590",
+"ettusinde og femhundrede og halvfems"
+],
+[
+"1591",
+"ettusinde og femhundrede og enoghalvfems"
+],
+[
+"1592",
+"ettusinde og femhundrede og tooghalvfems"
+],
+[
+"1593",
+"ettusinde og femhundrede og treoghalvfems"
+],
+[
+"1594",
+"ettusinde og femhundrede og fireoghalvfems"
+],
+[
+"1595",
+"ettusinde og femhundrede og femoghalvfems"
+],
+[
+"1596",
+"ettusinde og femhundrede og seksoghalvfems"
+],
+[
+"1597",
+"ettusinde og femhundrede og syvoghalvfems"
+],
+[
+"1598",
+"ettusinde og femhundrede og otteoghalvfems"
+],
+[
+"1599",
+"ettusinde og femhundrede og nioghalvfems"
+],
+[
+"1600",
+"ettusinde og sekshundrede"
+],
+[
+"1601",
+"ettusinde og sekshundrede og et"
+],
+[
+"1602",
+"ettusinde og sekshundrede og to"
+],
+[
+"1603",
+"ettusinde og sekshundrede og tre"
+],
+[
+"1604",
+"ettusinde og sekshundrede og fire"
+],
+[
+"1605",
+"ettusinde og sekshundrede og fem"
+],
+[
+"1606",
+"ettusinde og sekshundrede og seks"
+],
+[
+"1607",
+"ettusinde og sekshundrede og syv"
+],
+[
+"1608",
+"ettusinde og sekshundrede og otte"
+],
+[
+"1609",
+"ettusinde og sekshundrede og ni"
+],
+[
+"1610",
+"ettusinde og sekshundrede og ti"
+],
+[
+"1611",
+"ettusinde og sekshundrede og elleve"
+],
+[
+"1612",
+"ettusinde og sekshundrede og tolv"
+],
+[
+"1613",
+"ettusinde og sekshundrede og tretten"
+],
+[
+"1614",
+"ettusinde og sekshundrede og fjorten"
+],
+[
+"1615",
+"ettusinde og sekshundrede og femten"
+],
+[
+"1616",
+"ettusinde og sekshundrede og seksten"
+],
+[
+"1617",
+"ettusinde og sekshundrede og sytten"
+],
+[
+"1618",
+"ettusinde og sekshundrede og atten"
+],
+[
+"1619",
+"ettusinde og sekshundrede og nitten"
+],
+[
+"1620",
+"ettusinde og sekshundrede og tyve"
+],
+[
+"1621",
+"ettusinde og sekshundrede og enogtyve"
+],
+[
+"1622",
+"ettusinde og sekshundrede og toogtyve"
+],
+[
+"1623",
+"ettusinde og sekshundrede og treogtyve"
+],
+[
+"1624",
+"ettusinde og sekshundrede og fireogtyve"
+],
+[
+"1625",
+"ettusinde og sekshundrede og femogtyve"
+],
+[
+"1626",
+"ettusinde og sekshundrede og seksogtyve"
+],
+[
+"1627",
+"ettusinde og sekshundrede og syvogtyve"
+],
+[
+"1628",
+"ettusinde og sekshundrede og otteogtyve"
+],
+[
+"1629",
+"ettusinde og sekshundrede og niogtyve"
+],
+[
+"1630",
+"ettusinde og sekshundrede og tredive"
+],
+[
+"1631",
+"ettusinde og sekshundrede og enogtredive"
+],
+[
+"1632",
+"ettusinde og sekshundrede og toogtredive"
+],
+[
+"1633",
+"ettusinde og sekshundrede og treogtredive"
+],
+[
+"1634",
+"ettusinde og sekshundrede og fireogtredive"
+],
+[
+"1635",
+"ettusinde og sekshundrede og femogtredive"
+],
+[
+"1636",
+"ettusinde og sekshundrede og seksogtredive"
+],
+[
+"1637",
+"ettusinde og sekshundrede og syvogtredive"
+],
+[
+"1638",
+"ettusinde og sekshundrede og otteogtredive"
+],
+[
+"1639",
+"ettusinde og sekshundrede og niogtredive"
+],
+[
+"1640",
+"ettusinde og sekshundrede og fyrre"
+],
+[
+"1641",
+"ettusinde og sekshundrede og enogfyrre"
+],
+[
+"1642",
+"ettusinde og sekshundrede og toogfyrre"
+],
+[
+"1643",
+"ettusinde og sekshundrede og treogfyrre"
+],
+[
+"1644",
+"ettusinde og sekshundrede og fireogfyrre"
+],
+[
+"1645",
+"ettusinde og sekshundrede og femogfyrre"
+],
+[
+"1646",
+"ettusinde og sekshundrede og seksogfyrre"
+],
+[
+"1647",
+"ettusinde og sekshundrede og syvogfyrre"
+],
+[
+"1648",
+"ettusinde og sekshundrede og otteogfyrre"
+],
+[
+"1649",
+"ettusinde og sekshundrede og niogfyrre"
+],
+[
+"1650",
+"ettusinde og sekshundrede og halvtreds"
+],
+[
+"1651",
+"ettusinde og sekshundrede og enoghalvtreds"
+],
+[
+"1652",
+"ettusinde og sekshundrede og tooghalvtreds"
+],
+[
+"1653",
+"ettusinde og sekshundrede og treoghalvtreds"
+],
+[
+"1654",
+"ettusinde og sekshundrede og fireoghalvtreds"
+],
+[
+"1655",
+"ettusinde og sekshundrede og femoghalvtreds"
+],
+[
+"1656",
+"ettusinde og sekshundrede og seksoghalvtreds"
+],
+[
+"1657",
+"ettusinde og sekshundrede og syvoghalvtreds"
+],
+[
+"1658",
+"ettusinde og sekshundrede og otteoghalvtreds"
+],
+[
+"1659",
+"ettusinde og sekshundrede og nioghalvtreds"
+],
+[
+"1660",
+"ettusinde og sekshundrede og treds"
+],
+[
+"1661",
+"ettusinde og sekshundrede og enogtreds"
+],
+[
+"1662",
+"ettusinde og sekshundrede og toogtreds"
+],
+[
+"1663",
+"ettusinde og sekshundrede og treogtreds"
+],
+[
+"1664",
+"ettusinde og sekshundrede og fireogtreds"
+],
+[
+"1665",
+"ettusinde og sekshundrede og femogtreds"
+],
+[
+"1666",
+"ettusinde og sekshundrede og seksogtreds"
+],
+[
+"1667",
+"ettusinde og sekshundrede og syvogtreds"
+],
+[
+"1668",
+"ettusinde og sekshundrede og otteogtreds"
+],
+[
+"1669",
+"ettusinde og sekshundrede og niogtreds"
+],
+[
+"1670",
+"ettusinde og sekshundrede og halvfjerds"
+],
+[
+"1671",
+"ettusinde og sekshundrede og enoghalvfjerds"
+],
+[
+"1672",
+"ettusinde og sekshundrede og tooghalvfjerds"
+],
+[
+"1673",
+"ettusinde og sekshundrede og treoghalvfjerds"
+],
+[
+"1674",
+"ettusinde og sekshundrede og fireoghalvfjerds"
+],
+[
+"1675",
+"ettusinde og sekshundrede og femoghalvfjerds"
+],
+[
+"1676",
+"ettusinde og sekshundrede og seksoghalvfjerds"
+],
+[
+"1677",
+"ettusinde og sekshundrede og syvoghalvfjerds"
+],
+[
+"1678",
+"ettusinde og sekshundrede og otteoghalvfjerds"
+],
+[
+"1679",
+"ettusinde og sekshundrede og nioghalvfjerds"
+],
+[
+"1680",
+"ettusinde og sekshundrede og firs"
+],
+[
+"1681",
+"ettusinde og sekshundrede og enogfirs"
+],
+[
+"1682",
+"ettusinde og sekshundrede og toogfirs"
+],
+[
+"1683",
+"ettusinde og sekshundrede og treogfirs"
+],
+[
+"1684",
+"ettusinde og sekshundrede og fireogfirs"
+],
+[
+"1685",
+"ettusinde og sekshundrede og femogfirs"
+],
+[
+"1686",
+"ettusinde og sekshundrede og seksogfirs"
+],
+[
+"1687",
+"ettusinde og sekshundrede og syvogfirs"
+],
+[
+"1688",
+"ettusinde og sekshundrede og otteogfirs"
+],
+[
+"1689",
+"ettusinde og sekshundrede og niogfirs"
+],
+[
+"1690",
+"ettusinde og sekshundrede og halvfems"
+],
+[
+"1691",
+"ettusinde og sekshundrede og enoghalvfems"
+],
+[
+"1692",
+"ettusinde og sekshundrede og tooghalvfems"
+],
+[
+"1693",
+"ettusinde og sekshundrede og treoghalvfems"
+],
+[
+"1694",
+"ettusinde og sekshundrede og fireoghalvfems"
+],
+[
+"1695",
+"ettusinde og sekshundrede og femoghalvfems"
+],
+[
+"1696",
+"ettusinde og sekshundrede og seksoghalvfems"
+],
+[
+"1697",
+"ettusinde og sekshundrede og syvoghalvfems"
+],
+[
+"1698",
+"ettusinde og sekshundrede og otteoghalvfems"
+],
+[
+"1699",
+"ettusinde og sekshundrede og nioghalvfems"
+],
+[
+"1700",
+"ettusinde og syvhundrede"
+],
+[
+"1701",
+"ettusinde og syvhundrede og et"
+],
+[
+"1702",
+"ettusinde og syvhundrede og to"
+],
+[
+"1703",
+"ettusinde og syvhundrede og tre"
+],
+[
+"1704",
+"ettusinde og syvhundrede og fire"
+],
+[
+"1705",
+"ettusinde og syvhundrede og fem"
+],
+[
+"1706",
+"ettusinde og syvhundrede og seks"
+],
+[
+"1707",
+"ettusinde og syvhundrede og syv"
+],
+[
+"1708",
+"ettusinde og syvhundrede og otte"
+],
+[
+"1709",
+"ettusinde og syvhundrede og ni"
+],
+[
+"1710",
+"ettusinde og syvhundrede og ti"
+],
+[
+"1711",
+"ettusinde og syvhundrede og elleve"
+],
+[
+"1712",
+"ettusinde og syvhundrede og tolv"
+],
+[
+"1713",
+"ettusinde og syvhundrede og tretten"
+],
+[
+"1714",
+"ettusinde og syvhundrede og fjorten"
+],
+[
+"1715",
+"ettusinde og syvhundrede og femten"
+],
+[
+"1716",
+"ettusinde og syvhundrede og seksten"
+],
+[
+"1717",
+"ettusinde og syvhundrede og sytten"
+],
+[
+"1718",
+"ettusinde og syvhundrede og atten"
+],
+[
+"1719",
+"ettusinde og syvhundrede og nitten"
+],
+[
+"1720",
+"ettusinde og syvhundrede og tyve"
+],
+[
+"1721",
+"ettusinde og syvhundrede og enogtyve"
+],
+[
+"1722",
+"ettusinde og syvhundrede og toogtyve"
+],
+[
+"1723",
+"ettusinde og syvhundrede og treogtyve"
+],
+[
+"1724",
+"ettusinde og syvhundrede og fireogtyve"
+],
+[
+"1725",
+"ettusinde og syvhundrede og femogtyve"
+],
+[
+"1726",
+"ettusinde og syvhundrede og seksogtyve"
+],
+[
+"1727",
+"ettusinde og syvhundrede og syvogtyve"
+],
+[
+"1728",
+"ettusinde og syvhundrede og otteogtyve"
+],
+[
+"1729",
+"ettusinde og syvhundrede og niogtyve"
+],
+[
+"1730",
+"ettusinde og syvhundrede og tredive"
+],
+[
+"1731",
+"ettusinde og syvhundrede og enogtredive"
+],
+[
+"1732",
+"ettusinde og syvhundrede og toogtredive"
+],
+[
+"1733",
+"ettusinde og syvhundrede og treogtredive"
+],
+[
+"1734",
+"ettusinde og syvhundrede og fireogtredive"
+],
+[
+"1735",
+"ettusinde og syvhundrede og femogtredive"
+],
+[
+"1736",
+"ettusinde og syvhundrede og seksogtredive"
+],
+[
+"1737",
+"ettusinde og syvhundrede og syvogtredive"
+],
+[
+"1738",
+"ettusinde og syvhundrede og otteogtredive"
+],
+[
+"1739",
+"ettusinde og syvhundrede og niogtredive"
+],
+[
+"1740",
+"ettusinde og syvhundrede og fyrre"
+],
+[
+"1741",
+"ettusinde og syvhundrede og enogfyrre"
+],
+[
+"1742",
+"ettusinde og syvhundrede og toogfyrre"
+],
+[
+"1743",
+"ettusinde og syvhundrede og treogfyrre"
+],
+[
+"1744",
+"ettusinde og syvhundrede og fireogfyrre"
+],
+[
+"1745",
+"ettusinde og syvhundrede og femogfyrre"
+],
+[
+"1746",
+"ettusinde og syvhundrede og seksogfyrre"
+],
+[
+"1747",
+"ettusinde og syvhundrede og syvogfyrre"
+],
+[
+"1748",
+"ettusinde og syvhundrede og otteogfyrre"
+],
+[
+"1749",
+"ettusinde og syvhundrede og niogfyrre"
+],
+[
+"1750",
+"ettusinde og syvhundrede og halvtreds"
+],
+[
+"1751",
+"ettusinde og syvhundrede og enoghalvtreds"
+],
+[
+"1752",
+"ettusinde og syvhundrede og tooghalvtreds"
+],
+[
+"1753",
+"ettusinde og syvhundrede og treoghalvtreds"
+],
+[
+"1754",
+"ettusinde og syvhundrede og fireoghalvtreds"
+],
+[
+"1755",
+"ettusinde og syvhundrede og femoghalvtreds"
+],
+[
+"1756",
+"ettusinde og syvhundrede og seksoghalvtreds"
+],
+[
+"1757",
+"ettusinde og syvhundrede og syvoghalvtreds"
+],
+[
+"1758",
+"ettusinde og syvhundrede og otteoghalvtreds"
+],
+[
+"1759",
+"ettusinde og syvhundrede og nioghalvtreds"
+],
+[
+"1760",
+"ettusinde og syvhundrede og treds"
+],
+[
+"1761",
+"ettusinde og syvhundrede og enogtreds"
+],
+[
+"1762",
+"ettusinde og syvhundrede og toogtreds"
+],
+[
+"1763",
+"ettusinde og syvhundrede og treogtreds"
+],
+[
+"1764",
+"ettusinde og syvhundrede og fireogtreds"
+],
+[
+"1765",
+"ettusinde og syvhundrede og femogtreds"
+],
+[
+"1766",
+"ettusinde og syvhundrede og seksogtreds"
+],
+[
+"1767",
+"ettusinde og syvhundrede og syvogtreds"
+],
+[
+"1768",
+"ettusinde og syvhundrede og otteogtreds"
+],
+[
+"1769",
+"ettusinde og syvhundrede og niogtreds"
+],
+[
+"1770",
+"ettusinde og syvhundrede og halvfjerds"
+],
+[
+"1771",
+"ettusinde og syvhundrede og enoghalvfjerds"
+],
+[
+"1772",
+"ettusinde og syvhundrede og tooghalvfjerds"
+],
+[
+"1773",
+"ettusinde og syvhundrede og treoghalvfjerds"
+],
+[
+"1774",
+"ettusinde og syvhundrede og fireoghalvfjerds"
+],
+[
+"1775",
+"ettusinde og syvhundrede og femoghalvfjerds"
+],
+[
+"1776",
+"ettusinde og syvhundrede og seksoghalvfjerds"
+],
+[
+"1777",
+"ettusinde og syvhundrede og syvoghalvfjerds"
+],
+[
+"1778",
+"ettusinde og syvhundrede og otteoghalvfjerds"
+],
+[
+"1779",
+"ettusinde og syvhundrede og nioghalvfjerds"
+],
+[
+"1780",
+"ettusinde og syvhundrede og firs"
+],
+[
+"1781",
+"ettusinde og syvhundrede og enogfirs"
+],
+[
+"1782",
+"ettusinde og syvhundrede og toogfirs"
+],
+[
+"1783",
+"ettusinde og syvhundrede og treogfirs"
+],
+[
+"1784",
+"ettusinde og syvhundrede og fireogfirs"
+],
+[
+"1785",
+"ettusinde og syvhundrede og femogfirs"
+],
+[
+"1786",
+"ettusinde og syvhundrede og seksogfirs"
+],
+[
+"1787",
+"ettusinde og syvhundrede og syvogfirs"
+],
+[
+"1788",
+"ettusinde og syvhundrede og otteogfirs"
+],
+[
+"1789",
+"ettusinde og syvhundrede og niogfirs"
+],
+[
+"1790",
+"ettusinde og syvhundrede og halvfems"
+],
+[
+"1791",
+"ettusinde og syvhundrede og enoghalvfems"
+],
+[
+"1792",
+"ettusinde og syvhundrede og tooghalvfems"
+],
+[
+"1793",
+"ettusinde og syvhundrede og treoghalvfems"
+],
+[
+"1794",
+"ettusinde og syvhundrede og fireoghalvfems"
+],
+[
+"1795",
+"ettusinde og syvhundrede og femoghalvfems"
+],
+[
+"1796",
+"ettusinde og syvhundrede og seksoghalvfems"
+],
+[
+"1797",
+"ettusinde og syvhundrede og syvoghalvfems"
+],
+[
+"1798",
+"ettusinde og syvhundrede og otteoghalvfems"
+],
+[
+"1799",
+"ettusinde og syvhundrede og nioghalvfems"
+],
+[
+"1800",
+"ettusinde og ottehundrede"
+],
+[
+"1801",
+"ettusinde og ottehundrede og et"
+],
+[
+"1802",
+"ettusinde og ottehundrede og to"
+],
+[
+"1803",
+"ettusinde og ottehundrede og tre"
+],
+[
+"1804",
+"ettusinde og ottehundrede og fire"
+],
+[
+"1805",
+"ettusinde og ottehundrede og fem"
+],
+[
+"1806",
+"ettusinde og ottehundrede og seks"
+],
+[
+"1807",
+"ettusinde og ottehundrede og syv"
+],
+[
+"1808",
+"ettusinde og ottehundrede og otte"
+],
+[
+"1809",
+"ettusinde og ottehundrede og ni"
+],
+[
+"1810",
+"ettusinde og ottehundrede og ti"
+],
+[
+"1811",
+"ettusinde og ottehundrede og elleve"
+],
+[
+"1812",
+"ettusinde og ottehundrede og tolv"
+],
+[
+"1813",
+"ettusinde og ottehundrede og tretten"
+],
+[
+"1814",
+"ettusinde og ottehundrede og fjorten"
+],
+[
+"1815",
+"ettusinde og ottehundrede og femten"
+],
+[
+"1816",
+"ettusinde og ottehundrede og seksten"
+],
+[
+"1817",
+"ettusinde og ottehundrede og sytten"
+],
+[
+"1818",
+"ettusinde og ottehundrede og atten"
+],
+[
+"1819",
+"ettusinde og ottehundrede og nitten"
+],
+[
+"1820",
+"ettusinde og ottehundrede og tyve"
+],
+[
+"1821",
+"ettusinde og ottehundrede og enogtyve"
+],
+[
+"1822",
+"ettusinde og ottehundrede og toogtyve"
+],
+[
+"1823",
+"ettusinde og ottehundrede og treogtyve"
+],
+[
+"1824",
+"ettusinde og ottehundrede og fireogtyve"
+],
+[
+"1825",
+"ettusinde og ottehundrede og femogtyve"
+],
+[
+"1826",
+"ettusinde og ottehundrede og seksogtyve"
+],
+[
+"1827",
+"ettusinde og ottehundrede og syvogtyve"
+],
+[
+"1828",
+"ettusinde og ottehundrede og otteogtyve"
+],
+[
+"1829",
+"ettusinde og ottehundrede og niogtyve"
+],
+[
+"1830",
+"ettusinde og ottehundrede og tredive"
+],
+[
+"1831",
+"ettusinde og ottehundrede og enogtredive"
+],
+[
+"1832",
+"ettusinde og ottehundrede og toogtredive"
+],
+[
+"1833",
+"ettusinde og ottehundrede og treogtredive"
+],
+[
+"1834",
+"ettusinde og ottehundrede og fireogtredive"
+],
+[
+"1835",
+"ettusinde og ottehundrede og femogtredive"
+],
+[
+"1836",
+"ettusinde og ottehundrede og seksogtredive"
+],
+[
+"1837",
+"ettusinde og ottehundrede og syvogtredive"
+],
+[
+"1838",
+"ettusinde og ottehundrede og otteogtredive"
+],
+[
+"1839",
+"ettusinde og ottehundrede og niogtredive"
+],
+[
+"1840",
+"ettusinde og ottehundrede og fyrre"
+],
+[
+"1841",
+"ettusinde og ottehundrede og enogfyrre"
+],
+[
+"1842",
+"ettusinde og ottehundrede og toogfyrre"
+],
+[
+"1843",
+"ettusinde og ottehundrede og treogfyrre"
+],
+[
+"1844",
+"ettusinde og ottehundrede og fireogfyrre"
+],
+[
+"1845",
+"ettusinde og ottehundrede og femogfyrre"
+],
+[
+"1846",
+"ettusinde og ottehundrede og seksogfyrre"
+],
+[
+"1847",
+"ettusinde og ottehundrede og syvogfyrre"
+],
+[
+"1848",
+"ettusinde og ottehundrede og otteogfyrre"
+],
+[
+"1849",
+"ettusinde og ottehundrede og niogfyrre"
+],
+[
+"1850",
+"ettusinde og ottehundrede og halvtreds"
+],
+[
+"1851",
+"ettusinde og ottehundrede og enoghalvtreds"
+],
+[
+"1852",
+"ettusinde og ottehundrede og tooghalvtreds"
+],
+[
+"1853",
+"ettusinde og ottehundrede og treoghalvtreds"
+],
+[
+"1854",
+"ettusinde og ottehundrede og fireoghalvtreds"
+],
+[
+"1855",
+"ettusinde og ottehundrede og femoghalvtreds"
+],
+[
+"1856",
+"ettusinde og ottehundrede og seksoghalvtreds"
+],
+[
+"1857",
+"ettusinde og ottehundrede og syvoghalvtreds"
+],
+[
+"1858",
+"ettusinde og ottehundrede og otteoghalvtreds"
+],
+[
+"1859",
+"ettusinde og ottehundrede og nioghalvtreds"
+],
+[
+"1860",
+"ettusinde og ottehundrede og treds"
+],
+[
+"1861",
+"ettusinde og ottehundrede og enogtreds"
+],
+[
+"1862",
+"ettusinde og ottehundrede og toogtreds"
+],
+[
+"1863",
+"ettusinde og ottehundrede og treogtreds"
+],
+[
+"1864",
+"ettusinde og ottehundrede og fireogtreds"
+],
+[
+"1865",
+"ettusinde og ottehundrede og femogtreds"
+],
+[
+"1866",
+"ettusinde og ottehundrede og seksogtreds"
+],
+[
+"1867",
+"ettusinde og ottehundrede og syvogtreds"
+],
+[
+"1868",
+"ettusinde og ottehundrede og otteogtreds"
+],
+[
+"1869",
+"ettusinde og ottehundrede og niogtreds"
+],
+[
+"1870",
+"ettusinde og ottehundrede og halvfjerds"
+],
+[
+"1871",
+"ettusinde og ottehundrede og enoghalvfjerds"
+],
+[
+"1872",
+"ettusinde og ottehundrede og tooghalvfjerds"
+],
+[
+"1873",
+"ettusinde og ottehundrede og treoghalvfjerds"
+],
+[
+"1874",
+"ettusinde og ottehundrede og fireoghalvfjerds"
+],
+[
+"1875",
+"ettusinde og ottehundrede og femoghalvfjerds"
+],
+[
+"1876",
+"ettusinde og ottehundrede og seksoghalvfjerds"
+],
+[
+"1877",
+"ettusinde og ottehundrede og syvoghalvfjerds"
+],
+[
+"1878",
+"ettusinde og ottehundrede og otteoghalvfjerds"
+],
+[
+"1879",
+"ettusinde og ottehundrede og nioghalvfjerds"
+],
+[
+"1880",
+"ettusinde og ottehundrede og firs"
+],
+[
+"1881",
+"ettusinde og ottehundrede og enogfirs"
+],
+[
+"1882",
+"ettusinde og ottehundrede og toogfirs"
+],
+[
+"1883",
+"ettusinde og ottehundrede og treogfirs"
+],
+[
+"1884",
+"ettusinde og ottehundrede og fireogfirs"
+],
+[
+"1885",
+"ettusinde og ottehundrede og femogfirs"
+],
+[
+"1886",
+"ettusinde og ottehundrede og seksogfirs"
+],
+[
+"1887",
+"ettusinde og ottehundrede og syvogfirs"
+],
+[
+"1888",
+"ettusinde og ottehundrede og otteogfirs"
+],
+[
+"1889",
+"ettusinde og ottehundrede og niogfirs"
+],
+[
+"1890",
+"ettusinde og ottehundrede og halvfems"
+],
+[
+"1891",
+"ettusinde og ottehundrede og enoghalvfems"
+],
+[
+"1892",
+"ettusinde og ottehundrede og tooghalvfems"
+],
+[
+"1893",
+"ettusinde og ottehundrede og treoghalvfems"
+],
+[
+"1894",
+"ettusinde og ottehundrede og fireoghalvfems"
+],
+[
+"1895",
+"ettusinde og ottehundrede og femoghalvfems"
+],
+[
+"1896",
+"ettusinde og ottehundrede og seksoghalvfems"
+],
+[
+"1897",
+"ettusinde og ottehundrede og syvoghalvfems"
+],
+[
+"1898",
+"ettusinde og ottehundrede og otteoghalvfems"
+],
+[
+"1899",
+"ettusinde og ottehundrede og nioghalvfems"
+],
+[
+"1900",
+"ettusinde og nihundrede"
+],
+[
+"1901",
+"ettusinde og nihundrede og et"
+],
+[
+"1902",
+"ettusinde og nihundrede og to"
+],
+[
+"1903",
+"ettusinde og nihundrede og tre"
+],
+[
+"1904",
+"ettusinde og nihundrede og fire"
+],
+[
+"1905",
+"ettusinde og nihundrede og fem"
+],
+[
+"1906",
+"ettusinde og nihundrede og seks"
+],
+[
+"1907",
+"ettusinde og nihundrede og syv"
+],
+[
+"1908",
+"ettusinde og nihundrede og otte"
+],
+[
+"1909",
+"ettusinde og nihundrede og ni"
+],
+[
+"1910",
+"ettusinde og nihundrede og ti"
+],
+[
+"1911",
+"ettusinde og nihundrede og elleve"
+],
+[
+"1912",
+"ettusinde og nihundrede og tolv"
+],
+[
+"1913",
+"ettusinde og nihundrede og tretten"
+],
+[
+"1914",
+"ettusinde og nihundrede og fjorten"
+],
+[
+"1915",
+"ettusinde og nihundrede og femten"
+],
+[
+"1916",
+"ettusinde og nihundrede og seksten"
+],
+[
+"1917",
+"ettusinde og nihundrede og sytten"
+],
+[
+"1918",
+"ettusinde og nihundrede og atten"
+],
+[
+"1919",
+"ettusinde og nihundrede og nitten"
+],
+[
+"1920",
+"ettusinde og nihundrede og tyve"
+],
+[
+"1921",
+"ettusinde og nihundrede og enogtyve"
+],
+[
+"1922",
+"ettusinde og nihundrede og toogtyve"
+],
+[
+"1923",
+"ettusinde og nihundrede og treogtyve"
+],
+[
+"1924",
+"ettusinde og nihundrede og fireogtyve"
+],
+[
+"1925",
+"ettusinde og nihundrede og femogtyve"
+],
+[
+"1926",
+"ettusinde og nihundrede og seksogtyve"
+],
+[
+"1927",
+"ettusinde og nihundrede og syvogtyve"
+],
+[
+"1928",
+"ettusinde og nihundrede og otteogtyve"
+],
+[
+"1929",
+"ettusinde og nihundrede og niogtyve"
+],
+[
+"1930",
+"ettusinde og nihundrede og tredive"
+],
+[
+"1931",
+"ettusinde og nihundrede og enogtredive"
+],
+[
+"1932",
+"ettusinde og nihundrede og toogtredive"
+],
+[
+"1933",
+"ettusinde og nihundrede og treogtredive"
+],
+[
+"1934",
+"ettusinde og nihundrede og fireogtredive"
+],
+[
+"1935",
+"ettusinde og nihundrede og femogtredive"
+],
+[
+"1936",
+"ettusinde og nihundrede og seksogtredive"
+],
+[
+"1937",
+"ettusinde og nihundrede og syvogtredive"
+],
+[
+"1938",
+"ettusinde og nihundrede og otteogtredive"
+],
+[
+"1939",
+"ettusinde og nihundrede og niogtredive"
+],
+[
+"1940",
+"ettusinde og nihundrede og fyrre"
+],
+[
+"1941",
+"ettusinde og nihundrede og enogfyrre"
+],
+[
+"1942",
+"ettusinde og nihundrede og toogfyrre"
+],
+[
+"1943",
+"ettusinde og nihundrede og treogfyrre"
+],
+[
+"1944",
+"ettusinde og nihundrede og fireogfyrre"
+],
+[
+"1945",
+"ettusinde og nihundrede og femogfyrre"
+],
+[
+"1946",
+"ettusinde og nihundrede og seksogfyrre"
+],
+[
+"1947",
+"ettusinde og nihundrede og syvogfyrre"
+],
+[
+"1948",
+"ettusinde og nihundrede og otteogfyrre"
+],
+[
+"1949",
+"ettusinde og nihundrede og niogfyrre"
+],
+[
+"1950",
+"ettusinde og nihundrede og halvtreds"
+],
+[
+"1951",
+"ettusinde og nihundrede og enoghalvtreds"
+],
+[
+"1952",
+"ettusinde og nihundrede og tooghalvtreds"
+],
+[
+"1953",
+"ettusinde og nihundrede og treoghalvtreds"
+],
+[
+"1954",
+"ettusinde og nihundrede og fireoghalvtreds"
+],
+[
+"1955",
+"ettusinde og nihundrede og femoghalvtreds"
+],
+[
+"1956",
+"ettusinde og nihundrede og seksoghalvtreds"
+],
+[
+"1957",
+"ettusinde og nihundrede og syvoghalvtreds"
+],
+[
+"1958",
+"ettusinde og nihundrede og otteoghalvtreds"
+],
+[
+"1959",
+"ettusinde og nihundrede og nioghalvtreds"
+],
+[
+"1960",
+"ettusinde og nihundrede og treds"
+],
+[
+"1961",
+"ettusinde og nihundrede og enogtreds"
+],
+[
+"1962",
+"ettusinde og nihundrede og toogtreds"
+],
+[
+"1963",
+"ettusinde og nihundrede og treogtreds"
+],
+[
+"1964",
+"ettusinde og nihundrede og fireogtreds"
+],
+[
+"1965",
+"ettusinde og nihundrede og femogtreds"
+],
+[
+"1966",
+"ettusinde og nihundrede og seksogtreds"
+],
+[
+"1967",
+"ettusinde og nihundrede og syvogtreds"
+],
+[
+"1968",
+"ettusinde og nihundrede og otteogtreds"
+],
+[
+"1969",
+"ettusinde og nihundrede og niogtreds"
+],
+[
+"1970",
+"ettusinde og nihundrede og halvfjerds"
+],
+[
+"1971",
+"ettusinde og nihundrede og enoghalvfjerds"
+],
+[
+"1972",
+"ettusinde og nihundrede og tooghalvfjerds"
+],
+[
+"1973",
+"ettusinde og nihundrede og treoghalvfjerds"
+],
+[
+"1974",
+"ettusinde og nihundrede og fireoghalvfjerds"
+],
+[
+"1975",
+"ettusinde og nihundrede og femoghalvfjerds"
+],
+[
+"1976",
+"ettusinde og nihundrede og seksoghalvfjerds"
+],
+[
+"1977",
+"ettusinde og nihundrede og syvoghalvfjerds"
+],
+[
+"1978",
+"ettusinde og nihundrede og otteoghalvfjerds"
+],
+[
+"1979",
+"ettusinde og nihundrede og nioghalvfjerds"
+],
+[
+"1980",
+"ettusinde og nihundrede og firs"
+],
+[
+"1981",
+"ettusinde og nihundrede og enogfirs"
+],
+[
+"1982",
+"ettusinde og nihundrede og toogfirs"
+],
+[
+"1983",
+"ettusinde og nihundrede og treogfirs"
+],
+[
+"1984",
+"ettusinde og nihundrede og fireogfirs"
+],
+[
+"1985",
+"ettusinde og nihundrede og femogfirs"
+],
+[
+"1986",
+"ettusinde og nihundrede og seksogfirs"
+],
+[
+"1987",
+"ettusinde og nihundrede og syvogfirs"
+],
+[
+"1988",
+"ettusinde og nihundrede og otteogfirs"
+],
+[
+"1989",
+"ettusinde og nihundrede og niogfirs"
+],
+[
+"1990",
+"ettusinde og nihundrede og halvfems"
+],
+[
+"1991",
+"ettusinde og nihundrede og enoghalvfems"
+],
+[
+"1992",
+"ettusinde og nihundrede og tooghalvfems"
+],
+[
+"1993",
+"ettusinde og nihundrede og treoghalvfems"
+],
+[
+"1994",
+"ettusinde og nihundrede og fireoghalvfems"
+],
+[
+"1995",
+"ettusinde og nihundrede og femoghalvfems"
+],
+[
+"1996",
+"ettusinde og nihundrede og seksoghalvfems"
+],
+[
+"1997",
+"ettusinde og nihundrede og syvoghalvfems"
+],
+[
+"1998",
+"ettusinde og nihundrede og otteoghalvfems"
+],
+[
+"1999",
+"ettusinde og nihundrede og nioghalvfems"
+],
+[
+"2000",
+"totusind"
+],
+[
+"2025",
+"totusinde og femogtyve"
+],
+[
+"3000",
+"tretusind"
+],
+[
+"10000",
+"titusind"
+],
+[
+"12345",
+"tolvtusinde og trehundrede og femogfyrre"
+],
+[
+"20000",
+"tyvetusind"
+],
+[
+"21000",
+"enogtyvetusind"
+],
+[
+"99999",
+"nioghalvfemstusinde og nihundrede og nioghalvfems"
+],
+[
+"100000",
+"ethundredetusind"
+],
+[
+"100001",
+"ethundredetusinde og et"
+],
+[
+"123456",
+"ethundrede og treogtyvetusindfirehundrede og seksoghalvtreds"
+],
+[
+"200000",
+"tohundredetusind"
+],
+[
+"999999",
+"nihundrede og nioghalvfemstusindnihundrede og nioghalvfems"
+],
+[
+"1000000",
+"en millioner"
+],
+[
+"1000001",
+"en millioner et"
+],
+[
+"1500000",
+"en millioner femhundredetusind"
+],
+[
+"1234567",
+"en millioner tohundrede og fireogtredivetusindfemhundrede og syvogtreds"
+],
+[
+"2000000",
+"to millioner"
+],
+[
+"21000000",
+"enogtyve millioner"
+],
+[
+"1000000000",
+"en milliarder"
+],
+[
+"2000000000",
+"to milliarder"
+],
+[
+"2,1",
+"to komma et"
+],
+[
+"2.1",
+"to komma et"
+],
+[
+"3,14",
+"tre komma et fire"
+],
+[
+"0,5",
+"nul komma fem"
+],
+[
+"1.500",
+"et komma fem"
+],
+[
+"1,234",
+"et komma to tre fire"
+],
+[
+"10,0",
+"ti"
+],
+[
+"0,0",
+"nul"
+],
+[
+"100,25",
+"ethundrede komma to fem"
+],
+[
+"12,34",
+"tolv komma tre fire"
+],
+[
+"0,05",
+"nul komma nul fem"
+],
+[
+"-1",
+"minus et"
+],
+[
+"-5",
+"minus fem"
+],
+[
+"-21",
+"minus enogtyve"
+],
+[
+"-100",
+"minus ethundrede"
+],
+[
+"-2,5",
+"minus to komma fem"
+]
+]
