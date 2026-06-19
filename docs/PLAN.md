@@ -150,8 +150,9 @@ adapter is a thin layer over the engine: request mapping, voice-id mapping, and
 a format encoder over the canonical 24 kHz PCM stream.
 
 - [x] PCM + WAV + **MP3** encoders (`web/src/audio/format.ts`); MP3 via the
-      pure-JS lamejs encoder (no native deps). Plus a Catmull-Rom **resampler**
-      (`web/src/audio/resample.ts`) for non-24 kHz output. `opus`/`aac`/`flac`
+      pure-JS lamejs encoder (no native deps). Plus a band-limited windowed-sinc
+      **resampler** (`web/src/audio/resample.ts`) for non-24 kHz output.
+      `opus`/`aac`/`flac`
       and `ulaw` remain `UnsupportedFormatError`.
 - [x] **OpenAI adapter** — `audio.speech.create({ input, voice, speed,
       response_format })` shape, returning a web `Response`. Defaults to `mp3`
@@ -259,9 +260,11 @@ they are not lost in commit messages:
 - [ ] **opus / aac / flac encoders** — OpenAI can request these; they need a
       heavier (wasm) codec, so they currently raise `UnsupportedFormatError`.
       mp3/wav/pcm cover both providers' defaults.
-- [ ] **Resampler quality** — `audio/resample.ts` is Catmull-Rom (not
-      band-limited). Fine for speech PoC; upgrade to windowed-sinc if 24→44.1 kHz
-      upsampling artifacts are audible.
+- [x] **Resampler quality** — `audio/resample.ts` is now a band-limited
+      windowed-sinc (Lanczos, 8 lobes) with the cutoff lowered to the output
+      Nyquist on downsample (anti-aliasing) and normalized weights (exact DC).
+      Tested: constant/linear reproduction + above-Nyquist tones suppressed on
+      downsample.
 - [ ] **Clone waveform-padding parity** — the clone encoder skips the reference
       audio's symmetric padding that `KanadeModel.encode()` applies, costing
       ~0.003 cosine (slim-vs-encode 0.997). The attentive-stats pool makes this

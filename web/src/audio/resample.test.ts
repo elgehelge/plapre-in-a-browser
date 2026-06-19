@@ -18,7 +18,7 @@ describe("resample", () => {
     for (const v of resample(pcm, 24000, 44100)) expect(v).toBeCloseTo(0.42, 6);
   });
 
-  it("reproduces a linear ramp (Catmull-Rom is exact on collinear points)", () => {
+  it("reproduces a linear ramp in the interior", () => {
     const n = 200;
     const pcm = new Float32Array(n);
     for (let i = 0; i < n; i++) pcm[i] = i / (n - 1); // 0 .. 1
@@ -32,5 +32,29 @@ describe("resample", () => {
 
   it("handles empty input", () => {
     expect(resample(new Float32Array(0), 24000, 44100).length).toBe(0);
+  });
+
+  // Band-limiting: a tone above the OUTPUT Nyquist must be attenuated when
+  // downsampling, instead of folding back as an alias (the win over Catmull-Rom).
+  it("attenuates content above the output Nyquist when downsampling", () => {
+    const from = 24000;
+    const to = 8000; // output Nyquist 4 kHz
+    const n = 4800;
+    const tone = (hz: number) => {
+      const x = new Float32Array(n);
+      for (let i = 0; i < n; i++) x[i] = Math.sin((2 * Math.PI * hz * i) / from);
+      return x;
+    };
+    const rms = (a: Float32Array) => {
+      let s = 0;
+      for (const v of a) s += v * v;
+      return Math.sqrt(s / a.length);
+    };
+    // 6 kHz is above the 4 kHz output Nyquist → should be heavily suppressed.
+    const above = rms(resample(tone(6000), from, to));
+    // 1 kHz is well in-band → should survive (~0.7 RMS for a unit sine).
+    const inBand = rms(resample(tone(1000), from, to));
+    expect(above).toBeLessThan(0.1);
+    expect(inBand).toBeGreaterThan(0.5);
   });
 });

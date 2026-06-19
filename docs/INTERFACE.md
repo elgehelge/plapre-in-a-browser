@@ -96,8 +96,8 @@ adapter concern; PCM passes through unencoded.
   are a typed gap (`UnsupportedFormatError`) — they need a heavier codec.
 - ElevenLabs `output_format`: `mp3_{22050,44100}_{kbps}` (default
   `mp3_44100_128`) and `pcm_{8000,16000,22050,24000,44100}`. Non-24 kHz rates are
-  produced by resampling the engine's 24 kHz PCM (`audio/resample.ts`, Catmull-Rom
-  — PoC-grade, swap for windowed-sinc if quality demands). `ulaw_*` is a gap.
+  produced by resampling the engine's 24 kHz PCM (`audio/resample.ts`,
+  band-limited windowed-sinc / Lanczos with anti-aliasing). `ulaw_*` is a gap.
 
 MP3 is encoded with the pure-JS lamejs encoder (no native deps; runs in the
 browser / a worker / an MV3 extension). Only native 24 kHz raw PCM streams

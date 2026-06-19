@@ -2,11 +2,27 @@
 // NATIVE_SAMPLE_RATE (24 kHz); provider formats may ask for other rates
 // (ElevenLabs mp3_44100_*, pcm_22050, …).
 //
-// Uses Catmull-Rom (cubic Hermite) interpolation: it reproduces constant and
-// linear signals exactly and is smoother than linear interpolation for the
-// upsampling the adapters need. It is NOT band-limited, so it is PoC-grade —
-// adequate for speech, to be swapped for a windowed-sinc resampler if quality
-// demands it. A no-op when the rates already match.
+// Band-limited windowed-sinc (Lanczos) resampling. Unlike a polynomial
+// (Catmull-Rom/linear) interpolator, a windowed sinc approximates the ideal
+// brick-wall reconstruction filter, so it does not fold high-frequency energy
+// back into the audible band. When downsampling we lower the kernel's cutoff to
+// the output Nyquist (anti-aliasing); when upsampling the cutoff stays at the
+// input Nyquist. Weights are normalized so a DC/constant signal is preserved
+// exactly. A no-op when the rates already match.
+
+const LOBES = 8; // Lanczos half-width in (cutoff-scaled) input samples
+
+function sinc(x: number): number {
+  if (x === 0) return 1;
+  const p = Math.PI * x;
+  return Math.sin(p) / p;
+}
+
+/** Lanczos kernel L(t) = sinc(t)·sinc(t/a) for |t| < a, else 0. */
+function lanczos(t: number): number {
+  if (t <= -LOBES || t >= LOBES) return 0;
+  return sinc(t) * sinc(t / LOBES);
+}
 
 export function resample(pcm: Float32Array, fromRate: number, toRate: number): Float32Array {
   if (fromRate <= 0 || toRate <= 0) throw new RangeError("sample rates must be positive");
@@ -15,20 +31,28 @@ export function resample(pcm: Float32Array, fromRate: number, toRate: number): F
   const ratio = toRate / fromRate;
   const outLen = Math.max(1, Math.round(pcm.length * ratio));
   const out = new Float32Array(outLen);
-  const at = (i: number): number => pcm[i < 0 ? 0 : i >= pcm.length ? pcm.length - 1 : i];
+  const n = pcm.length;
+  const at = (i: number): number => pcm[i < 0 ? 0 : i >= n ? n - 1 : i]; // edge-clamp
+
+  // Cutoff (in input-sample cycles): full Nyquist when upsampling, lowered to
+  // the output Nyquist when downsampling to suppress aliasing.
+  const cutoff = Math.min(1, ratio);
+  const half = LOBES / cutoff; // kernel half-width in input samples
 
   for (let j = 0; j < outLen; j++) {
-    const x = j / ratio;
-    const i = Math.floor(x);
-    const t = x - i;
-    const p0 = at(i - 1);
-    const p1 = at(i);
-    const p2 = at(i + 1);
-    const p3 = at(i + 2);
-    const a = -0.5 * p0 + 1.5 * p1 - 1.5 * p2 + 0.5 * p3;
-    const b = p0 - 2.5 * p1 + 2 * p2 - 0.5 * p3;
-    const c = -0.5 * p0 + 0.5 * p2;
-    out[j] = ((a * t + b) * t + c) * t + p1;
+    const x = j / ratio; // position in input-sample space
+    const left = Math.ceil(x - half);
+    const right = Math.floor(x + half);
+
+    let acc = 0;
+    let norm = 0;
+    for (let i = left; i <= right; i++) {
+      const w = lanczos((x - i) * cutoff);
+      if (w === 0) continue;
+      acc += at(i) * w;
+      norm += w;
+    }
+    out[j] = norm !== 0 ? acc / norm : at(Math.round(x));
   }
   return out;
 }

@@ -87,7 +87,8 @@ These run and are covered by `npm test` (vitest) in `web/`:
   `synthesizeToPcm()`, `listVoices()`, `AbortSignal` cancellation — over an
   injectable `SpeechModel` seam (`web/src/engine/`).
 - **Audio encoders** — raw 16-bit PCM, WAV, and MP3 (pure-JS lamejs), plus a
-  Catmull-Rom resampler for non-24 kHz output (`web/src/audio/`).
+  band-limited windowed-sinc resampler for non-24 kHz output and a
+  pitch-preserving WSOLA time-stretch for playback speed (`web/src/audio/`).
 - **OpenAI & ElevenLabs drop-in adapters** over the engine, each defaulting to
   the provider's own default format (OpenAI `mp3`, ElevenLabs `mp3_44100_128`)
   so they are drop-in out of the box (`web/src/adapters/`).
