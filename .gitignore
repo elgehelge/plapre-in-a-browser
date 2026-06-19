@@ -13,6 +13,7 @@ conversion/build/
 # Model artifacts (large; not committed — see conversion/README.md)
 web/public/models/*.onnx
 web/public/models/*.onnx_data
+web/public/models/*.onnx.data
 web/public/models/*.bin
 artifacts/
 *.safetensors

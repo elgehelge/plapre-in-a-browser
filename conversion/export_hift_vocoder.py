@@ -2,65 +2,61 @@
 
 mel-spectrogram -> 24 kHz waveform.
 
-This is the highest-risk export: HiFT-style vocoders use weight-normalized
-convolutions and (i)STFT / complex ops that ONNX Runtime Web may not support.
-Verify the exported graph runs under BOTH onnxruntime (CPU) here and
-onnxruntime-web (wasm + webgpu) in the browser before trusting it.
+================================ GATE FINDING ================================
+This is the make-or-break export, and as of 2026-06 it DOES NOT export as-is.
 
-The vocoder comes from CosyVoice 2 via kanade-tokenizer's load_vocoder()
-(model.config.vocoder_name for kanade-25hz-clean).
+HiFTGenerator (kanade_tokenizer/module/hift.py) runs its harmonic source signal
+and final synthesis through torch.stft / torch.istft on complex tensors:
+
+    _stft:   torch.stft(..., return_complex=True) -> torch.view_as_real
+    _istft:  torch.complex(real, img) -> torch.istft(...)
+
+Both the legacy and the TorchDynamo ONNX exporters reject this:
+  - legacy (dynamo=False): aten::istft / aten::complex have no ONNX symbolic.
+  - dynamo=True:           "Failed to decompose the FX graph" (no decomposition
+                           for aten.istft).
+
+Switching to the `kanade-25hz` (Vocos) variant does NOT help: Vocos's ISTFTHead
+uses torch.istft too. The blocker is the (i)STFT/complex math, not HiFT itself.
+
+============================== REMEDIATION PLAN =============================
+The transforms are TINY: istft_n_fft=16, istft_hop_len=4. So replace the
+complex (i)STFT with real-valued, ONNX/ORT-Web-friendly ops on a HiFT subclass
+that keeps the trained weights:
+
+  STFT(x):   frame x (Unfold, win=16, hop=4) -> apply Hann window
+             -> matmul with precomputed real DFT cos/sin basis (16x9 each)
+             -> (real, imag)                                  # no complex dtype
+  ISTFT:     real,imag from magnitude*cos(phase), magnitude*sin(phase)
+             -> matmul with inverse DFT basis -> window -> overlap-add
+                via ConvTranspose1d -> divide by window-overlap envelope
+  source:    SourceModuleHnNSF2 seeds sine phase with torch.rand (RNG). Make it
+             deterministic (fixed/zero phase) so the graph has no RandomUniform
+             and outputs are reproducible.
+
+Validate the patched vocoder in-process against the stock `torch.istft` path
+(same mel in, compare waveforms within tolerance) before exporting, then re-run
+the dynamo export and check ORT-CPU parity like the decoder script does.
+
+NOTE: not yet implemented. This script currently documents the blocker and
+fails loudly rather than emitting a broken graph.
 """
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 OUT = Path(__file__).parent.parent / "web" / "public" / "models" / "hift_vocoder.onnx"
-OPSET = 17
 
 
 def main() -> None:
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-
-    import torch
-    from kanade_tokenizer import KanadeModel, load_vocoder
-
-    kanade = KanadeModel.from_pretrained("frothywater/kanade-25hz-clean").eval()
-    vocoder = load_vocoder(kanade.config.vocoder_name).eval()
-
-    # TODO: confirm the vocoder forward signature. In kanade_tokenizer the public
-    # call is vocode(vocoder, mel.unsqueeze(0)). We need the underlying nn.Module
-    # forward that maps (B, n_mels, T) -> (B, samples). Wrap it if vocode() does
-    # pre/post-processing that must live inside the graph.
-    n_mels = 80  # TODO: read from config
-    dummy_mel = torch.randn(1, n_mels, 100)
-
-    class VocoderWrapper(torch.nn.Module):
-        def __init__(self, v):
-            super().__init__()
-            self.v = v
-
-        def forward(self, mel):  # (B, n_mels, T) -> (B, samples)
-            # TODO: replace with the exact vocode() math (sans numpy/host ops).
-            return self.v(mel)
-
-    wrapper = VocoderWrapper(vocoder).eval()
-
-    with torch.no_grad():
-        torch.onnx.export(
-            wrapper,
-            (dummy_mel,),
-            str(OUT),
-            input_names=["mel"],
-            output_names=["waveform"],
-            dynamic_axes={"mel": {0: "batch", 2: "frames"}, "waveform": {0: "batch", 1: "samples"}},
-            opset_version=OPSET,
-            do_constant_folding=True,
-        )
-
-    print(f"Exported HiFT vocoder -> {OUT}")
-    print("TODO: validate with onnxruntime CPU here, then onnxruntime-web (wasm + webgpu).")
-    print("If STFT/complex ops are unsupported on web: try the kanade-25hz (Vocos) variant.")
+    sys.stderr.write(
+        "export_hift_vocoder: BLOCKED on torch.stft/istft/complex (see module "
+        "docstring). Implement the real-valued (i)STFT HiFT subclass before "
+        "exporting; refusing to emit a broken graph.\n"
+    )
+    raise SystemExit(2)
 
 
 if __name__ == "__main__":

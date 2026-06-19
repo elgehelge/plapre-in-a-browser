@@ -9,9 +9,14 @@ thin and explicit; each prints what it produced and where.
 ## Setup
 
 ```bash
-python -m venv .venv && source .venv/bin/activate
+# Use Python 3.13 — torch has no wheels for 3.14 yet.
+python3.13 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
+
+ONNX export uses the **TorchDynamo exporter** (`torch.onnx.export(dynamo=True)`),
+which needs `onnxscript`. The legacy TorchScript exporter cannot handle the
+decoder's complex-tensor RoPE (see Phase 0 findings below).
 
 ### Hugging Face access (checked 2026-06)
 
@@ -47,9 +52,25 @@ python -m venv .venv && source .venv/bin/activate && pip install num2words
 Outputs are written to `../web/public/models/` by default; golden fixtures to
 `./golden/`.
 
+## Phase 0 gate findings (2026-06)
+
+- **`export_kanade_decoder.py` — works.** Exports via the dynamo exporter and
+  self-checks ORT-CPU mel parity vs PyTorch (max|diff| ≈ 0.008). Writes
+  `kanade_decoder.onnx` (+ a large `.onnx.data`; see size follow-up below).
+  The legacy exporter fails here on the transformer's complex-tensor RoPE.
+- **`export_hift_vocoder.py` — blocked.** The HiFT vocoder uses
+  `torch.stft`/`torch.istft` on complex tensors, which no ONNX exporter
+  supports. The script documents the real-valued (i)STFT remediation (the
+  transforms are tiny: n_fft=16, hop=4) and refuses to emit a broken graph.
+  Vocos has the same `torch.istft` blocker, so it is not a fallback.
+- **Size follow-up:** the decoder export currently embeds the whole
+  `KanadeModel` (~365 MB, includes the unused WavLM encoder). Export only the
+  decode submodules before shipping to the browser.
+
 ## Status
 
-All scripts are **scaffolds** with the intended structure, the exact upstream
-calls to wrap (traced from `plapre/inference.py`), and `TODO` markers where the
-tracing/export wiring must be completed. Start with `smoke_reference.py` +
-`export_hift_vocoder.py` (the Phase 0 gate).
+Remaining scripts (`smoke_reference.py`, `precompute_speakers.py`,
+`export_lm.py`) are **scaffolds** with the intended structure and the exact
+upstream calls to wrap (traced from `plapre/inference.py`). Phase 0 next step:
+implement the real-valued (i)STFT HiFT subclass, then run the in-browser
+wasm/webgpu verification.
