@@ -39,7 +39,7 @@ describe("VoiceClonerImpl", () => {
       bias: [0, 0],
     });
     const cloner = VoiceClonerImpl.withParts(fixedEmbedder([7, 8, 9]), proj);
-    const speaker = await cloner.embedSpeaker(new Float32Array([0.1, 0.2]), 16000);
+    const speaker = await cloner.embedSpeaker(new Float32Array(16000), 16000); // 1s
     expect(speaker.raw).toEqual([7, 8, 9]);
     expect(speaker.hidden).toEqual([7, 9]);
   });
@@ -48,6 +48,13 @@ describe("VoiceClonerImpl", () => {
     const proj = SpeakerProjection.fromJSON({ in: 1, out: 1, weight: [[1]], bias: [0] });
     const cloner = VoiceClonerImpl.withParts(fixedEmbedder([1]), proj);
     await expect(cloner.embedSpeaker(new Float32Array(0), 16000)).rejects.toThrow(/empty/);
+  });
+
+  it("rejects a too-short reference clip with a length hint", async () => {
+    const proj = SpeakerProjection.fromJSON({ in: 1, out: 1, weight: [[1]], bias: [0] });
+    const cloner = VoiceClonerImpl.withParts(fixedEmbedder([1]), proj);
+    // 0.1 s at 16 kHz is below the 1 s minimum.
+    await expect(cloner.embedSpeaker(new Float32Array(1600), 16000)).rejects.toThrow(/too short/);
   });
 
   it("passes the audio + sample rate through to the embedder", async () => {

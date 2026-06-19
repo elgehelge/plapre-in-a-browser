@@ -14,6 +14,13 @@ import { artifactUrl, ARTIFACTS } from "./assets.js";
 import { resample } from "../audio/resample.js";
 import { MissingModelError, SAMPLE_RATE, type Backend, type SpeakerData } from "./types.js";
 
+// Reference-clip length guidance. The attentive-stats pool needs enough frames
+// to estimate a stable speaker statistic; too little audio yields a noisy
+// embedding. We hard-reject below MIN and (non-fatally) note the recommended
+// range. Mirrors typical instant-cloning guidance (~a few seconds of speech).
+export const MIN_CLONE_SECONDS = 1;
+export const RECOMMENDED_CLONE_SECONDS = { min: 3, max: 30 } as const;
+
 /** A single Linear (128 -> hidden) applied in JS: y = W·x + b. */
 export class SpeakerProjection {
   constructor(
@@ -103,6 +110,14 @@ export class VoiceClonerImpl {
 
   async embedSpeaker(audio: Float32Array, sampleRate: number): Promise<SpeakerData> {
     if (audio.length === 0) throw new Error("cannot clone from empty audio");
+    const seconds = audio.length / sampleRate;
+    if (seconds < MIN_CLONE_SECONDS) {
+      throw new Error(
+        `reference audio is too short (${seconds.toFixed(2)}s); need at least ` +
+          `${MIN_CLONE_SECONDS}s, ${RECOMMENDED_CLONE_SECONDS.min}-` +
+          `${RECOMMENDED_CLONE_SECONDS.max}s of clean speech recommended`,
+      );
+    }
     const raw = await this.embedder.embed(audio, sampleRate);
     const hidden = this.projection.apply(raw);
     return { raw: Array.from(raw), hidden: Array.from(hidden) };

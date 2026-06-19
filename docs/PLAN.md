@@ -265,11 +265,13 @@ they are not lost in commit messages:
       Nyquist on downsample (anti-aliasing) and normalized weights (exact DC).
       Tested: constant/linear reproduction + above-Nyquist tones suppressed on
       downsample.
-- [ ] **Clone waveform-padding parity** — the clone encoder skips the reference
+- [~] **Clone waveform-padding parity** — the clone encoder skips the reference
       audio's symmetric padding that `KanadeModel.encode()` applies, costing
       ~0.003 cosine (slim-vs-encode 0.997). The attentive-stats pool makes this
       negligible; replicate `_calculate_waveform_padding` in the wrapper if clone
-      fidelity ever needs it. Also: surface a minimum clip-length hint (~3–30 s).
+      fidelity ever needs it. (Clip-length guidance is now enforced:
+      `embedSpeaker` rejects clips < `MIN_CLONE_SECONDS` (1 s) and documents the
+      recommended 3–30 s range via `RECOMMENDED_CLONE_SECONDS`.)
 
 ## Open risks (validate early, cheap first)
 
