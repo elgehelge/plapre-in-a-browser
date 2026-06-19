@@ -50,13 +50,32 @@ browser on both backends.
 
 ## Phase 3 — Packaging for reuse (MV3-ready)
 
-- [ ] Expose the pipeline as a small library with a clean `synthesize(text,
-      speaker) → PCM` interface, backend toggle (WebGPU→WASM), model
-      download + Cache/OPFS caching + warm-up (silent decode on load).
+- [ ] Expose the pipeline as the provider-neutral `Engine` from
+      [docs/INTERFACE.md](INTERFACE.md): streaming `synthesize() →
+      AsyncIterable<PcmChunk>` + buffered `synthesizeToPcm()`, `listVoices()`,
+      `AbortSignal` cancellation, backend toggle (WebGPU→WASM), and model
+      download + Cache/OPFS caching + warm-up (silent decode on load) with
+      `onProgress`.
 - [ ] Document how to host it in a Chrome MV3 **offscreen document** (not the
       service worker, not a content script), incl. the
       `cross_origin_embedder_policy` / `cross_origin_opener_policy` manifest keys
       needed for threaded WASM.
+
+## Phase 3.5 — Drop-in API adapters
+
+Make the engine a plug-in replacement for the two common hosted TTS APIs (see
+[docs/INTERFACE.md](INTERFACE.md) for the request/voice/format mapping). Each
+adapter is a thin layer over the engine: request mapping, voice-id mapping, and
+a format encoder over the canonical 24 kHz PCM stream.
+
+- [ ] PCM-passthrough + format encoders (`wav`, `mp3`/`opus` via a wasm encoder);
+      `pcm` / `pcm_24000` need no resampling (native rate matches).
+- [ ] **OpenAI adapter** — `audio.speech.create({ input, voice, speed,
+      response_format })` shape; streaming + buffered.
+- [ ] **ElevenLabs adapter** — `textToSpeech.convert/stream(voiceId, { text,
+      voice_settings, output_format })` shape; map the subset of `voice_settings`
+      that has an engine analogue.
+- [ ] Voice-id mapping tables (provider voice names ↔ built-in Danish speakers).
 
 ## Phase 4 — Validate
 

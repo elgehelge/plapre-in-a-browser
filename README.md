@@ -8,6 +8,12 @@ This is a research/PoC project. The long-term goal is a reusable in-browser Dani
 TTS module that can be dropped into a Chrome MV3 extension (offscreen document) as a
 local TTS provider.
 
+It is designed as a **plug-in replacement for hosted TTS APIs**: a provider-neutral
+engine emits canonical 24 kHz PCM, and thin adapters make it a drop-in stand-in for
+the **OpenAI** (`audio.speech`) and **ElevenLabs** (`text-to-speech`) APIs — same
+request/voice/format shapes, but running locally with no server and no API key. See
+[docs/INTERFACE.md](docs/INTERFACE.md) for the contract and the adapter mapping.
+
 > Spelling note: the upstream model is **plapre** (`syvai/plapre-*`). This repo uses
 > that spelling throughout.
 
@@ -57,7 +63,8 @@ web/          Vite + TypeScript app running the pipeline on onnxruntime-web.
               Pure-JS, testable-now pieces (text normalization, Danish number words,
               sampling) are implemented; ONNX-dependent stages are wired with clear
               interfaces and load model files from web/public/models/.
-docs/         PLAN.md (phased plan + risks) and ARCHITECTURE.md (data flow detail).
+docs/         PLAN.md (phased plan + risks), ARCHITECTURE.md (data flow detail),
+              and INTERFACE.md (public engine contract + OpenAI/ElevenLabs adapters).
 ```
 
 ## Status / where to start
