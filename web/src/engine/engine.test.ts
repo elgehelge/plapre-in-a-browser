@@ -1,6 +1,16 @@
 import { describe, it, expect } from "vitest";
-import { createEngine, NATIVE_SAMPLE_RATE, type PcmChunk } from "./engine.js";
-import type { SentenceRequest, SpeechModel } from "./speech-model.js";
+import {
+  createEngine,
+  CloningUnsupportedError,
+  NATIVE_SAMPLE_RATE,
+  type PcmChunk,
+} from "./engine.js";
+import type {
+  CloneVoiceOptions,
+  SentenceRequest,
+  SpeechModel,
+  VoiceCloner,
+} from "./speech-model.js";
 import { UnknownVoiceError, type Voice } from "./voice.js";
 
 const VOICES: Voice[] = [
@@ -174,5 +184,54 @@ describe("createEngine — cancellation", () => {
 
     await engine.synthesizeToPcm({ text: "Hej.", voice: "ida", signal: controller.signal });
     expect(model.calls[0].signal).toBe(controller.signal);
+  });
+});
+
+/** A model that supports cloning: registers cloned voices into its own catalog. */
+class CloningFakeModel extends FakeSpeechModel implements VoiceCloner {
+  private readonly cloned: Voice[] = [];
+  cloneCalls: { audio: Float32Array; sampleRate: number }[] = [];
+  constructor() {
+    super(() => second(1));
+  }
+  voices(): readonly Voice[] {
+    return [...VOICES, ...this.cloned];
+  }
+  async cloneVoice(
+    audio: Float32Array,
+    sampleRate: number,
+    opts: CloneVoiceOptions = {},
+  ): Promise<Voice> {
+    this.cloneCalls.push({ audio, sampleRate });
+    const voice = { id: opts.id ?? "cloned-1", displayName: opts.displayName ?? "Cloned", lang: "da-DK" };
+    this.cloned.push(voice);
+    return voice;
+  }
+}
+
+describe("createEngine — voice cloning", () => {
+  it("reports cloning unsupported for a plain model", async () => {
+    const engine = createEngine(new FakeSpeechModel(() => second(1)));
+    expect(engine.canCloneVoice()).toBe(false);
+    await expect(engine.cloneVoice(new Float32Array(8), 16000)).rejects.toBeInstanceOf(
+      CloningUnsupportedError,
+    );
+  });
+
+  it("delegates to a cloning-capable model and makes the voice usable", async () => {
+    const model = new CloningFakeModel();
+    const engine = createEngine(model);
+    expect(engine.canCloneVoice()).toBe(true);
+
+    const audio = new Float32Array(16000).fill(0.3);
+    const voice = await engine.cloneVoice(audio, 16000, { id: "my-voice" });
+    expect(voice.id).toBe("my-voice");
+    expect(model.cloneCalls).toHaveLength(1);
+    expect(model.cloneCalls[0].sampleRate).toBe(16000);
+
+    // The cloned voice is now resolvable and synthesizable.
+    expect(engine.listVoices().some((v) => v.id === "my-voice")).toBe(true);
+    const pcm = await engine.synthesizeToPcm({ text: "Hej.", voice: "my-voice" });
+    expect(pcm.samples.length).toBeGreaterThan(0);
   });
 });

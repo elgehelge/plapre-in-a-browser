@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { createElevenLabsTextToSpeech } from "./elevenlabs.js";
+import {
+  createElevenLabsTextToSpeech,
+  createElevenLabsVoices,
+  createElevenLabsClient,
+} from "./elevenlabs.js";
+import type { DecodedAudio } from "../audio/decode.js";
 import { UnsupportedFormatError } from "../audio/format.js";
 import { UnsupportedSpeedError } from "./errors.js";
 import { UnknownVoiceError, type Voice } from "../engine/voice.js";
@@ -12,6 +17,7 @@ const VOICES: Voice[] = [
 
 function fakeEngine(pcm = new Float32Array([1, -1])) {
   const requests: SynthesisRequest[] = [];
+  const clones: { audio: Float32Array; sampleRate: number; opts?: unknown }[] = [];
   const engine: Engine = {
     listVoices: () => VOICES,
     async *synthesize(req) {
@@ -22,8 +28,14 @@ function fakeEngine(pcm = new Float32Array([1, -1])) {
       requests.push(req);
       return { samples: pcm, sampleRate: NATIVE_SAMPLE_RATE };
     },
+    canCloneVoice: () => true,
+    async cloneVoice(audio, sampleRate, opts) {
+      clones.push({ audio, sampleRate, opts });
+      const id = opts?.id ?? `cloned-${clones.length}`;
+      return { id, displayName: opts?.displayName ?? id, lang: "da-DK" };
+    },
   };
-  return { engine, requests };
+  return { engine, requests, clones };
 }
 
 async function bytesOf(stream: ReadableStream<Uint8Array>): Promise<Uint8Array> {
@@ -157,5 +169,55 @@ describe("createElevenLabsTextToSpeech — rejected requests", () => {
     await expect(
       tts.convert("ida", { text: "Hej.", voiceSettings: { speed: 1 } }),
     ).resolves.toBeInstanceOf(Response);
+  });
+});
+
+describe("createElevenLabsVoices — Instant Voice Cloning", () => {
+  const fakeDecoder = (pcm: Float32Array, sampleRate: number) => async (): Promise<DecodedAudio> => ({
+    pcm,
+    sampleRate,
+  });
+
+  it("decodes reference files and clones onto the engine", async () => {
+    const { engine, clones } = fakeEngine();
+    const voices = createElevenLabsVoices(engine, {
+      decodeAudio: fakeDecoder(new Float32Array(16000).fill(0.2), 16000),
+    });
+    const res = await voices.add({ name: "Custom", files: [new Uint8Array([1, 2, 3]).buffer] });
+
+    expect(res.name).toBe("Custom");
+    expect(res.voiceId).toBeTruthy();
+    expect(clones).toHaveLength(1);
+    expect(clones[0].sampleRate).toBe(16000);
+    expect(clones[0].audio.length).toBe(16000);
+  });
+
+  it("accepts pre-decoded PCM and concatenates multiple clips", async () => {
+    const { engine, clones } = fakeEngine();
+    const voices = createElevenLabsVoices(engine); // no decoder needed for PCM inputs
+    await voices.add({
+      files: [
+        { pcm: new Float32Array(100).fill(0.1), sampleRate: 24000 },
+        { pcm: new Float32Array(50).fill(0.2), sampleRate: 24000 },
+      ],
+    });
+    expect(clones[0].audio.length).toBe(150);
+    expect(clones[0].sampleRate).toBe(24000);
+  });
+
+  it("rejects cloning when the engine doesn't support it", async () => {
+    const { engine } = fakeEngine();
+    const noClone = { ...engine, canCloneVoice: () => false };
+    const voices = createElevenLabsVoices(noClone);
+    await expect(
+      voices.add({ files: [{ pcm: new Float32Array(10), sampleRate: 24000 }] }),
+    ).rejects.toThrow();
+  });
+
+  it("createElevenLabsClient exposes textToSpeech + voices", () => {
+    const { engine } = fakeEngine();
+    const client = createElevenLabsClient(engine);
+    expect(typeof client.textToSpeech.convert).toBe("function");
+    expect(typeof client.voices.add).toBe("function");
   });
 });

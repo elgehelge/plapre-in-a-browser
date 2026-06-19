@@ -23,8 +23,10 @@ artifacts/
 # Generated artifact metadata / goldens (regenerable via conversion/).
 web/public/models/phase0_golden.json
 web/public/models/lm/meta.json
+web/public/models/speaker_proj.json
 web/public/models/lm_toy/
 web/public/models/phase1_toy_golden.json
+web/public/models/clone_golden.json
 
 # Golden test fixtures that are large audio
 conversion/golden/*.wav

@@ -6,6 +6,7 @@
 import { NATIVE_SAMPLE_RATE, type Engine, type SynthesisRequest } from "../engine/engine.js";
 import { encodeMp3, pcmToInt16LE, UnsupportedFormatError } from "../audio/format.js";
 import { resample } from "../audio/resample.js";
+import { decodeWithWebAudio, type AudioDecoder, type DecodedAudio } from "../audio/decode.js";
 import { mapProviderVoice, type VoiceMap } from "./voice-map.js";
 import { pcmStream } from "./stream.js";
 import { UnsupportedSpeedError } from "./errors.js";
@@ -85,6 +86,31 @@ export interface ElevenLabsTextToSpeechAdapter {
 
 export interface ElevenLabsOptions {
   voiceMap?: VoiceMap;
+  /** Audio decoder for voice cloning input; defaults to WebAudio. */
+  decodeAudio?: AudioDecoder;
+}
+
+/** Reference audio for cloning: encoded bytes (decoded via the decoder) or PCM. */
+export type CloneAudioInput = ArrayBuffer | Uint8Array | Blob | DecodedAudio;
+
+export interface ElevenLabsAddVoiceRequest {
+  name?: string;
+  /** One or more reference clips (concatenated). Mirrors ElevenLabs `files`. */
+  files: CloneAudioInput[];
+  /** Accepted for compatibility; not used locally. */
+  description?: string;
+  labels?: Record<string, string>;
+}
+
+export interface ElevenLabsVoicesAdapter {
+  /** ElevenLabs Instant Voice Cloning: POST /v1/voices/add -> local cloneVoice. */
+  add(request: ElevenLabsAddVoiceRequest): Promise<{ voiceId: string; name: string }>;
+}
+
+/** A small mirror of the ElevenLabs client: `.textToSpeech` + `.voices`. */
+export interface ElevenLabsClient {
+  textToSpeech: ElevenLabsTextToSpeechAdapter;
+  voices: ElevenLabsVoicesAdapter;
 }
 
 export function createElevenLabsTextToSpeech(
@@ -142,5 +168,71 @@ export function createElevenLabsTextToSpeech(
         },
       });
     },
+  };
+}
+
+function isDecoded(x: CloneAudioInput): x is DecodedAudio {
+  return typeof x === "object" && x !== null && "pcm" in x && "sampleRate" in x;
+}
+
+async function toArrayBuffer(x: ArrayBuffer | Uint8Array | Blob): Promise<ArrayBuffer> {
+  if (x instanceof ArrayBuffer) return x;
+  if (x instanceof Uint8Array) {
+    const out = new ArrayBuffer(x.byteLength);
+    new Uint8Array(out).set(x);
+    return out;
+  }
+  return x.arrayBuffer();
+}
+
+/**
+ * ElevenLabs `voices` sub-client. Only Instant Voice Cloning is mapped (onto the
+ * engine's local cloneVoice); the rest of the ElevenLabs voice CRUD has no local
+ * analogue. Cloning runs fully in-browser — reference audio never leaves it.
+ */
+export function createElevenLabsVoices(
+  engine: Engine,
+  options: ElevenLabsOptions = {},
+): ElevenLabsVoicesAdapter {
+  const decodeAudio = options.decodeAudio ?? decodeWithWebAudio;
+
+  return {
+    async add(request): Promise<{ voiceId: string; name: string }> {
+      if (!engine.canCloneVoice()) throw new UnsupportedFormatError("voice cloning");
+      if (!request.files?.length) throw new Error("voices.add requires at least one file");
+
+      const decoded: DecodedAudio[] = [];
+      for (const file of request.files) {
+        decoded.push(isDecoded(file) ? file : await decodeAudio(await toArrayBuffer(file)));
+      }
+      // Concatenate clips at a common rate (the first clip's) — more reference
+      // audio yields a more robust embedding.
+      const rate = decoded[0].sampleRate;
+      const parts = decoded.map((d) =>
+        d.sampleRate === rate ? d.pcm : resample(d.pcm, d.sampleRate, rate),
+      );
+      let total = 0;
+      for (const p of parts) total += p.length;
+      const merged = new Float32Array(total);
+      let off = 0;
+      for (const p of parts) {
+        merged.set(p, off);
+        off += p.length;
+      }
+
+      const voice = await engine.cloneVoice(merged, rate, { displayName: request.name });
+      return { voiceId: voice.id, name: voice.displayName };
+    },
+  };
+}
+
+/** Mirror of the ElevenLabs client surface this adapter supports. */
+export function createElevenLabsClient(
+  engine: Engine,
+  options: ElevenLabsOptions = {},
+): ElevenLabsClient {
+  return {
+    textToSpeech: createElevenLabsTextToSpeech(engine, options),
+    voices: createElevenLabsVoices(engine, options),
   };
 }

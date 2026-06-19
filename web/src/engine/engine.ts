@@ -7,7 +7,11 @@
 import { SAMPLE_RATE } from "../pipeline/types.js";
 import { splitSentences } from "../pipeline/normalize.js";
 import type { GenerateOptions } from "../pipeline/lm.js";
-import type { SpeechModel } from "./speech-model.js";
+import {
+  supportsCloning,
+  type CloneVoiceOptions,
+  type SpeechModel,
+} from "./speech-model.js";
 import { resolveVoice, type Voice } from "./voice.js";
 
 export const NATIVE_SAMPLE_RATE = SAMPLE_RATE;
@@ -30,10 +34,29 @@ export interface SynthesisRequest {
   readonly generation?: Partial<GenerateOptions>;
 }
 
+export class CloningUnsupportedError extends Error {
+  constructor() {
+    super("This engine's model does not support voice cloning.");
+    this.name = "CloningUnsupportedError";
+  }
+}
+
 export interface Engine {
   listVoices(): readonly Voice[];
   synthesize(request: SynthesisRequest): AsyncIterable<PcmChunk>;
   synthesizeToPcm(request: SynthesisRequest): Promise<Pcm>;
+  /** Whether {@link cloneVoice} is available for this engine's model. */
+  canCloneVoice(): boolean;
+  /**
+   * Clone a voice from reference audio (fully local). The returned Voice is
+   * usable in synthesize()/synthesizeToPcm() exactly like a built-in one.
+   * Throws {@link CloningUnsupportedError} if the model can't clone.
+   */
+  cloneVoice(
+    audio: Float32Array,
+    sampleRate: number,
+    opts?: CloneVoiceOptions,
+  ): Promise<Voice>;
 }
 
 // The reference pipeline's sampling defaults (plapre/inference.py). Expressed
@@ -88,10 +111,21 @@ export function createEngine(model: SpeechModel, options: EngineOptions = {}): E
     return { samples: concat(chunks), sampleRate: NATIVE_SAMPLE_RATE };
   }
 
+  async function cloneVoice(
+    audio: Float32Array,
+    sampleRate: number,
+    opts?: CloneVoiceOptions,
+  ): Promise<Voice> {
+    if (!supportsCloning(model)) throw new CloningUnsupportedError();
+    return model.cloneVoice(audio, sampleRate, opts);
+  }
+
   return {
     listVoices: () => model.voices(),
     synthesize,
     synthesizeToPcm,
+    canCloneVoice: () => supportsCloning(model),
+    cloneVoice,
   };
 }
 

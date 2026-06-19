@@ -23,6 +23,8 @@ function fakeEngine(pcm = new Float32Array([0.5, -0.5])) {
       requests.push(req);
       return { samples: pcm, sampleRate: NATIVE_SAMPLE_RATE };
     },
+    canCloneVoice: () => false,
+    cloneVoice: () => Promise.reject(new Error("not supported")),
   };
   return { engine, requests };
 }

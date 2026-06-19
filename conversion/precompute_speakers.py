@@ -22,7 +22,9 @@ from pathlib import Path
 
 from _gated import CHECKPOINT, SPEAKER_DIM, ensure_access
 
-OUT = Path(__file__).parent.parent / "web" / "public" / "models" / "speakers.json"
+MODELS = Path(__file__).parent.parent / "web" / "public" / "models"
+OUT = MODELS / "speakers.json"
+PROJ_OUT = MODELS / "speaker_proj.json"  # for runtime voice cloning
 
 
 def main() -> None:
@@ -75,6 +77,24 @@ def main() -> None:
     OUT.write_text(json.dumps(out))
     print(f"Wrote {len(out)} speakers ({', '.join(out)}) -> {OUT}")
     print(f"hidden_size={hidden}")
+
+    # Ship speaker_proj (128 -> hidden) for RUNTIME voice cloning: the clone
+    # encoder yields a raw 128-dim embedding, and the LM prompt needs the
+    # projected hidden vector. It is a single Linear, so we ship the weights as
+    # JSON and apply y = W·x + b in JS (web/src/pipeline/clone.ts) — no extra
+    # ONNX session. Built-in speakers already have `hidden` precomputed; this is
+    # only for voices cloned at runtime.
+    PROJ_OUT.write_text(
+        json.dumps(
+            {
+                "in": SPEAKER_DIM,
+                "out": hidden,
+                "weight": proj.weight.detach().tolist(),  # [hidden][128]
+                "bias": proj.bias.detach().tolist(),  # [hidden]
+            }
+        )
+    )
+    print(f"Wrote speaker_proj ({SPEAKER_DIM}->{hidden}) -> {PROJ_OUT}")
 
 
 if __name__ == "__main__":

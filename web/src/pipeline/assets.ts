@@ -23,9 +23,14 @@ export const ARTIFACTS = {
   },
   tokenizer: {
     file: "tokenizer.json",
-    producedBy: "copy tokenizer.json from the syvai/plapre-pico repo",
+    producedBy: "conversion/fetch_tokenizer.py (copies it from syvai/plapre-pico)",
   },
   speakers: { file: "speakers.json", producedBy: "conversion/precompute_speakers.py" },
+  cloneEncoder: {
+    file: "clone_encoder.onnx",
+    producedBy: "conversion/export_clone_encoder.py",
+  },
+  speakerProj: { file: "speaker_proj.json", producedBy: "conversion/precompute_speakers.py" },
 } as const;
 
 export type ArtifactKey = keyof typeof ARTIFACTS;

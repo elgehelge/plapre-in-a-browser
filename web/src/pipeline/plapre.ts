@@ -9,10 +9,16 @@ import { PlapreLM } from "./lm.js";
 import { KanadeDecoder } from "./decoder.js";
 import { HiftVocoder } from "./vocoder.js";
 import { loadSpeakers } from "./speakers.js";
+import { VoiceClonerImpl } from "./clone.js";
 import { pickBackend } from "./ort.js";
 import type { Backend, SpeakerTable } from "./types.js";
 import { createEngine, type Engine, type EngineOptions } from "../engine/engine.js";
-import type { SentenceRequest, SpeechModel } from "../engine/speech-model.js";
+import type {
+  CloneVoiceOptions,
+  SentenceRequest,
+  SpeechModel,
+  VoiceCloner,
+} from "../engine/speech-model.js";
 import type { Voice } from "../engine/voice.js";
 
 const DANISH = "da-DK";
@@ -21,12 +27,17 @@ export interface PlapreConfig extends EngineOptions {
   backend?: Backend;
 }
 
-export class PlapreSpeechModel implements SpeechModel {
+export class PlapreSpeechModel implements SpeechModel, VoiceCloner {
+  private cloner: VoiceClonerImpl | null = null;
+  private cloneCounter = 0;
+  private readonly displayNames = new Map<string, string>();
+
   private constructor(
     private readonly lm: PlapreLM,
     private readonly decoder: KanadeDecoder,
     private readonly vocoder: HiftVocoder,
     private readonly speakers: SpeakerTable,
+    private readonly backend: Backend,
   ) {}
 
   static async load(backend: Backend): Promise<PlapreSpeechModel> {
@@ -40,11 +51,30 @@ export class PlapreSpeechModel implements SpeechModel {
       KanadeDecoder.load(audioTokenStart, audioTokenEnd, backend),
       HiftVocoder.load(backend),
     ]);
-    return new PlapreSpeechModel(lm, decoder, vocoder, speakers);
+    return new PlapreSpeechModel(lm, decoder, vocoder, speakers, backend);
   }
 
   voices(): readonly Voice[] {
-    return Object.keys(this.speakers).map((id) => ({ id, displayName: id, lang: DANISH }));
+    return Object.keys(this.speakers).map((id) => ({
+      id,
+      displayName: this.displayNames.get(id) ?? id,
+      lang: DANISH,
+    }));
+  }
+
+  /** Clone a voice from reference audio and register it in the speaker table. */
+  async cloneVoice(
+    audio: Float32Array,
+    sampleRate: number,
+    opts: CloneVoiceOptions = {},
+  ): Promise<Voice> {
+    this.cloner ??= await VoiceClonerImpl.load(this.backend);
+    const id = opts.id ?? `cloned-${++this.cloneCounter}`;
+    if (this.speakers[id]) throw new Error(`voice id "${id}" already exists`);
+    this.speakers[id] = await this.cloner.embedSpeaker(audio, sampleRate);
+    const displayName = opts.displayName ?? id;
+    this.displayNames.set(id, displayName);
+    return { id, displayName, lang: opts.lang ?? DANISH };
   }
 
   async synthesizeSentence({ sentence, voice, generation }: SentenceRequest): Promise<Float32Array> {

@@ -165,36 +165,43 @@ a format encoder over the canonical 24 kHz PCM stream.
 - [ ] Quality A/B vs reference Python output.
 - [ ] Memory footprint.
 
-## Phase 5 — Voice cloning (optional)
+## Phase 5 — Voice cloning
+
+**Status: GATE CLEARED + runtime wired.** The clone encoder exports and runs
+under onnxruntime-web on WASM and WebGPU, reproducing the torch/ORT-CPU embedding
+(cosine 1.000000 on both). This phase is fully public (no gated weights); only
+`speaker_proj.json` (the 128→hidden projection) is gated, and it is emitted by
+precompute_speakers.py.
 
 Plapre clones a voice by deriving the same 128-dim speaker embedding that the
-built-in speakers ship as — the rest of the pipeline is unchanged. In the
-reference this is one call: `kanade.encode(wav).global_embedding`.
+built-in speakers ship as — the rest of the pipeline is unchanged.
 
-Mini de-risk (gate this phase, like Phase 0 gates the vocoder):
+- [x] Export the **clone encoder** to ONNX (`conversion/export_clone_encoder.py`)
+      and reproduce a reference embedding in the browser (cosine vs torch). The
+      global SSL branch turned out to be `global_ssl_layers=(1,2,3,4)` averaged
+      (not (1,2)); `config.sample_rate=24000`. ORT-CPU vs torch cosine 1.0; the
+      slim-vs-`encode()` cosine is 0.997 (the small waveform-padding difference —
+      see deferred). Legacy exporter (dynamo trips on WavLM control flow).
+- [x] WavLM-base+ frontend (layers 1–4 averaged) → GlobalEncoder (ConvNext +
+      AttentiveStatsPool) → 128-dim. The SSL 24→16 kHz resample stays INSIDE the
+      graph (exact torchaudio sinc) so the browser only resamples to 24 kHz.
+- [x] Runtime flow (`web/src/pipeline/clone.ts`): reference audio → resample →
+      `clone_encoder.onnx` → raw 128-dim → `speaker_proj` (128→hidden, applied in
+      JS from `speaker_proj.json`) → hidden; register as a `SpeakerData`. The
+      projection is a single Linear shipped as JSON and applied in JS (no extra
+      session), so its math is unit-tested.
+- [x] Engine API: `Engine.cloneVoice(audio, sampleRate, opts?) → Voice` +
+      `canCloneVoice()`; `PlapreSpeechModel` implements `VoiceCloner` and
+      registers the cloned voice into its catalog so `synthesize()` uses it like
+      a built-in. Fully local — reference audio never leaves the browser.
+- [x] Adapter mapping: ElevenLabs Instant Voice Cloning → `createElevenLabsVoices`
+      / `createElevenLabsClient` (`voices.add({ name, files }) → cloneVoice`),
+      with a pluggable `AudioDecoder` (WebAudio default). OpenAI has no cloning
+      analogue (unsupported).
 
-- [ ] Export the **clone encoder** to ONNX and reproduce one reference embedding
-      in the browser (cosine similarity vs Python `extract_speaker`).
-
-Only the *global* branch is needed (not the content/local encoder or FSQ):
-
-- [ ] WavLM-base+ truncated to its conv frontend + first 2 transformer layers
-      (`global_ssl_layers=(1,2)`), then the GlobalEncoder (ConvNext backbone +
-      AttentiveStatsPool) → 128-dim embedding. Truncation shrinks size and the
-      ONNX op surface.
-- [ ] Runtime flow: decode reference audio → resample to 16 kHz → clone encoder
-      → raw 128-dim → apply `speaker_proj` (128→hidden) → hidden; register a
-      `Voice` carrying both. This is the **only** runtime use of `speaker_proj`
-      (ship it as a small weight file or 1-op ONNX).
-- [ ] Engine API: `cloneVoice(audio, sampleRate, opts?) → Voice`, usable in
-      `synthesize()` exactly like a built-in voice. Cloning runs fully local —
-      the reference audio never leaves the browser.
-- [ ] Adapter mapping: ElevenLabs Instant Voice Cloning (`POST /v1/voices/add`)
-      maps onto `cloneVoice()`; OpenAI has no cloning analogue (unsupported).
-
-Encoder-specific risks: WavLM's gated relative-position bias and conv GroupNorm
-are the likely ORT-Web op-support pain points; minimum clip length (~3–30 s);
-resampler parity (16 kHz) against torchaudio.
+Risks retired: WavLM under ORT-Web (the op-support worry) runs clean on both
+backends. Remaining nuance tracked in deferred: waveform-padding parity (cosine
+0.997 vs the padded reference) and minimum clip length guidance.
 
 ## Deferred / known gaps (carried forward)
 
@@ -220,6 +227,11 @@ they are not lost in commit messages:
 - [ ] **Resampler quality** — `audio/resample.ts` is Catmull-Rom (not
       band-limited). Fine for speech PoC; upgrade to windowed-sinc if 24→44.1 kHz
       upsampling artifacts are audible.
+- [ ] **Clone waveform-padding parity** — the clone encoder skips the reference
+      audio's symmetric padding that `KanadeModel.encode()` applies, costing
+      ~0.003 cosine (slim-vs-encode 0.997). The attentive-stats pool makes this
+      negligible; replicate `_calculate_waveform_padding` in the wrapper if clone
+      fidelity ever needs it. Also: surface a minimum clip-length hint (~3–30 s).
 
 ## Open risks (validate early, cheap first)
 

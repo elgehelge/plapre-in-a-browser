@@ -12,9 +12,10 @@ export * from "./engine/speech-model.js";
 // Plapre as the concrete SpeechModel + the loader that returns an Engine.
 export * from "./pipeline/plapre.js";
 
-// Audio serialization + sample-rate conversion.
+// Audio serialization + sample-rate conversion + decoding (for cloning input).
 export * from "./audio/format.js";
 export * from "./audio/resample.js";
+export * from "./audio/decode.js";
 
 // Drop-in API adapters.
 export * from "./adapters/openai.js";

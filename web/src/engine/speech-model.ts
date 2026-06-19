@@ -23,3 +23,27 @@ export interface SpeechModel {
   /** Synthesize one sentence to mono PCM at the model's native sample rate. */
   synthesizeSentence(request: SentenceRequest): Promise<Float32Array>;
 }
+
+export interface CloneVoiceOptions {
+  /** Stable id for the cloned voice; auto-generated if omitted. */
+  readonly id?: string;
+  readonly displayName?: string;
+  readonly lang?: string;
+}
+
+/**
+ * Optional capability: derive a new voice from reference audio, fully locally.
+ * Models that support cloning (PlapreSpeechModel) implement this; the Engine
+ * exposes it and reports `CloningUnsupportedError` for models that don't.
+ */
+export interface VoiceCloner {
+  cloneVoice(
+    audio: Float32Array,
+    sampleRate: number,
+    opts?: CloneVoiceOptions,
+  ): Promise<Voice>;
+}
+
+export function supportsCloning(model: SpeechModel): model is SpeechModel & VoiceCloner {
+  return typeof (model as Partial<VoiceCloner>).cloneVoice === "function";
+}
