@@ -3,18 +3,24 @@
 Chains the three exported graphs exactly as the browser does — no torch, no gated
 `plapre` package, no browser — to prove text actually turns into audio:
 
-  text --(lm.onnx, greedy)--> audio tokens
+  text --(lm.onnx)----------> audio tokens   (greedy OR sampled)
        --(- <audio_0>)-------> kanade content indices
        --(kanade_decoder.onnx, + raw 128-dim speaker emb)--> mel
-       --(hift_vocoder.onnx)--> 24 kHz waveform  -> golden/e2e.wav
+       --(hift_vocoder.onnx)--> 24 kHz waveform  -> golden/e2e[_sampled].wav
 
-Mirrors web/src/pipeline/{lm,decoder,vocoder}.ts. A sane WAV (right duration, no
-NaNs, reasonable amplitude) means the whole chain is wired and runs.
+Mirrors web/src/pipeline/{lm,decoder,vocoder,sampling}.ts — including a faithful
+port of the mulberry32 RNG + temperature/top-k/top-p sampler, so for a given seed
+the browser would produce the identical token stream.
+
+Usage:
+  python validate_e2e.py            # sampled (temp 0.8/topK 50/topP 0.95, seed 0)
+  python validate_e2e.py --greedy   # argmax (matches the token golden)
 """
 
 from __future__ import annotations
 
 import json
+import sys
 import wave
 from pathlib import Path
 
@@ -25,15 +31,66 @@ from tokenizers import Tokenizer
 from smoke_reference import SENTENCE, SPEAKER, _normalize
 
 MODELS = Path(__file__).parent.parent / "web" / "public" / "models"
-OUT_WAV = Path(__file__).parent / "golden" / "e2e.wav"
 SR = 24000
+
+# Browser engine defaults (web/src/engine/engine.ts DEFAULT_GENERATION).
+TEMPERATURE, TOP_K, TOP_P, SEED = 0.8, 50, 0.95, 0
+
+
+def _imul(a: int, b: int) -> int:
+    return (a * b) & 0xFFFFFFFF
+
+
+def make_rng(seed: int):
+    """Port of mulberry32 from web/src/pipeline/sampling.ts (bit-exact)."""
+    a = seed & 0xFFFFFFFF
+
+    def rng() -> float:
+        nonlocal a
+        a = (a + 0x6D2B79F5) & 0xFFFFFFFF
+        t = a
+        t = _imul(t ^ (t >> 15), 1 | a)
+        t = ((t + _imul(t ^ (t >> 7), 61 | t)) & 0xFFFFFFFF) ^ t
+        t &= 0xFFFFFFFF
+        return ((t ^ (t >> 14)) & 0xFFFFFFFF) / 4294967296.0
+
+    return rng
+
+
+def sample_token(logits: np.ndarray, rng) -> int:
+    """Port of sample() from web/src/pipeline/sampling.ts."""
+    if TEMPERATURE <= 0:
+        return int(logits.argmax())
+    cands = sorted(
+        ((i, logits[i] / TEMPERATURE) for i in range(len(logits))),
+        key=lambda c: c[1],
+        reverse=True,
+    )
+    if 0 < TOP_K < len(cands):
+        cands = cands[:TOP_K]
+    probs = np.array([c[1] for c in cands], dtype=np.float64)
+    probs = np.exp(probs - probs.max())
+    probs /= probs.sum()
+    if TOP_P < 1:
+        cum = np.cumsum(probs)
+        cutoff = int(np.searchsorted(cum, TOP_P) + 1)
+        cands = cands[:cutoff]
+        probs = probs[:cutoff]
+        probs = probs / probs.sum()
+    r = rng()
+    acc = 0.0
+    for (idx, _), p in zip(cands, probs):
+        acc += p
+        if r <= acc:
+            return int(idx)
+    return int(cands[-1][0])
 
 
 def _sess(path: Path) -> ort.InferenceSession:
     return ort.InferenceSession(str(path), providers=["CPUExecutionProvider"])
 
 
-def _run_lm(tok: Tokenizer) -> list[int]:
+def _run_lm(tok: Tokenizer, greedy: bool) -> list[int]:
     meta = json.loads((MODELS / "lm" / "meta.json").read_text())
     L, KV, HD, H = meta["numLayers"], meta["kvHeads"], meta["headDim"], meta["hidden"]
     spk = json.loads((MODELS / "speakers.json").read_text())[SPEAKER]
@@ -55,11 +112,13 @@ def _run_lm(tok: Tokenizer) -> list[int]:
         outs = sess.run(["logits", *prn], feeds)
         return outs[0], outs[1:]
 
+    rng = make_rng(SEED)
     past = [np.zeros((1, KV, 0, HD), np.float32) for _ in range(2 * L)]
     logits, past = step(prompt, hidden, past)
     ids: list[int] = []
     for _ in range(500):
-        nxt = int(logits[0, -1].argmax())
+        row = logits[0, -1]
+        nxt = int(row.argmax()) if greedy else sample_token(row, rng)
         if nxt == eos:
             break
         ids.append(nxt)
@@ -68,11 +127,14 @@ def _run_lm(tok: Tokenizer) -> list[int]:
 
 
 def main() -> None:
+    greedy = "--greedy" in sys.argv
+    out_wav = Path(__file__).parent / "golden" / ("e2e.wav" if greedy else "e2e_sampled.wav")
+    print(f"mode: {'greedy' if greedy else f'sampled (T={TEMPERATURE} topK={TOP_K} topP={TOP_P} seed={SEED})'}")
     tok = Tokenizer.from_file(str(MODELS / "tokenizer.json"))
     audio0 = tok.token_to_id("<audio_0>")
     audio_end = tok.token_to_id("<audio_12799>")
 
-    audio_tokens = _run_lm(tok)
+    audio_tokens = _run_lm(tok, greedy)
     kanade = [t - audio0 for t in audio_tokens if audio0 <= t <= audio_end]
     print(f"LM: {len(audio_tokens)} tokens -> {len(kanade)} kanade indices")
     if not kanade:
@@ -98,15 +160,15 @@ def main() -> None:
     rms = float(np.sqrt(np.mean(wav**2))) if len(wav) else 0.0
     print(f"audio: finite={finite} peak={peak:.3f} rms={rms:.4f}")
 
-    OUT_WAV.parent.mkdir(exist_ok=True)
+    out_wav.parent.mkdir(exist_ok=True)
     pcm16 = np.clip(wav, -1.0, 1.0)
     pcm16 = (pcm16 * 32767.0).astype("<i2")
-    with wave.open(str(OUT_WAV), "wb") as w:
+    with wave.open(str(out_wav), "wb") as w:
         w.setnchannels(1)
         w.setsampwidth(2)
         w.setframerate(SR)
         w.writeframes(pcm16.tobytes())
-    print(f"wrote {OUT_WAV}")
+    print(f"wrote {out_wav}")
 
     problems = []
     if not finite:
