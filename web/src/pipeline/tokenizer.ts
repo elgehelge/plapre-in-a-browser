@@ -42,7 +42,12 @@ export class PlapreTokenizer {
       audioTag: id("<audio>"),
       audioTokenStart: id("<audio_0>"),
       audioTokenEnd: id("<audio_12799>"),
-      eos: tok.model.tokens_to_ids.get("<|endoftext|>") ?? -1,
+      // Plapre's generation stop token is "<eos>" (id 0 — AutoTokenizer's
+      // eos_token_id), NOT SmolLM2's "<|endoftext|>", which this retrained
+      // tokenizer does not even contain. Resolving the wrong tag silently
+      // disabled the stop condition (ran to maxTokens). Verified against the
+      // torch golden in conversion/validate_lm_golden.py.
+      eos: id("<eos>"),
     });
   }
 

@@ -36,9 +36,10 @@ must change — so prove it before investing in the LM port.
       bypasses the `@torch.inference_mode()` `inference()` (replicating its body)
       and feeds a normal-tensor mel. **ORT-CPU wav parity vs PyTorch
       max|diff| ≈ 8.6e-7 (PASS).**
-- [ ] Produce golden fixtures (`conversion/smoke_reference.py`): for a fixed
-      sentence + built-in speaker, dump the generated audio-token ids, the
-      decoder mel, and the final 24 kHz wav.
+- [x] Produce golden fixtures (`conversion/smoke_reference.py`): for a fixed
+      sentence + built-in speaker, dump the generated audio-token ids (+ kanade
+      indices). Done from the gated weights; the decoder mel/wav reuse the Phase 0
+      golden (stage 3 needs the server-only `plapre` package, skipped gracefully).
 - [x] In the browser, load decoder + vocoder under onnxruntime-web, run
       decoder → vocoder on fixed inputs, and reproduce the PyTorch golden. Tested
       on **WASM and WebGPU** via a Vite harness (`web/phase0.html` +
@@ -67,9 +68,12 @@ they give an early real-time-factor signal (WebGPU ~0.2 s for ~2 s of audio).
 
 ## Phase 1 — Port the LM generation
 
-**Status: runtime PROVEN; gated export written + UNVALIDATED.** The browser
-decode loop is implemented and validated; the real export of the gated weights is
-the one human-gated step (see "Gated blocker" below).
+**Status: GATE CLEARED.** The gated weights were exported and the full path is
+validated: the exported `lm.onnx` reproduces the torch greedy golden (172 tokens)
+bit-for-bit (`conversion/validate_lm_golden.py`), and the browser decode loop was
+already proven against the toy gate. A real-EOS bug in `tokenizer.ts` (it looked
+up SmolLM2's `<|endoftext|>`, absent here, so generation never stopped) was found
+by this validation and fixed to `<eos>` (id 0).
 
 - [x] JS: BPE tokenize via the HF `tokenizer.json`; build prompt
       `[<text>] + ids + [<audio>]` (`web/src/pipeline/tokenizer.ts`).
@@ -86,18 +90,26 @@ the one human-gated step (see "Gated blocker" below).
 - [x] Export **Plapre Pico LM** to ONNX (`input_ids` + `prefix_embeds` + KV cache
       → `logits` + `present`) via a custom wrapper (`conversion/export_lm.py`)
       that embeds ids internally and prepends the speaker row; emits `meta.json`
-      with `{numLayers,kvHeads,headDim,hidden}`. Written to the proven contract;
-      runs once authenticated. (optimum-cli can't express `inputs_embeds` + the
-      speaker prepend, hence the wrapper.)
+      `{numLayers:30,kvHeads:3,headDim:64,hidden:576}`. (optimum-cli can't express
+      `inputs_embeds` + the speaker prepend, hence the wrapper.) transformers 5.x
+      removed the legacy cache tuple API, so the wrapper seeds a `DynamicCache` via
+      `update()` and reads `present.layers[i].keys/values`; it must be traced with
+      a NON-EMPTY past so the `cat(past,new)` branch is baked (an empty past bakes
+      the `numel()==0` replace branch and silently drops history). 521 MB inline.
 - [x] Precompute speaker hidden vectors offline: `speaker_proj @ speakers[name]`
       → `speakers.json` (`conversion/precompute_speakers.py`); robust to the
       repo's speaker/proj shapes. Removes the projection from the runtime.
 - [x] `conversion/fetch_tokenizer.py` copies `tokenizer.json`/`config.json`.
 - [x] `conversion/smoke_reference.py` is a self-contained greedy torch reference
       that mirrors `lm.ts` exactly (no vLLM), producing `tokens.json` /
-      `kanade.json` / `mel.npy` / `reference.wav` as the cross-language oracle.
-- [ ] **Parity-check generated token ids against golden** — blocked: needs the
-      gated weights to produce the golden ids (loop + reference are ready).
+      `kanade.json` as the cross-language oracle (172 tokens for the test
+      sentence + speaker `tor`).
+- [x] **Parity-check generated token ids against golden** — DONE.
+      `conversion/validate_lm_golden.py` runs the exported `lm.onnx` through a
+      greedy decode (speaker-hidden prefix + KV cache, the same contract as
+      `lm.ts`) under ORT and reproduces the torch golden's 172 ids bit-for-bit;
+      it also confirms `speaker_proj.json` matches the precomputed `hidden`
+      (max|diff| 0).
 
 ### Gated blocker (the one human step)
 

@@ -14,8 +14,11 @@ The token loop here intentionally mirrors web/src/pipeline/lm.ts exactly
 at EOS / max_tokens) instead of using vLLM, so the JS ids must match bit-for-bit
 under greedy decoding. This doubles as the cross-language oracle for Phase 1.
 
-STATUS: UNVALIDATED end-to-end — gated weights (see conversion/_gated.py). The
-loop shape is the same one proven by the toy browser gate.
+STATUS: VALIDATED for the LM stage. tokens.json/kanade.json are produced from the
+gated weights and the exported lm.onnx reproduces them bit-for-bit under greedy
+decode (conversion/validate_lm_golden.py). Stage 3 (mel/wav) only runs if the
+upstream `plapre` package is importable; the decoder/vocoder are otherwise covered
+by their own Phase 0 golden (gen_phase0_golden.py), so it is skipped gracefully.
 """
 
 from __future__ import annotations

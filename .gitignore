@@ -28,8 +28,15 @@ web/public/models/lm_toy/
 web/public/models/phase1_toy_golden.json
 web/public/models/clone_golden.json
 
-# Golden test fixtures that are large audio
-conversion/golden/*.wav
+# Gated-repo files copied locally (regenerable via fetch_tokenizer.py /
+# precompute_speakers.py; derived from the gated Plapre weights).
+web/public/models/tokenizer.json
+web/public/models/config.json
+web/public/models/speakers.json
+
+# Golden fixtures derived from the gated weights (regenerable via
+# smoke_reference.py); audio + token oracles.
+conversion/golden/
 
 # OS
 .DS_Store

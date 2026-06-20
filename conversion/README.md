@@ -70,7 +70,8 @@ loop is already validated against; runs end-to-end once authenticated:
 | `fetch_tokenizer.py`     | `tokenizer.json` (+ `config.json`)                    |
 | `export_lm.py`           | `lm/model.onnx` (+ data) + `lm/meta.json`             |
 | `precompute_speakers.py` | `speakers.json` (raw 128 + hidden) + `speaker_proj.json` |
-| `smoke_reference.py`     | `golden/tokens.json` + `kanade.json` + `mel.npy` + `reference.wav` (greedy torch oracle mirroring `lm.ts`) |
+| `smoke_reference.py`     | `golden/tokens.json` + `kanade.json` (greedy torch oracle mirroring `lm.ts`; stage-3 mel/wav only if upstream `plapre` is importable) |
+| `validate_lm_golden.py`  | nothing; asserts the exported `lm.onnx` reproduces `golden/tokens.json` bit-for-bit under ORT greedy decode |
 
 `_gated.py` is the shared access check: it turns a `GatedRepoError` into one
 actionable message. Unblock with:
@@ -78,8 +79,14 @@ actionable message. Unblock with:
 ```bash
 huggingface-cli login            # after clicking "Agree" on the model page
 python fetch_tokenizer.py && python export_lm.py && python precompute_speakers.py
-python smoke_reference.py        # golden token ids for the parity check
+python smoke_reference.py        # golden token ids (greedy torch oracle)
+python validate_lm_golden.py     # exported ONNX == torch golden (Phase 1 gate)
 ```
+
+`export_lm.py` self-checks single-step KV-cache parity; `validate_lm_golden.py`
+checks the full autoregressive decode. The generation stop token is `<eos>`
+(id 0), not SmolLM2's `<|endoftext|>` (absent here) — the browser tokenizer
+resolves `<eos>` accordingly.
 
 ## Reproduce the Phase 0 gate end-to-end
 

@@ -21,10 +21,11 @@ Outputs (web/public/models/lm/):
   model.onnx (+ .onnx.data sidecar if >2 GB)  and  meta.json
   {numLayers, kvHeads, headDim, hidden}
 
-STATUS: written to the validated contract but UNVALIDATED end-to-end because the
-weights are gated (see conversion/_gated.py). Run it once authenticated. The
-runtime side is already proven by the toy gate, so failures here are export-shape
-issues, not loop logic.
+STATUS: VALIDATED. Exported from the gated weights (transformers 5.x DynamicCache)
+and checked two ways: a single-step KV-cache parity (this script, ORT vs torch,
+max|diff|~1e-5) and a full 172-token greedy decode that reproduces the torch
+golden bit-for-bit (conversion/validate_lm_golden.py). meta: layers=30, kvHeads=3,
+headDim=64, hidden=576; the 521 MB graph stays inline (no external-data sidecar).
 """
 
 from __future__ import annotations
@@ -57,28 +58,25 @@ class LmExportWrapper(nn.Module):
         tok = self.embed(input_ids)  # [seq, H]
         inputs_embeds = torch.cat([prefix_embeds, tok], dim=0).unsqueeze(0)  # [1, S, H]
 
-        legacy = tuple(
-            (past_flat[2 * i], past_flat[2 * i + 1]) for i in range(len(past_flat) // 2)
-        )
-        past_len = legacy[0][0].shape[2] if legacy else 0
-        cache = DynamicCache.from_legacy_cache(legacy) if past_len > 0 else None
-
-        seq_total = inputs_embeds.shape[1]
-        position_ids = torch.arange(past_len, past_len + seq_total).unsqueeze(0)
+        # Seed a cache with the incoming past UNCONDITIONALLY (even a 0-length
+        # past), so the past_key_values inputs are wired into the traced graph as
+        # `cat(past, new)`. Positions/causal mask are left to the decoder, which
+        # derives `cache_position` from the (dynamic) cache length — never baking
+        # the past length as a constant the way an explicit position_ids would.
+        cache = DynamicCache()
+        for i in range(len(past_flat) // 2):
+            cache.update(past_flat[2 * i], past_flat[2 * i + 1], i)
 
         out = self.decoder(
             inputs_embeds=inputs_embeds,
             past_key_values=cache,
-            position_ids=position_ids,
             use_cache=True,
         )
         logits = self.lm_head(out.last_hidden_state)  # [1, S, vocab]
 
-        present = out.past_key_values
-        present_legacy = present.to_legacy_cache() if hasattr(present, "to_legacy_cache") else present
         flat: list[torch.Tensor] = []
-        for k, v in present_legacy:
-            flat += [k, v]
+        for layer in out.past_key_values.layers:
+            flat += [layer.keys, layer.values]
         return (logits, *flat)
 
 
@@ -107,11 +105,16 @@ def main() -> None:
 
     wrapper = LmExportWrapper(model).eval()
 
-    seq, k = 4, 1
+    # Trace with a NON-EMPTY past (past=3): HF's cache `update` short-circuits on
+    # an empty cache (`keys.numel()==0` → replace instead of concat), and the
+    # legacy tracer bakes whichever branch it sees. A non-empty past bakes the
+    # `cat(past, new)` branch, which also handles a 0-length past at runtime
+    # (cat with an empty tensor is a no-op). Validated below.
+    seq, k, past = 4, 1, 3
     example = (
         torch.randint(0, cfg.vocab_size, (seq,), dtype=torch.long),
         torch.randn(k, hidden),
-        *[torch.zeros(1, kv_heads, 0, head_dim) for _ in range(2 * layers)],
+        *[torch.randn(1, kv_heads, past, head_dim) for _ in range(2 * layers)],
     )
     dynamic = {"input_ids": {0: "seq"}, "prefix_embeds": {0: "k"}, "logits": {1: "total"}}
     for nme in _names("past_key_values", layers):
@@ -141,7 +144,57 @@ def main() -> None:
     (OUT_DIR / "meta.json").write_text(json.dumps(meta))
     print(f"exported LM -> {out_path}")
     print(f"meta: layers={layers} kvHeads={kv_heads} headDim={head_dim} hidden={hidden}")
-    print("NOTE: copy tokenizer.json from the repo via fetch_tokenizer.py; then run smoke_reference.py.")
+
+    _validate_cpu(wrapper, out_path, layers, kv_heads, head_dim, hidden, cfg.vocab_size)
+    print("NOTE: copy tokenizer.json via fetch_tokenizer.py; then run smoke_reference.py.")
+
+
+def _validate_cpu(
+    wrapper: LmExportWrapper,
+    out_path: Path,
+    layers: int,
+    kv_heads: int,
+    head_dim: int,
+    hidden: int,
+    vocab: int,
+) -> None:
+    """Prove the exported graph's KV cache is wired: a single-shot prefill in
+    torch must equal a prefill+decode split run through ONNX Runtime. If the
+    export had dropped the past (the `numel()==0` trap), the split run's final
+    logits would diverge from the one-shot reference.
+    """
+    import numpy as np
+    import onnxruntime as ort
+
+    past_names = _names("past_key_values", layers)
+    present_names = _names("present", layers)
+    sess = ort.InferenceSession(str(out_path), providers=["CPUExecutionProvider"])
+
+    torch.manual_seed(0)
+    prompt = torch.randint(0, vocab, (5,), dtype=torch.long)
+    prefix = torch.randn(1, hidden)
+    empty = [np.zeros((1, kv_heads, 0, head_dim), np.float32) for _ in range(2 * layers)]
+
+    with torch.no_grad():
+        ref_logits = wrapper(prompt, prefix, *[torch.zeros(1, kv_heads, 0, head_dim)] * (2 * layers))[0]
+    ref_last = ref_logits[0, -1].numpy()
+
+    def run(ids: np.ndarray, pfx: np.ndarray, past: list[np.ndarray]):
+        feeds = {"input_ids": ids, "prefix_embeds": pfx}
+        feeds.update({n: t for n, t in zip(past_names, past)})
+        outs = sess.run(["logits", *present_names], feeds)
+        return outs[0], outs[1:]
+
+    # Stage 1: prefix + prompt[:-1].  Stage 2: prompt[-1] using the returned cache.
+    _, present = run(prompt[:-1].numpy().astype(np.int64), prefix.numpy().astype(np.float32), empty)
+    logits2, _ = run(prompt[-1:].numpy().astype(np.int64), np.zeros((0, hidden), np.float32), present)
+    ort_last = logits2[0, -1]
+
+    diff = float(np.abs(ort_last - ref_last).max())
+    match = int(ort_last.argmax()) == int(ref_last.argmax())
+    print(f"KV-cache parity: ORT(prefill+decode) vs torch(one-shot) max|diff|={diff:.2e}, argmax_match={match}")
+    if diff > 1e-3 or not match:
+        raise SystemExit(f"LM export KV-cache parity FAILED (diff={diff:.2e}, argmax_match={match})")
 
 
 if __name__ == "__main__":
