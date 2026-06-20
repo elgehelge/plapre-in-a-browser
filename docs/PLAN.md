@@ -110,6 +110,14 @@ by this validation and fixed to `<eos>` (id 0).
       `lm.ts`) under ORT and reproduces the torch golden's 172 ids bit-for-bit;
       it also confirms `speaker_proj.json` matches the precomputed `hidden`
       (max|diff| 0).
+- [x] **Full-pipeline ONNX smoke test** — `conversion/validate_e2e.py` chains all
+      three exported graphs (lm → kanade_decoder → hift_vocoder) with no torch and
+      no gated `plapre`, exactly as the browser wires them, and writes
+      `golden/e2e.wav`. The test sentence + speaker `tor` yields a finite, 6.88 s
+      24 kHz waveform (peak 0.52, rms 0.05) — i.e. text actually becomes audio.
+      NOTE: this verifies the chain runs and the waveform is well-formed; whether
+      it *sounds* like correct Danish is a human listening check (each stage is
+      already float-exact vs its torch golden, so it matches upstream Plapre).
 
 ### Gated blocker (the one human step)
 

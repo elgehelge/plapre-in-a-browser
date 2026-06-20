@@ -72,6 +72,7 @@ loop is already validated against; runs end-to-end once authenticated:
 | `precompute_speakers.py` | `speakers.json` (raw 128 + hidden) + `speaker_proj.json` |
 | `smoke_reference.py`     | `golden/tokens.json` + `kanade.json` (greedy torch oracle mirroring `lm.ts`; stage-3 mel/wav only if upstream `plapre` is importable) |
 | `validate_lm_golden.py`  | nothing; asserts the exported `lm.onnx` reproduces `golden/tokens.json` bit-for-bit under ORT greedy decode |
+| `validate_e2e.py`        | `golden/e2e.wav`; chains lm+decoder+vocoder ONNX (text -> audio) and sanity-checks the waveform |
 
 `_gated.py` is the shared access check: it turns a `GatedRepoError` into one
 actionable message. Unblock with:
