@@ -1,9 +1,9 @@
 name: Publish to npm
 
 # Publishes the web/ library to npm when a GitHub Release is published (or on
-# manual dispatch). Requires an NPM_TOKEN repository secret (an npm automation
-# token). `npm publish` runs prepublishOnly (build:lib) and prepack (copies
-# LICENSE/NOTICE into web/) automatically.
+# manual dispatch). Reads NPM_TOKEN (an npm automation token) from the
+# "Publish NPM package" environment. `npm publish` runs prepublishOnly
+# (build:lib) and prepack (copies LICENSE/NOTICE into web/) automatically.
 
 on:
   release:
@@ -13,6 +13,8 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # NPM_TOKEN is an environment secret, so the job must declare the environment.
+    environment: Publish NPM package
     permissions:
       contents: read
       id-token: write # npm provenance
