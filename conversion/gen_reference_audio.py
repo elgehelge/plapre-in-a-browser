@@ -21,6 +21,7 @@ already in requirements.txt; NO vllm). Requires HF auth for the gated weights.
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -35,7 +36,9 @@ MODELS = Path(__file__).parent.parent / "web" / "public" / "models"
 GOLDEN = Path(__file__).parent / "golden"
 KANADE_REPO = "frothywater/kanade-25hz-clean"
 SR = 24000
+# Overridable via --seed N / --temp F; defaults match plapre.inference.speak().
 SEED = 0
+TEMPERATURE = 0.8
 
 
 def _normalize_text(text: str) -> str:
@@ -64,7 +67,7 @@ def _sample_tokens(model, embed, prompt_ids, speaker_hidden, eos, *, max_tokens=
     from transformers.cache_utils import DynamicCache
 
     torch.manual_seed(SEED)
-    temperature, top_k, top_p = 0.8, 50, 0.95
+    temperature, top_k, top_p = TEMPERATURE, 50, 0.95
 
     tok = embed(torch.tensor(prompt_ids, dtype=torch.long))
     inputs_embeds = torch.cat([speaker_hidden.unsqueeze(0), tok], dim=0).unsqueeze(0)
@@ -105,6 +108,13 @@ def _write_wav(path: Path, wav: np.ndarray) -> None:
 
 
 def main() -> None:
+    global SEED, TEMPERATURE
+    if "--seed" in sys.argv:
+        SEED = int(sys.argv[sys.argv.index("--seed") + 1])
+    if "--temp" in sys.argv:
+        TEMPERATURE = float(sys.argv[sys.argv.index("--temp") + 1])
+    suffix = f"_seed{SEED}_t{TEMPERATURE}"
+    print(f"reference: seed={SEED} temperature={TEMPERATURE}")
     GOLDEN.mkdir(exist_ok=True)
     from kanade_tokenizer import KanadeModel, load_vocoder, vocode
     from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -144,8 +154,8 @@ def main() -> None:
     with torch.no_grad():
         mel_ref = kanade.decode(content_token_indices=torch.tensor(kanade_idx), global_embedding=raw)
         wav_ref = vocode(vocoder, mel_ref.unsqueeze(0)).squeeze().cpu().numpy()
-    _write_wav(GOLDEN / "reference_torch.wav", wav_ref)
-    print(f"reference (real torch): mel{tuple(mel_ref.shape)} -> {len(wav_ref) / SR:.2f}s -> golden/reference_torch.wav")
+    _write_wav(GOLDEN / f"reference_torch{suffix}.wav", wav_ref)
+    print(f"reference (real torch): mel{tuple(mel_ref.shape)} -> {len(wav_ref) / SR:.2f}s -> golden/reference_torch{suffix}.wav")
 
     # --- Ours: the SAME tokens through the exported ONNX decoder + vocoder ---
     dec = ort.InferenceSession(str(MODELS / "kanade_decoder.onnx"), providers=["CPUExecutionProvider"])
@@ -156,7 +166,7 @@ def main() -> None:
     })[0]
     mel_b = mel_onnx[None] if mel_onnx.ndim == 2 else mel_onnx
     wav_onnx = np.asarray(voc.run(["wav"], {"mel": mel_b.astype(np.float32)})[0]).reshape(-1)
-    _write_wav(GOLDEN / "reference_onnx.wav", wav_onnx)
+    _write_wav(GOLDEN / f"reference_onnx{suffix}.wav", wav_onnx)
 
     # --- Numerical fidelity: our ONNX decode+vocode vs the real torch one ---
     mel_ref_np = mel_ref.cpu().numpy()
@@ -166,7 +176,7 @@ def main() -> None:
     corr = float(np.corrcoef(wav_ref[:n], wav_onnx[:n])[0, 1])
     print(f"decoder mel  max|diff| (ONNX vs real torch) = {mel_diff:.4g}")
     print(f"vocoder wav  max|diff| (ONNX vs real torch) = {wav_diff:.4g}; corr = {corr:.6f}")
-    print(f"wrote golden/reference_torch.wav (listen) and golden/reference_onnx.wav (ours, same tokens)")
+    print(f"wrote golden/reference_torch{suffix}.wav (listen) and golden/reference_onnx{suffix}.wav (ours, same tokens)")
 
 
 if __name__ == "__main__":

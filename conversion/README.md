@@ -89,6 +89,45 @@ loop is already validated against; runs end-to-end once authenticated:
 | `smoke_reference.py`     | `golden/tokens.json` + `kanade.json` (greedy torch oracle mirroring `lm.ts`; stage-3 mel/wav only if upstream `plapre` is importable) |
 | `validate_lm_golden.py`  | nothing; asserts the exported `lm.onnx` reproduces `golden/tokens.json` bit-for-bit under ORT greedy decode |
 | `validate_e2e.py`        | `golden/e2e.wav`; chains lm+decoder+vocoder ONNX (text -> audio) and sanity-checks the waveform |
+| `gen_reference_audio.py` | `golden/reference_torch*.wav` + `reference_onnx*.wav`; full-precision torch ground truth vs our ONNX decode/vocode on the same tokens (mel/wav `max|diff|` + corr) |
+
+### Verify the artifacts you just generated (one interface)
+
+`verify.py` is the **quality sanity check** — "did the files come out right?" It
+runs the integrity / sample-comparison checks above and prints a single
+PASS/FAIL summary so you don't have to run them one by one:
+
+```bash
+python verify.py            # lm-parity + e2e-sanity + ref-compare
+python verify.py --list     # the checks and what they assert
+python verify.py --only lm-parity e2e-sanity   # a subset (skips the torch one)
+```
+
+| Check         | Script                  | Asserts                                            |
+| ------------- | ----------------------- | -------------------------------------------------- |
+| `lm-parity`   | `validate_lm_golden.py` | exported `lm.onnx` == torch token golden (bit-exact) |
+| `e2e-sanity`  | `validate_e2e.py`       | text → audio through all 3 ONNX graphs; waveform sane |
+| `ref-compare` | `gen_reference_audio.py`| our ONNX decode/vocode vs the **real** torch one (mel/wav `max|diff|` + corr) |
+
+Recorded green run (2026-06): `lm-parity` match=True (172 ids); `e2e-sanity`
+3.28s peak 0.488; `ref-compare` mel`|diff|`≈8.6e-6, wav`|diff|`≈0.039,
+corr≈0.9998. All need the gated weights + generated artifacts present.
+
+### Tune the sampling temperature (a developer endpoint, not a check)
+
+Temperature is a **runtime** knob (the artifacts are temperature-agnostic — the
+LM only emits logits). `tune_temperature.py` renders a long text through the
+full ONNX pipeline at several temperatures so you can pick one to lock into the
+library via `generation.temperature`:
+
+```bash
+python tune_temperature.py --temps 0.5,0.6,0.7,0.8 --speaker tor
+afplay golden/demo_t0.6.wav
+```
+
+See [`docs/TUNING.md`](../docs/TUNING.md) for where/how to set it in the library
+(engine default, per-engine, per-request) and the OpenAI/ElevenLabs adapter
+caveat.
 
 `_gated.py` is the shared access check: it turns a `GatedRepoError` into one
 actionable message. Unblock with:
@@ -97,7 +136,7 @@ actionable message. Unblock with:
 huggingface-cli login            # after clicking "Agree" on the model page
 python fetch_tokenizer.py && python export_lm.py && python precompute_speakers.py
 python smoke_reference.py        # golden token ids (greedy torch oracle)
-python validate_lm_golden.py     # exported ONNX == torch golden (Phase 1 gate)
+python verify.py                 # lm-parity + e2e-sanity + ref-compare (one interface)
 ```
 
 `export_lm.py` self-checks single-step KV-cache parity; `validate_lm_golden.py`
