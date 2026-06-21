@@ -63,7 +63,8 @@ console.log(await reportArtifacts()); // { lm: true, kanadeDecoder: true, ... }
 import { loadPlapreEngine } from "plapre-in-a-browser";
 
 const engine = await loadPlapreEngine({
-  backend: "webgpu",                 // falls back to "wasm" automatically
+  backend_lm: "auto",                // "auto" | "webgpu" | "wasm"  (auto → threaded WASM)
+  backend_codec: "auto",             // "auto" | "webgpu" | "wasm"  (auto → WebGPU)
   modelsBaseUrl: "/models",          // where you host the artifacts
   cache: { onProgress: (loaded, total) => console.log(loaded / total) },
 });

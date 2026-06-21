@@ -37,10 +37,19 @@
           <div class="badge" id="isolated-badge">isolation: …</div>
           <div class="spacer"></div>
           <label class="field field--inline">
-            <span>Backend</span>
-            <select id="backend">
-              <option value="webgpu">WebGPU (fallback to WASM)</option>
-              <option value="wasm">WASM only</option>
+            <span>LM</span>
+            <select id="backend-lm">
+              <option value="auto">auto</option>
+              <option value="wasm">WASM</option>
+              <option value="webgpu">WebGPU</option>
+            </select>
+          </label>
+          <label class="field field--inline">
+            <span>Decoder+vocoder</span>
+            <select id="backend-codec">
+              <option value="auto">auto</option>
+              <option value="webgpu">WebGPU</option>
+              <option value="wasm">WASM</option>
             </select>
           </label>
         </div>
@@ -73,6 +82,10 @@
           <label class="field">
             <span>Speed <output id="rate-out">1.00×</output></span>
             <input id="rate" type="range" min="0.5" max="1.5" step="0.05" value="1" />
+          </label>
+          <label class="field">
+            <span>Temperature <output id="temp-out">0.80</output></span>
+            <input id="temp" type="range" min="0" max="1.2" step="0.05" value="0.8" />
           </label>
         </div>
 

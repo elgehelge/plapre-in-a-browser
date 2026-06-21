@@ -27,9 +27,54 @@ export async function isWebGpuAvailable(): Promise<boolean> {
   }
 }
 
-export async function pickBackend(preferred: Backend = "webgpu"): Promise<Backend> {
-  if (preferred === "webgpu" && (await isWebGpuAvailable())) return "webgpu";
-  return "wasm";
+/**
+ * Whether multi-threaded WASM is available. ORT-Web's threaded WASM uses
+ * SharedArrayBuffer, which the browser only exposes on a cross-origin-isolated
+ * page (COOP/COEP). Single-threaded WASM still works without it, just slower.
+ */
+export function isThreadedWasmAvailable(): boolean {
+  return (
+    typeof SharedArrayBuffer !== "undefined" &&
+    (globalThis as { crossOriginIsolated?: boolean }).crossOriginIsolated === true
+  );
+}
+
+/** Per-stage backend preference. "auto" picks the best for the environment. */
+export type BackendChoice = "webgpu" | "wasm" | "auto";
+
+export interface BackendConfig {
+  /** Backend for the autoregressive LM. Default "auto". */
+  lm?: BackendChoice;
+  /** Backend for the decoder + vocoder + clone encoder. Default "auto". */
+  codec?: BackendChoice;
+}
+
+export interface ResolvedBackends {
+  lm: Backend;
+  codec: Backend;
+}
+
+type Stage = "lm" | "codec";
+
+async function resolveStage(choice: BackendChoice, stage: Stage): Promise<Backend> {
+  if (choice === "wasm") return "wasm";
+  if (choice === "webgpu") return (await isWebGpuAvailable()) ? "webgpu" : "wasm";
+  // "auto": the LM is sequential (one token at a time) and is fastest on
+  // threaded WASM — WebGPU's per-dispatch overhead dominates those tiny steps.
+  // The codec (decoder + vocoder) is large and parallel, so WebGPU wins. Each
+  // stage degrades gracefully to whatever the environment offers.
+  const webgpu = await isWebGpuAvailable();
+  if (stage === "lm" && isThreadedWasmAvailable()) return "wasm";
+  return webgpu ? "webgpu" : "wasm";
+}
+
+/** Resolve a per-stage config into concrete backends (each defaults to "auto"). */
+export async function resolveBackends(config: BackendConfig = {}): Promise<ResolvedBackends> {
+  const [lm, codec] = await Promise.all([
+    resolveStage(config.lm ?? "auto", "lm"),
+    resolveStage(config.codec ?? "auto", "codec"),
+  ]);
+  return { lm, codec };
 }
 
 export interface SessionConfig {

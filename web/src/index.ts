@@ -12,6 +12,17 @@ export * from "./engine/speech-model.js";
 // Plapre as the concrete SpeechModel + the loader that returns an Engine.
 export * from "./pipeline/plapre.js";
 
+// Backend selection (per-stage control + "auto") and capability probes.
+export {
+  resolveBackends,
+  isWebGpuAvailable,
+  isThreadedWasmAvailable,
+  type BackendChoice,
+  type BackendConfig,
+  type ResolvedBackends,
+} from "./pipeline/ort.js";
+export type { Backend } from "./pipeline/types.js";
+
 // Artifact location + presence reporting (configure where models are served from,
 // and probe which converted files are available before loading).
 export {

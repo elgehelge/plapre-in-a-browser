@@ -11,20 +11,23 @@ import {
   ARTIFACTS,
   encodeAudio,
   decodeWithWebAudio,
+  resolveBackends,
+  isWebGpuAvailable,
   type Engine,
   type Voice,
   type ArtifactKey,
+  type BackendChoice,
+  type ResolvedBackends,
 } from "../index.js";
-import { isWebGpuAvailable } from "../pipeline/ort.js";
 import { normalizeText } from "../pipeline/normalize.js";
-import type { Backend } from "../pipeline/types.js";
 
 const $ = <T extends HTMLElement>(id: string): T => document.getElementById(id) as T;
 
 const els = {
   backendBadge: $("backend-badge"),
   isolatedBadge: $("isolated-badge"),
-  backend: $<HTMLSelectElement>("backend"),
+  backendLm: $<HTMLSelectElement>("backend-lm"),
+  backendCodec: $<HTMLSelectElement>("backend-codec"),
   modelsBase: $<HTMLInputElement>("models-base"),
   artifacts: $("artifacts"),
   check: $<HTMLButtonElement>("check"),
@@ -36,6 +39,8 @@ const els = {
   voice: $<HTMLSelectElement>("voice"),
   rate: $<HTMLInputElement>("rate"),
   rateOut: $<HTMLOutputElement>("rate-out"),
+  temp: $<HTMLInputElement>("temp"),
+  tempOut: $<HTMLOutputElement>("temp-out"),
   text: $<HTMLTextAreaElement>("text"),
   examples: $("examples"),
   speak: $<HTMLButtonElement>("speak"),
@@ -84,6 +89,7 @@ const EXAMPLES = [
 let engine: Engine | null = null;
 let lastPcm: { samples: Float32Array; sampleRate: number } | null = null;
 let controller: AbortController | null = null;
+let resolvedBackends: ResolvedBackends | null = null;
 
 function log(msg: string): void {
   els.log.textContent += `${msg}\n`;
@@ -148,10 +154,13 @@ async function loadEngine(): Promise<void> {
   els.load.disabled = true;
   showProgress(true);
   els.progressLabel.textContent = "Loading…";
-  const backend = els.backend.value as Backend;
+  const backend_lm = els.backendLm.value as BackendChoice;
+  const backend_codec = els.backendCodec.value as BackendChoice;
+  resolvedBackends = await resolveBackends({ lm: backend_lm, codec: backend_codec });
   try {
     engine = await loadPlapreEngine({
-      backend,
+      backend_lm,
+      backend_codec,
       modelsBaseUrl: els.modelsBase.value.trim() || "/models",
       cache: {
         onProgress: (loaded, total) => {
@@ -167,7 +176,10 @@ async function loadEngine(): Promise<void> {
     els.synth.setAttribute("aria-disabled", "false");
     els.speak.disabled = false;
     els.cloneBtn.disabled = !engine.canCloneVoice();
-    log(`Engine loaded (${backend}). ${engine.listVoices().length} voice(s) ready.`);
+    log(
+      `Engine loaded — LM on ${resolvedBackends.lm}, decoder+vocoder on ` +
+        `${resolvedBackends.codec}. ${engine.listVoices().length} voice(s) ready.`,
+    );
   } catch (err) {
     log(`Load failed: ${err instanceof Error ? err.message : String(err)}`);
     els.load.disabled = false;
@@ -201,15 +213,21 @@ async function synthesize(): Promise<void> {
       text: els.text.value,
       voice: els.voice.value,
       rate: Number(els.rate.value),
+      // Temperature is a runtime sampling knob (not baked into the artifacts);
+      // 0 makes generation greedy/deterministic. See docs/TUNING.md.
+      generation: { temperature: Number(els.temp.value) },
       signal: controller.signal,
     });
     lastPcm = pcm;
     const wall = (performance.now() - started) / 1000;
     const dur = pcm.samples.length / pcm.sampleRate;
     playPcm(pcm);
+    const backendLabel = resolvedBackends
+      ? `lm ${resolvedBackends.lm}, codec ${resolvedBackends.codec}`
+      : "";
     els.meta.textContent = `${dur.toFixed(2)}s of audio in ${wall.toFixed(2)}s (${(
       dur / wall
-    ).toFixed(1)}× realtime, ${els.backend.value}).`;
+    ).toFixed(1)}× realtime, ${backendLabel}).`;
     els.dlWav.disabled = els.dlMp3.disabled = false;
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") {
@@ -286,6 +304,9 @@ function buildExamples(): void {
 
 els.rate.addEventListener("input", () => {
   els.rateOut.textContent = `${Number(els.rate.value).toFixed(2)}×`;
+});
+els.temp.addEventListener("input", () => {
+  els.tempOut.textContent = Number(els.temp.value).toFixed(2);
 });
 els.check.addEventListener("click", () => void refreshArtifacts());
 els.load.addEventListener("click", () => void loadEngine());

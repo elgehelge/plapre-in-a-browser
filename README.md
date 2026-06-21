@@ -59,7 +59,10 @@ npm install plapre-in-a-browser
 import { loadPlapreEngine } from "plapre-in-a-browser";
 
 const engine = await loadPlapreEngine({
-  backend: "webgpu",                 // auto-falls back to "wasm"
+  // Per-stage backend. Each is "auto" (default), "webgpu", or "wasm".
+  // "auto" → LM on threaded WASM, decoder+vocoder on WebGPU, with graceful fallback.
+  backend_lm: "auto",
+  backend_codec: "auto",
   // Where the converted ONNX artifacts are served from. Defaults to "/models".
   modelsBaseUrl: "https://huggingface.co/elgehelge/plapre-onnx-web/resolve/main",
   cache: { onProgress: (loaded, total) => console.log(loaded / total) },
@@ -184,7 +187,11 @@ compares against a PyTorch "golden" reference:
 
 The LM is the bottleneck, and because it runs **one token at a time** it benefits
 less from WebGPU (per-dispatch overhead) than the fully parallel decoder/vocoder —
-on this machine threaded WASM is actually faster for the LM. Measure your own with
+on this machine threaded WASM is actually faster for the LM. That is exactly what
+the default (`backend_lm`/`backend_codec` both `"auto"`) exploits: it runs the
+**LM on threaded WASM and the decoder+vocoder on WebGPU** (~2.3× end-to-end here),
+falling back per stage to whatever the environment supports. Set either stage to
+`"webgpu"` or `"wasm"` to force it. Measure your own with
 `web/bench.html?backend=webgpu&iters=5` (`window.__bench`).
 
 † WASM figures assume a **cross-origin-isolated** page (threaded SharedArrayBuffer);

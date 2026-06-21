@@ -40,7 +40,10 @@ interface PcmChunk {
 }
 
 interface LoadOptions {
-  backend?: Backend;      // "webgpu" | "wasm"
+  // Per-stage backend, each "webgpu" | "wasm" | "auto". "auto" (default) picks
+  // LM→threaded-WASM and decoder+vocoder→WebGPU, with graceful fallback.
+  backend_lm?: BackendChoice;     // autoregressive LM
+  backend_codec?: BackendChoice;  // decoder + vocoder + clone encoder
   onProgress?: (p: { stage: string; loaded: number; total: number }) => void;
 }
 
@@ -60,7 +63,7 @@ interface Engine {
 ```
 
 Model loading + caching is configured on the concrete loader, not the engine:
-`loadPlapreEngine({ backend?, generation?, cache?: { cacheName?, onProgress? } })`,
+`loadPlapreEngine({ backend_lm?, backend_codec?, generation?, cache?: { cacheName?, onProgress? } })`,
 where `onProgress(loaded, total)` reports the cache-first model download.
 
 `GenerateOptions` is the existing engine-native sampling contract
@@ -133,14 +136,16 @@ no resampling, only the lossy formats need an encoder.
 ```ts
 // elevenlabs.textToSpeech.convert(voiceId, { text, voice_settings?, output_format? })
 //   → engine.synthesize({ text, voice: mapVoice(voiceId),
-//                         rate: voice_settings?.speed,
-//                         generation: fromVoiceSettings(voice_settings) })
+//                         rate: voice_settings?.speed })
 //   → encode(output_format ?? "mp3_44100_128")   // "pcm_24000" passes through
 // .stream(...) yields encoded chunks straight off the iterable.
 ```
 
-`fromVoiceSettings` maps the subset of ElevenLabs knobs that have an engine
-analogue (e.g. expressiveness → `temperature`); unmapped settings are ignored.
+Only `voice_settings.speed` has an engine analogue (`rate`). The other
+ElevenLabs knobs (`stability`, `similarityBoost`, `style`, …) are accepted for
+API compatibility but **not applied** — the local model has no analogue. Neither
+wire protocol carries a sampling **temperature**, so to tune it under an adapter
+set `generation` once at engine construction; see [`TUNING.md`](./TUNING.md).
 
 #### Instant Voice Cloning
 
