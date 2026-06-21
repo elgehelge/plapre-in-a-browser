@@ -1,9 +1,13 @@
 name: Publish to npm
 
-# Publishes the web/ library to npm. On a GitHub Release the version is taken
-# from the release tag (e.g. tag v0.2.0 -> 0.2.0), so the release is the single
-# source of truth — no manual package.json bump to forget. Reads NPM_TOKEN (a
-# long-lived npm automation token) from the "Publish NPM package" environment.
+# Publishes the web/ library to npm via OIDC "trusted publishing" — no tokens.
+# npmjs.com is configured to trust this repo + this workflow file (publish.yml)
+# and the "Publish NPM package" environment. The id-token: write permission lets
+# the job mint the short-lived OIDC credential npm exchanges for publish rights;
+# provenance attestations are generated automatically (no --provenance needed).
+#
+# On a GitHub Release the version is taken from the release tag (v0.2.0 -> 0.2.0),
+# so the release is the single source of truth — no manual package.json bump.
 # `npm publish` runs prepublishOnly (build:lib) and prepack (copies LICENSE/
 # NOTICE into web/) automatically.
 
@@ -14,20 +18,23 @@ on:
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
-    # NPM_TOKEN is an environment secret, so the job must declare the environment.
+    runs-on: ubuntu-latest # trusted publishing requires a GitHub-hosted runner
+    # Must match the environment bound to the trusted publisher on npmjs.com so
+    # the OIDC claim lines up.
     environment: Publish NPM package
     permissions:
       contents: read
-      id-token: write # npm provenance
+      id-token: write # OIDC trusted publishing + provenance
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
-          cache: npm
-          cache-dependency-path: web/package-lock.json
+      # Node 24 can ship an npm older than 11.5.1; trusted publishing needs
+      # >= 11.5.1 or it fails with misleading ENEEDAUTH/404 errors.
+      - name: Ensure npm supports trusted publishing
+        run: npm install -g npm@latest
       - name: Set version from release tag
         if: github.event_name == 'release'
         working-directory: web
@@ -37,6 +44,4 @@ jobs:
         run: npm ci
       - name: Publish
         working-directory: web
-        run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public
