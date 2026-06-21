@@ -8,11 +8,27 @@ thin and explicit; each prints what it produced and where.
 
 ## Setup
 
+Recommended ([uv](https://docs.astral.sh/uv/)); `.python-version` pins 3.13
+(torch has no wheels for 3.14 yet):
+
 ```bash
-# Use Python 3.13 — torch has no wheels for 3.14 yet.
+uv sync                      # creates .venv from pyproject.toml
+uv run python prepare_artifacts.py          # public stages
+uv run python prepare_artifacts.py --gated  # + gated LM stages (needs HF login)
+```
+
+Or with plain pip:
+
+```bash
 python3.13 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
+
+### One command vs. individual scripts
+
+`prepare_artifacts.py` runs the export/golden scripts below in dependency order
+(`--list` to see them, `--only NAME ...` to run a subset). The individual
+scripts still work standalone; the orchestrator just sequences them.
 
 ONNX export uses whichever exporter each model needs (both ship with torch):
 the **TorchDynamo exporter** (`dynamo=True`, needs `onnxscript`) for the Kanade

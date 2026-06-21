@@ -1,15 +1,22 @@
 // Phase 4 validation harness: measure load time, per-iteration latency, and
 // real-time factor (RTF = audio seconds produced / wall seconds) for the model
 // stages that are present, on a selectable backend. Stages whose artifacts are
-// missing (e.g. the gated LM until authenticated) are skipped, so this runs
-// today against decoder + vocoder + clone encoder and extends to the LM once
-// its artifacts land.
+// missing are skipped. Covers the LM decode loop (warm), the decoder + vocoder
+// chain, and the clone encoder.
 //
 // Query: ?backend=wasm|webgpu&iters=N&tokens=T. Result on window.__bench.
 
 import { createSession, ort } from "./pipeline/ort.js";
 import { hasArtifact, artifactUrl } from "./pipeline/assets.js";
 import { SAMPLE_RATE, type Backend } from "./pipeline/types.js";
+import { normalizeText } from "./pipeline/normalize.js";
+import { PlapreTokenizer } from "./pipeline/tokenizer.js";
+import { PlapreLM } from "./pipeline/lm.js";
+import { loadSpeakers } from "./pipeline/speakers.js";
+
+// Plapre emits ~25 audio tokens per second of speech, so an LM run that produces
+// N audio tokens corresponds to N / 25 seconds of audio.
+const AUDIO_TOKENS_PER_SEC = 25;
 
 function log(msg: string): void {
   const el = document.getElementById("out");
@@ -100,6 +107,46 @@ async function benchDecoderVocoder(
   return out;
 }
 
+// Warm RTF for the autoregressive LM — the pipeline's real bottleneck. Drives the
+// production decode loop (KV cache + sampling) for one sentence after a warmup
+// pass, so shader compilation / cache allocation is excluded.
+async function benchLm(
+  backend: Backend,
+  iters: number,
+  maxTokens: number,
+): Promise<StageResult[]> {
+  const tokenizer = await PlapreTokenizer.load();
+  const [lm, loadMs] = await time(() => PlapreLM.load(tokenizer, backend));
+  const speakers = await loadSpeakers();
+  const speaker = Object.values(speakers)[0];
+  if (!speaker) throw new Error("no speakers available to drive the LM benchmark");
+  const hidden = Float32Array.from(speaker.hidden);
+  const text = normalizeText("Hej, hvordan har du det i dag?");
+  const gen = { temperature: 0.8, topK: 50, topP: 0.95, maxTokens, seed: 0 };
+
+  await lm.generate(text, hidden, gen); // warm: compile shaders / allocate KV cache
+
+  const times: number[] = [];
+  let producedTokens = 0;
+  for (let n = 0; n < iters; n++) {
+    const [ids, t] = await time(() => lm.generate(text, hidden, gen));
+    times.push(t);
+    producedTokens = ids.length; // deterministic across runs (seed fixed)
+  }
+  const s = stats(times);
+  const audioSeconds = producedTokens / AUDIO_TOKENS_PER_SEC;
+  return [
+    {
+      stage: "lm decode (warm)",
+      loadMs: round(loadMs),
+      ...s,
+      iters,
+      rtf: round(audioSeconds / (s.meanMs / 1000)),
+      note: `${producedTokens} audio tokens -> ${round(audioSeconds)}s audio @ ${AUDIO_TOKENS_PER_SEC} tok/s`,
+    },
+  ];
+}
+
 async function benchClone(backend: Backend, iters: number): Promise<StageResult[]> {
   const [session, loadMs] = await time(() => createSession(artifactUrl("cloneEncoder"), backend));
   const samples = 2 * SAMPLE_RATE; // 2 s reference
@@ -128,6 +175,16 @@ async function run(): Promise<void> {
 
   const results: StageResult[] = [];
   try {
+    if (
+      (await hasArtifact("lm")) &&
+      (await hasArtifact("lmMeta")) &&
+      (await hasArtifact("tokenizer")) &&
+      (await hasArtifact("speakers"))
+    ) {
+      results.push(...(await benchLm(backend, iters, tokens)));
+    } else {
+      log("skip lm (artifacts missing)");
+    }
     if ((await hasArtifact("kanadeDecoder")) && (await hasArtifact("vocoder"))) {
       results.push(...(await benchDecoderVocoder(backend, iters, tokens)));
     } else {

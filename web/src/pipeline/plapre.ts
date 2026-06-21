@@ -11,6 +11,7 @@ import { HiftVocoder } from "./vocoder.js";
 import { loadSpeakers } from "./speakers.js";
 import { VoiceClonerImpl } from "./clone.js";
 import { pickBackend, type LoadOptions } from "./ort.js";
+import { setModelsBaseUrl } from "./assets.js";
 import type { Backend, SpeakerTable } from "./types.js";
 import { createEngine, type Engine, type EngineOptions } from "../engine/engine.js";
 import type {
@@ -25,6 +26,12 @@ const DANISH = "da-DK";
 
 export interface PlapreConfig extends EngineOptions, LoadOptions {
   backend?: Backend;
+  /**
+   * Base URL the converted artifacts are served from. Defaults to `/models`
+   * (artifacts hosted next to the app). Point it at a CDN or GitHub Release to
+   * consume the library without copying artifacts into your own `public/`.
+   */
+  modelsBaseUrl?: string;
 }
 
 export class PlapreSpeechModel implements SpeechModel, VoiceCloner {
@@ -105,6 +112,7 @@ export class PlapreSpeechModel implements SpeechModel, VoiceCloner {
 
 /** Load the full Plapre pipeline and expose it as a provider-neutral Engine. */
 export async function loadPlapreEngine(config: PlapreConfig = {}): Promise<Engine> {
+  if (config.modelsBaseUrl) setModelsBaseUrl(config.modelsBaseUrl);
   const backend = await pickBackend(config.backend ?? "webgpu");
   const model = await PlapreSpeechModel.load(backend, { cache: config.cache });
   return createEngine(model, {

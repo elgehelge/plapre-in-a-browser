@@ -1,8 +1,23 @@
-// Locates the converted model artifacts under /models/ and reports which are
-// present. Lets the app run today and tell the user exactly what conversion
-// step is still needed.
+// Locates the converted model artifacts and reports which are present. Lets the
+// app run today and tell the user exactly what conversion step is still needed.
+//
+// The base URL the artifacts are served from is configurable so the same code
+// works whether they sit next to the app (the default `/models`), on a CDN, or
+// behind a GitHub Release. Library consumers set it once via
+// `loadPlapreEngine({ modelsBaseUrl })` (or `setModelsBaseUrl`) before loading.
 
-export const MODELS_BASE = "/models";
+const DEFAULT_MODELS_BASE = "/models";
+
+let modelsBase = DEFAULT_MODELS_BASE;
+
+/** Where the converted artifacts are fetched from. Trailing slash is trimmed. */
+export function setModelsBaseUrl(url: string): void {
+  modelsBase = url.replace(/\/+$/, "");
+}
+
+export function getModelsBaseUrl(): string {
+  return modelsBase;
+}
 
 export interface Artifact {
   file: string;
@@ -36,7 +51,7 @@ export const ARTIFACTS = {
 export type ArtifactKey = keyof typeof ARTIFACTS;
 
 export function artifactUrl(key: ArtifactKey): string {
-  return `${MODELS_BASE}/${ARTIFACTS[key].file}`;
+  return `${modelsBase}/${ARTIFACTS[key].file}`;
 }
 
 /** HEAD-check whether an artifact is present. */

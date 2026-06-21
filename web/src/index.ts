@@ -12,6 +12,19 @@ export * from "./engine/speech-model.js";
 // Plapre as the concrete SpeechModel + the loader that returns an Engine.
 export * from "./pipeline/plapre.js";
 
+// Artifact location + presence reporting (configure where models are served from,
+// and probe which converted files are available before loading).
+export {
+  ARTIFACTS,
+  artifactUrl,
+  hasArtifact,
+  reportArtifacts,
+  setModelsBaseUrl,
+  getModelsBaseUrl,
+  type Artifact,
+  type ArtifactKey,
+} from "./pipeline/assets.js";
+
 // Model caching (Cache API) for offline / instant reloads of the large weights.
 export { fetchCached, clearModelCache, type ProgressFn } from "./pipeline/model-cache.js";
 

@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "types": ["@webgpu/types"]
+  },
+  "include": ["src/index.ts"],
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/main.ts",
+    "src/phase0.ts",
+    "src/phase1.ts",
+    "src/phase5.ts",
+    "src/bench.ts"
+  ]
+}

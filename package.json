@@ -1,0 +1,22 @@
+{
+  "name": "plapre-in-a-browser-repo",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Monorepo for plapre-in-a-browser: the publishable web library (web/), the Python ONNX conversion toolchain (conversion/), and the interactive demo.",
+  "license": "CC-BY-4.0",
+  "homepage": "https://github.com/elgehelge/plapre-in-a-browser#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elgehelge/plapre-in-a-browser.git"
+  },
+  "scripts": {
+    "setup": "npm --prefix web install",
+    "dev": "npm --prefix web run dev",
+    "build": "npm --prefix web run build",
+    "build:lib": "npm --prefix web run build:lib",
+    "preview": "npm --prefix web run preview",
+    "typecheck": "npm --prefix web run typecheck",
+    "test": "npm --prefix web test",
+    "fetch:models": "bash scripts/models.sh fetch"
+  }
+}

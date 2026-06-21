@@ -1,0 +1,33 @@
+[project]
+name = "plapre-conversion"
+version = "0.1.0"
+description = "Convert the Plapre Danish TTS pipeline (LM + Kanade decoder + HiFT vocoder + clone encoder) to ONNX for in-browser inference, and produce golden reference outputs."
+readme = "README.md"
+# torch has no wheels for 3.14 yet; pin to 3.13.
+requires-python = ">=3.13,<3.14"
+license = "CC-BY-4.0"
+dependencies = [
+    # Upstream pipeline (pulls torch, transformers, kanade-tokenizer, ...).
+    # vLLM is intentionally omitted — it is server-only and not needed here.
+    "torch",
+    "torchaudio",
+    "transformers",
+    "safetensors",
+    "soundfile",
+    "numpy",
+    "huggingface-hub",
+    "num2words",
+    "kanade-tokenizer",
+    # ONNX export + verification.
+    "onnx",
+    "onnxruntime",
+    "onnxscript",            # required by the TorchDynamo ONNX exporter
+    "optimum[exporters]",
+]
+
+[tool.uv]
+# A collection of conversion scripts, not an installable package.
+package = false
+
+[tool.uv.sources]
+kanade-tokenizer = { git = "https://github.com/frothywater/kanade-tokenizer" }

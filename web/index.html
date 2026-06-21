@@ -1,47 +1,125 @@
 <!doctype html>
-<html lang="da">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>plapre-in-a-browser</title>
-    <style>
-      :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
-      body { max-width: 760px; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
-      h1 { font-size: 1.4rem; }
-      textarea { width: 100%; min-height: 4rem; font: inherit; }
-      label { display: block; margin: 0.75rem 0 0.25rem; font-weight: 600; }
-      button { font: inherit; padding: 0.5rem 1rem; cursor: pointer; }
-      #log {
-        margin-top: 1rem; padding: 0.75rem; border-radius: 6px;
-        background: rgba(127,127,127,0.12); white-space: pre-wrap;
-        font-family: ui-monospace, monospace; font-size: 0.85rem; min-height: 6rem;
-      }
-      .row { display: flex; gap: 0.75rem; align-items: end; flex-wrap: wrap; }
-    </style>
+    <title>Plapre — Danish text-to-speech, in your browser</title>
+    <meta
+      name="description"
+      content="Open-source Danish TTS running fully in the browser on onnxruntime-web (WebGPU + WASM). No server, no cloud, no API key."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%97%A3%EF%B8%8F%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="/src/demo/demo.css" />
   </head>
   <body>
-    <h1>Plapre — Danish TTS in the browser</h1>
-    <p>
-      Proof of concept. Pure-JS stages (text normalization, sampling) work today;
-      the ONNX stages report which converted model files are still missing.
-      See <code>docs/PLAN.md</code>.
-    </p>
+    <main class="app">
+      <header class="hero">
+        <div class="hero__title">
+          <h1>Plapre <span>in a browser</span></h1>
+          <p class="hero__tag">
+            Open-source <strong>Danish text-to-speech</strong>, running fully in your
+            browser — no server, no cloud, no API key. WebGPU with a WASM fallback.
+          </p>
+        </div>
+        <nav class="hero__links">
+          <a href="https://github.com/elgehelge/plapre-in-a-browser" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="https://www.npmjs.com/package/plapre-in-a-browser" target="_blank" rel="noreferrer">npm</a>
+          <a href="https://huggingface.co/syvai/plapre-pico" target="_blank" rel="noreferrer">Model</a>
+        </nav>
+      </header>
 
-    <label for="speaker">Speaker</label>
-    <select id="speaker"></select>
+      <section class="card setup">
+        <div class="setup__row">
+          <div class="badge" id="backend-badge">backend: …</div>
+          <div class="badge" id="isolated-badge">isolation: …</div>
+          <div class="spacer"></div>
+          <label class="field field--inline">
+            <span>Backend</span>
+            <select id="backend">
+              <option value="webgpu">WebGPU (fallback to WASM)</option>
+              <option value="wasm">WASM only</option>
+            </select>
+          </label>
+        </div>
+        <label class="field">
+          <span>Models base URL</span>
+          <input id="models-base" type="text" value="/models" spellcheck="false" />
+          <small>
+            Where the converted ONNX artifacts are served from. Defaults to
+            <code>/models</code>. Point it at a release/CDN bundle to run without a
+            local copy.
+          </small>
+        </label>
+        <div class="artifacts" id="artifacts"></div>
+        <div class="setup__actions">
+          <button id="check" class="btn btn--ghost">Re-check artifacts</button>
+          <button id="load" class="btn btn--primary">Load engine</button>
+          <div class="progress" id="progress" hidden>
+            <div class="progress__bar" id="progress-bar"></div>
+            <span class="progress__label" id="progress-label"></span>
+          </div>
+        </div>
+      </section>
 
-    <label for="text">Text (Danish)</label>
-    <textarea id="text">Hej, hvordan har du det i dag?</textarea>
+      <section class="card synth" id="synth" aria-disabled="true">
+        <div class="grid">
+          <label class="field">
+            <span>Voice</span>
+            <select id="voice"></select>
+          </label>
+          <label class="field">
+            <span>Speed <output id="rate-out">1.00×</output></span>
+            <input id="rate" type="range" min="0.5" max="1.5" step="0.05" value="1" />
+          </label>
+        </div>
 
-    <div class="row">
-      <button id="env">Check environment</button>
-      <button id="normalize">Preview normalization</button>
-      <button id="synthesize">Synthesize</button>
-    </div>
+        <label class="field">
+          <span>Text (Danish)</span>
+          <textarea id="text" rows="3">Hej, hvordan har du det i dag?</textarea>
+        </label>
+        <div class="chips" id="examples"></div>
 
-    <div id="log"></div>
-    <audio id="player" controls style="margin-top:1rem;width:100%"></audio>
+        <div class="synth__actions">
+          <button id="speak" class="btn btn--primary" disabled>Synthesize</button>
+          <button id="stop" class="btn btn--ghost" disabled>Stop</button>
+          <button id="normalize" class="btn btn--ghost">Preview normalization</button>
+          <div class="spacer"></div>
+          <button id="dl-wav" class="btn btn--ghost" disabled>Download WAV</button>
+          <button id="dl-mp3" class="btn btn--ghost" disabled>Download MP3</button>
+        </div>
 
-    <script type="module" src="/src/main.ts"></script>
+        <audio id="player" controls></audio>
+        <p class="meta" id="meta"></p>
+      </section>
+
+      <section class="card clone">
+        <h2>Voice cloning <span class="tag">local</span></h2>
+        <p class="muted">
+          Clone a voice from a short reference clip (10–30s of clean speech). The
+          audio never leaves your browser.
+        </p>
+        <div class="clone__row">
+          <input id="clone-file" type="file" accept="audio/*" />
+          <input id="clone-name" type="text" placeholder="Voice name (optional)" />
+          <button id="clone-btn" class="btn btn--primary" disabled>Clone voice</button>
+        </div>
+      </section>
+
+      <section class="card log-card">
+        <details>
+          <summary>Console</summary>
+          <pre id="log"></pre>
+        </details>
+      </section>
+
+      <footer class="foot">
+        <span>CC BY 4.0 · derived from <a href="https://syv.ai/produkter/plapre" target="_blank" rel="noreferrer">Plapre</a> by syv.ai</span>
+      </footer>
+    </main>
+
+    <script type="module" src="/src/demo/demo.ts"></script>
   </body>
 </html>

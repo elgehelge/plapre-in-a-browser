@@ -1,0 +1,103 @@
+plapre-in-a-browser
+Copyright (c) 2026 Helge Munk Jacobsen and contributors
+Licensed under CC BY 4.0 (see LICENSE).
+
+This project is a browser port of the Plapre Danish text-to-speech system. It is
+"Adapted Material" in the sense of CC BY 4.0: it incorporates, reimplements, or
+derives from the works below. If you redistribute this project or artifacts
+produced from it (including the converted ONNX models), you must preserve this
+attribution.
+
+================================================================================
+Primary upstream work
+================================================================================
+
+Plapre (Danish TTS model + reference pipeline)
+  syv.ai — https://syv.ai/produkter/plapre
+  Model:  https://huggingface.co/syvai/plapre-pico
+  Code:   https://github.com/syv-ai/plapre
+  License: CC BY 4.0
+  Role: This repository converts the Plapre model (language model, speaker
+        projection, built-in speaker embeddings) to ONNX and reimplements its
+        inference pipeline (tokenization, normalization, autoregressive sampling)
+        in TypeScript. The Plapre weights themselves are license-gated on
+        Hugging Face and are NOT redistributed here.
+
+================================================================================
+Models and components incorporated by Plapre / this port
+================================================================================
+
+Kanade speech tokenizer (neural audio codec: decoder + clone encoder)
+  frothywater — https://github.com/frothywater/kanade-tokenizer
+  Model:  https://huggingface.co/frothywater/kanade-25hz-clean
+  License: MIT (see the MIT notice below)
+  Role: Source of the Kanade decoder and the speaker (clone) encoder converted to
+        ONNX in conversion/ and redistributed at
+        https://huggingface.co/elgehelge/plapre-onnx-web.
+
+HiFT vocoder
+  Originating from CosyVoice 2 (FunAudioLLM / Alibaba)
+  https://github.com/FunAudioLLM/CosyVoice — License: Apache-2.0
+  Role: mel-spectrogram to 24 kHz waveform. Reimplemented with a real-valued
+        (i)STFT for ONNX export in conversion/hift_onnx.py. Per the Apache-2.0
+        license, attribution is retained in this NOTICE.
+
+WavLM (speech SSL frontend used by the Kanade clone encoder)
+  Microsoft — https://github.com/microsoft/unilm/tree/master/wavlm
+  License: MIT (see the MIT notice below)
+  Role: Frontend of the voice-cloning speaker encoder.
+
+SmolLM2-135M (base architecture of the Plapre language model)
+  Hugging Face — https://huggingface.co/HuggingFaceTB/SmolLM2-135M
+  License: Apache-2.0
+
+================================================================================
+Bundled / runtime third-party software (web library)
+================================================================================
+
+onnxruntime-web — Microsoft — License: MIT
+  In-browser ONNX inference (WebGPU + WASM).
+
+@huggingface/transformers — Hugging Face — License: Apache-2.0
+  Used for the BPE tokenizer (PreTrainedTokenizer).
+
+@breezystack/lamejs — License: LGPL-3.0
+  Pure-JS MP3 encoder used by the OpenAI/ElevenLabs format adapters. LGPL-3.0
+  obligations apply to this component when redistributed; it is consumed as an
+  unmodified dependency.
+
+================================================================================
+Build-time only (not redistributed in the published package)
+================================================================================
+
+num2words — License: LGPL-2.1
+  Used in conversion/ to generate the Danish number-to-words golden fixture that
+  the TypeScript reimplementation is tested against. Not shipped at runtime.
+
+PyTorch, Transformers, ONNX, optimum, and related Python packages are used only
+by the conversion toolchain (conversion/) to export models; see
+conversion/pyproject.toml for the full set and their respective licenses.
+
+================================================================================
+MIT License notice (applies to the Kanade tokenizer and WavLM components above)
+================================================================================
+
+Copyright (c) frothywater (Kanade tokenizer)
+Copyright (c) Microsoft Corporation (WavLM)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
