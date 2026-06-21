@@ -34,7 +34,6 @@ MODELS = Path(__file__).parent.parent / "web" / "public" / "models"
 SR = 24000
 
 # Browser engine defaults (web/src/engine/engine.ts DEFAULT_GENERATION).
-# SEED is overridable with --seed N; TEMPERATURE with --temp F.
 TEMPERATURE, TOP_K, TOP_P, SEED = 0.8, 50, 0.95, 0
 
 
@@ -58,25 +57,23 @@ def make_rng(seed: int):
     return rng
 
 
-def sample_token(logits: np.ndarray, rng, temperature: float = None, top_k: int = TOP_K, top_p: float = TOP_P) -> int:
+def sample_token(logits: np.ndarray, rng) -> int:
     """Port of sample() from web/src/pipeline/sampling.ts."""
-    if temperature is None:
-        temperature = TEMPERATURE
-    if temperature <= 0:
+    if TEMPERATURE <= 0:
         return int(logits.argmax())
     cands = sorted(
-        ((i, logits[i] / temperature) for i in range(len(logits))),
+        ((i, logits[i] / TEMPERATURE) for i in range(len(logits))),
         key=lambda c: c[1],
         reverse=True,
     )
-    if 0 < top_k < len(cands):
-        cands = cands[:top_k]
+    if 0 < TOP_K < len(cands):
+        cands = cands[:TOP_K]
     probs = np.array([c[1] for c in cands], dtype=np.float64)
     probs = np.exp(probs - probs.max())
     probs /= probs.sum()
-    if top_p < 1:
+    if TOP_P < 1:
         cum = np.cumsum(probs)
-        cutoff = int(np.searchsorted(cum, top_p) + 1)
+        cutoff = int(np.searchsorted(cum, TOP_P) + 1)
         cands = cands[:cutoff]
         probs = probs[:cutoff]
         probs = probs / probs.sum()
@@ -130,16 +127,8 @@ def _run_lm(tok: Tokenizer, greedy: bool) -> list[int]:
 
 
 def main() -> None:
-    global SEED, TEMPERATURE
     greedy = "--greedy" in sys.argv
-    if "--seed" in sys.argv:
-        SEED = int(sys.argv[sys.argv.index("--seed") + 1])
-    if "--temp" in sys.argv:
-        TEMPERATURE = float(sys.argv[sys.argv.index("--temp") + 1])
-    if greedy:
-        out_wav = Path(__file__).parent / "golden" / "e2e.wav"
-    else:
-        out_wav = Path(__file__).parent / "golden" / f"e2e_seed{SEED}_t{TEMPERATURE}.wav"
+    out_wav = Path(__file__).parent / "golden" / ("e2e.wav" if greedy else "e2e_sampled.wav")
     print(f"mode: {'greedy' if greedy else f'sampled (T={TEMPERATURE} topK={TOP_K} topP={TOP_P} seed={SEED})'}")
     tok = Tokenizer.from_file(str(MODELS / "tokenizer.json"))
     audio0 = tok.token_to_id("<audio_0>")
