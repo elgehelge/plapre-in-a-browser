@@ -148,6 +148,13 @@
         <div class="synth__actions">
           <button id="speak" class="btn btn--primary" disabled>Synthesize</button>
           <button id="stop" class="btn btn--ghost" disabled>Stop</button>
+          <span
+            class="stopwatch"
+            id="stopwatch"
+            aria-live="polite"
+            title="Time from clicking Synthesize until the audio is ready for playback"
+            hidden
+          >0.00s</span>
           <div class="spacer"></div>
           <button id="dl-wav" class="btn btn--ghost" disabled>Download WAV</button>
           <button id="dl-mp3" class="btn btn--ghost" disabled>Download MP3</button>

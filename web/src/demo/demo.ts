@@ -50,6 +50,7 @@ const els = {
   norm: $("norm"),
   speak: $<HTMLButtonElement>("speak"),
   stop: $<HTMLButtonElement>("stop"),
+  stopwatch: $("stopwatch"),
   dlWav: $<HTMLButtonElement>("dl-wav"),
   dlMp3: $<HTMLButtonElement>("dl-mp3"),
   player: $<HTMLAudioElement>("player"),
@@ -160,6 +161,36 @@ function renderProgress(): void {
   const denom = plannedBytes || done || 1;
   els.progressBar.style.width = `${Math.min(100, Math.round((done / denom) * 100))}%`;
   els.progressLabel.textContent = `${fmtMB(done)} / ${fmtMB(denom)}`;
+}
+
+// A live stopwatch shown beside the Synthesize button: it ticks from the click
+// until the audio is ready for playback (or the run stops/errors), then freezes
+// on the final elapsed time.
+let stopwatchStart = 0;
+let stopwatchRaf = 0;
+
+const renderStopwatch = (seconds: number): void => {
+  els.stopwatch.textContent = `${seconds.toFixed(2)}s`;
+};
+
+function startStopwatch(): void {
+  cancelAnimationFrame(stopwatchRaf);
+  stopwatchStart = performance.now();
+  els.stopwatch.hidden = false;
+  els.stopwatch.classList.remove("done");
+  els.stopwatch.classList.add("running");
+  const tick = (): void => {
+    renderStopwatch((performance.now() - stopwatchStart) / 1000);
+    stopwatchRaf = requestAnimationFrame(tick);
+  };
+  tick();
+}
+
+function stopStopwatch(): void {
+  cancelAnimationFrame(stopwatchRaf);
+  renderStopwatch((performance.now() - stopwatchStart) / 1000);
+  els.stopwatch.classList.remove("running");
+  els.stopwatch.classList.add("done");
 }
 
 function setBadge(el: HTMLElement, label: string, state: "ok" | "no" | "") {
@@ -304,6 +335,7 @@ async function synthesize(): Promise<void> {
   els.norm.innerHTML = `<b>Normalized:</b> ${normalizeText(els.text.value)}`;
   els.norm.hidden = false;
   els.meta.textContent = "Synthesizing…";
+  startStopwatch();
   controller = new AbortController();
   // Fresh seed each click so repeated runs with the same settings vary (unless
   // temperature is 0, which is greedy/deterministic regardless of seed).
@@ -320,6 +352,7 @@ async function synthesize(): Promise<void> {
       signal: controller.signal,
     });
     lastPcm = pcm;
+    stopStopwatch();
     const wall = (performance.now() - started) / 1000;
     const dur = pcm.samples.length / pcm.sampleRate;
     playPcm(pcm);
@@ -331,6 +364,7 @@ async function synthesize(): Promise<void> {
     ).toFixed(1)}× realtime, ${backendLabel}).`;
     els.dlWav.disabled = els.dlMp3.disabled = false;
   } catch (err) {
+    stopStopwatch();
     if (err instanceof DOMException && err.name === "AbortError") {
       els.meta.textContent = "Stopped.";
     } else {
