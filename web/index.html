@@ -67,7 +67,9 @@
           <button id="check" class="btn btn--ghost">Re-check artifacts</button>
           <button id="load" class="btn btn--primary">Load engine</button>
           <div class="progress" id="progress" hidden>
-            <div class="progress__bar" id="progress-bar"></div>
+            <div class="progress__track">
+              <div class="progress__bar" id="progress-bar"></div>
+            </div>
             <span class="progress__label" id="progress-label"></span>
           </div>
         </div>
@@ -95,10 +97,11 @@
         </label>
         <div class="chips" id="examples"></div>
 
+        <p class="norm" id="norm" hidden></p>
+
         <div class="synth__actions">
           <button id="speak" class="btn btn--primary" disabled>Synthesize</button>
           <button id="stop" class="btn btn--ghost" disabled>Stop</button>
-          <button id="normalize" class="btn btn--ghost">Preview normalization</button>
           <div class="spacer"></div>
           <button id="dl-wav" class="btn btn--ghost" disabled>Download WAV</button>
           <button id="dl-mp3" class="btn btn--ghost" disabled>Download MP3</button>

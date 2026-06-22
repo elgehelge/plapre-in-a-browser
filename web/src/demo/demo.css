@@ -153,9 +153,13 @@ input[type="range"] { width: 100%; accent-color: var(--accent-strong); }
 .artifacts .art code { color: var(--muted); }
 
 .progress { display: flex; align-items: center; gap: 0.6rem; flex: 1; min-width: 180px; }
-.progress__bar { height: 6px; border-radius: 999px; background: var(--accent-strong); width: 0%; transition: width 0.2s; flex: 1; }
-.progress__bar.track { background: var(--border); }
+.progress__track { height: 6px; border-radius: 999px; background: var(--border); flex: 1; overflow: hidden; }
+.progress__bar { height: 100%; border-radius: 999px; background: var(--accent-strong); width: 0%; transition: width 0.2s; }
 .progress__label { font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
+
+.norm { margin: 0; padding: 0.55rem 0.7rem; font-size: 0.85rem; color: var(--muted);
+  background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; }
+.norm b { color: var(--text); font-weight: 600; }
 
 .chips { display: flex; gap: 0.4rem; flex-wrap: wrap; margin: 0.25rem 0 0; }
 .chip {

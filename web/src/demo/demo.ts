@@ -43,9 +43,9 @@ const els = {
   tempOut: $<HTMLOutputElement>("temp-out"),
   text: $<HTMLTextAreaElement>("text"),
   examples: $("examples"),
+  norm: $("norm"),
   speak: $<HTMLButtonElement>("speak"),
   stop: $<HTMLButtonElement>("stop"),
-  normalize: $<HTMLButtonElement>("normalize"),
   dlWav: $<HTMLButtonElement>("dl-wav"),
   dlMp3: $<HTMLButtonElement>("dl-mp3"),
   player: $<HTMLAudioElement>("player"),
@@ -205,8 +205,13 @@ async function synthesize(): Promise<void> {
   els.speak.disabled = true;
   els.stop.disabled = false;
   els.dlWav.disabled = els.dlMp3.disabled = true;
+  els.norm.innerHTML = `<b>Normalized:</b> ${normalizeText(els.text.value)}`;
+  els.norm.hidden = false;
   els.meta.textContent = "Synthesizing…";
   controller = new AbortController();
+  // Fresh seed each click so repeated runs with the same settings vary (unless
+  // temperature is 0, which is greedy/deterministic regardless of seed).
+  const seed = (Math.random() * 0x100000000) >>> 0;
   const started = performance.now();
   try {
     const pcm = await engine.synthesizeToPcm({
@@ -215,7 +220,7 @@ async function synthesize(): Promise<void> {
       rate: Number(els.rate.value),
       // Temperature is a runtime sampling knob (not baked into the artifacts);
       // 0 makes generation greedy/deterministic. See docs/TUNING.md.
-      generation: { temperature: Number(els.temp.value) },
+      generation: { temperature: Number(els.temp.value), seed },
       signal: controller.signal,
     });
     lastPcm = pcm;
@@ -312,9 +317,6 @@ els.check.addEventListener("click", () => void refreshArtifacts());
 els.load.addEventListener("click", () => void loadEngine());
 els.speak.addEventListener("click", () => void synthesize());
 els.stop.addEventListener("click", () => controller?.abort());
-els.normalize.addEventListener("click", () => {
-  els.meta.textContent = `Normalized: ${normalizeText(els.text.value)}`;
-});
 els.dlWav.addEventListener("click", () => download("wav"));
 els.dlMp3.addEventListener("click", () => download("mp3"));
 els.cloneBtn.addEventListener("click", () => void cloneVoice());
