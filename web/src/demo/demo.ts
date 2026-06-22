@@ -31,7 +31,6 @@ const els = {
   modelsBase: $<HTMLInputElement>("models-base"),
   artifacts: $("artifacts"),
   cloneArtifacts: $("clone-artifacts"),
-  check: $<HTMLButtonElement>("check"),
   load: $<HTMLButtonElement>("load"),
   progress: $("progress"),
   progressBar: $("progress-bar"),
@@ -83,8 +82,8 @@ function defaultModelsBase(): string {
 const EXAMPLES = [
   "Hej, hvordan har du det i dag?",
   "Klokken er kvart over ni, og det er 12 grader udenfor.",
-  "Jeg hedder Ida, og jeg taler dansk i din browser.",
-  "Velkommen! Det her kører lokalt — uden server og uden API-nøgle.",
+  "Velkommen! Det her kører lokalt — uden server og uden API-nøgle. Jeg taler " +
+    "dansk direkte i din browser, og alt bliver behandlet privat på din egen maskine.",
 ];
 
 let engine: Engine | null = null;
@@ -202,13 +201,16 @@ async function loadEngine(): Promise<void> {
   }
 }
 
+const capitalize = (s: string): string =>
+  s.replace(/\b\p{L}/gu, (c) => c.toUpperCase());
+
 function populateVoices(voices: readonly Voice[]): void {
   const current = els.voice.value;
   els.voice.innerHTML = "";
   for (const v of voices) {
     const opt = document.createElement("option");
     opt.value = v.id;
-    opt.textContent = v.displayName;
+    opt.textContent = capitalize(v.displayName);
     els.voice.appendChild(opt);
   }
   if (current && voices.some((v) => v.id === current)) els.voice.value = current;
@@ -328,7 +330,7 @@ els.rate.addEventListener("input", () => {
 els.temp.addEventListener("input", () => {
   els.tempOut.textContent = Number(els.temp.value).toFixed(2);
 });
-els.check.addEventListener("click", () => void refreshArtifacts());
+els.modelsBase.addEventListener("change", () => void refreshArtifacts());
 els.load.addEventListener("click", () => void loadEngine());
 els.speak.addEventListener("click", () => void synthesize());
 els.stop.addEventListener("click", () => controller?.abort());
