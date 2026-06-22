@@ -79,9 +79,18 @@
             WebGPU.
           </p>
         </div>
+      </section>
+
+      <section class="card models">
+        <h2>Models base URL</h2>
         <label class="field">
-          <span class="field__heading">Models base URL</span>
-          <input id="models-base" type="text" value="/models" spellcheck="false" />
+          <input
+            id="models-base"
+            type="text"
+            value="/models"
+            spellcheck="false"
+            aria-label="Models base URL"
+          />
           <small>
             Where the converted ONNX artifacts are served from. Defaults to
             <code>/models</code>. Point it at a release/CDN bundle to run without a
@@ -102,6 +111,7 @@
       </section>
 
       <section class="card synth" id="synth" aria-disabled="true">
+        <h2>Speech synthesis</h2>
         <div class="grid">
           <label class="field">
             <span>Voice</span>
