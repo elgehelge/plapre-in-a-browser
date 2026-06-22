@@ -34,6 +34,7 @@ function fakeEngine(pcm = new Float32Array([1, -1])) {
       const id = opts?.id ?? `cloned-${clones.length}`;
       return { id, displayName: opts?.displayName ?? id, lang: "da-DK" };
     },
+    prepareCloning: () => Promise.resolve(),
   };
   return { engine, requests, clones };
 }

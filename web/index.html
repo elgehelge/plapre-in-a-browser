@@ -52,11 +52,12 @@
           >
             <span class="badge__text">multi-threading: …</span><span class="badge__info" aria-hidden="true">ⓘ</span>
           </div>
-          <div class="spacer"></div>
+        </div>
+        <div class="setup__row">
           <label class="field field--inline">
             <span>LM</span>
             <select id="backend-lm" title="Backend for the autoregressive language model (token generation).">
-              <option value="auto">Auto (use fastest)</option>
+              <option value="auto">Auto</option>
               <option value="webgpu">WebGPU (fallback to WASM)</option>
               <option value="wasm">WASM</option>
             </select>
@@ -64,7 +65,7 @@
           <label class="field field--inline">
             <span>Decoder+vocoder</span>
             <select id="backend-codec" title="Backend for the decoder + vocoder (turning tokens into audio).">
-              <option value="auto">Auto (use fastest)</option>
+              <option value="auto">Auto</option>
               <option value="webgpu">WebGPU (fallback to WASM)</option>
               <option value="wasm">WASM</option>
             </select>

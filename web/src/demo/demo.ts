@@ -190,6 +190,18 @@ async function loadEngine(): Promise<void> {
       `Engine loaded — LM on ${resolvedBackends.lm}, decoder+vocoder on ` +
         `${resolvedBackends.codec}. ${engine.listVoices().length} voice(s) ready.`,
     );
+    // Eagerly load the (optional) clone encoder too, so cloning is instant and
+    // the checklist greens everything that's loaded.
+    if (engine.canCloneVoice() && !artifactRows.cloneEncoder?.classList.contains("missing")) {
+      try {
+        els.progressLabel.textContent = "Loading voice cloning…";
+        await engine.prepareCloning();
+        artifactRows.cloneEncoder?.classList.add("loaded");
+        log("Voice cloning ready.");
+      } catch (err) {
+        log(`Voice cloning unavailable: ${err instanceof Error ? err.message : String(err)}`);
+      }
+    }
   } catch (err) {
     log(`Load failed: ${err instanceof Error ? err.message : String(err)}`);
     els.load.disabled = false;
