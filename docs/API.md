@@ -1,4 +1,4 @@
-# Interface
+# API
 
 The public contract of the in-browser TTS module. The goal is a single
 **provider-neutral engine** that emits canonical PCM, plus thin **adapters** that

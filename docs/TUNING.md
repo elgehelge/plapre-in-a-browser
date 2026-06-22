@@ -17,7 +17,7 @@ knob**, chosen by the developer at call time. You never re-export to change it.
 
 ## The knobs
 
-From `GenerateOptions` (see [`docs/INTERFACE.md`](./INTERFACE.md)):
+From `GenerateOptions` (see [`docs/API.md`](./API.md)):
 
 | Option        | Default | Meaning                                                        |
 | ------------- | ------- | -------------------------------------------------------------- |
@@ -109,4 +109,4 @@ python tune_temperature.py --text-file my_text.txt --temps 0.55,0.65 --seed 7
   — the separate "did the generated artifacts come out right?" integrity check.
   Tuning is about *how it sounds*; verification is about *whether the files are
   correct*.
-- [`docs/INTERFACE.md`](./INTERFACE.md) — the full `GenerateOptions` contract.
+- [`docs/API.md`](./API.md) — the full `GenerateOptions` contract.

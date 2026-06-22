@@ -146,7 +146,7 @@ python smoke_reference.py        # writes golden token ids for the parity check
 ## Phase 3 — Packaging for reuse (MV3-ready)
 
 - [x] Expose the pipeline as the provider-neutral `Engine` from
-      [docs/INTERFACE.md](INTERFACE.md): streaming `synthesize() →
+      [docs/API.md](API.md): streaming `synthesize() →
       AsyncIterable<PcmChunk>` + buffered `synthesizeToPcm()`, `listVoices()`,
       `AbortSignal` cancellation (`web/src/engine/`). Done and unit-tested.
 - [x] Backend toggle (WebGPU→WASM) plumbing (`pickBackend`), and model download +
@@ -165,7 +165,7 @@ python smoke_reference.py        # writes golden token ids for the parity check
 ## Phase 3.5 — Drop-in API adapters
 
 Make the engine a plug-in replacement for the two common hosted TTS APIs (see
-[docs/INTERFACE.md](INTERFACE.md) for the request/voice/format mapping). Each
+[docs/API.md](API.md) for the request/voice/format mapping). Each
 adapter is a thin layer over the engine: request mapping, voice-id mapping, and
 a format encoder over the canonical 24 kHz PCM stream.
 

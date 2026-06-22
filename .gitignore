@@ -4,10 +4,11 @@ web/dist/
 web/.vite/
 *.log
 
-# LICENSE/NOTICE are copied into web/ at publish time (prepack); the sources of
-# truth live at the repo root.
+# LICENSE/NOTICE/README are copied into web/ at publish time (prepack) so the
+# npm package carries them; the sources of truth live at the repo root.
 web/LICENSE
 web/NOTICE
+web/README.md
 
 # Python / conversion
 conversion/.venv/

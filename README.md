@@ -1,7 +1,7 @@
 # plapre-in-a-browser
 
 [![npm](https://img.shields.io/npm/v/plapre-in-a-browser.svg)](https://www.npmjs.com/package/plapre-in-a-browser)
-[![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](LICENSE)
+[![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://github.com/elgehelge/plapre-in-a-browser/blob/main/LICENSE)
 [![Live demo](https://img.shields.io/badge/demo-GitHub%20Pages-blue.svg)](https://elgehelge.github.io/plapre-in-a-browser/)
 
 **Danish text-to-speech that runs entirely in the browser.** No server, no cloud,
@@ -21,14 +21,14 @@ const { samples, sampleRate } = await engine.synthesizeToPcm({
 // → mono Float32 PCM @ 24 kHz, ready to play or encode.
 ```
 
-**[▶ Try the live demo](https://elgehelge.github.io/plapre-in-a-browser/)** — type
-Danish, pick a voice, generate, download, or clone a voice from a clip. Everything
-runs client-side; the model weights stream from Hugging Face on first use.
+**[▶ Try the live demo](https://elgehelge.github.io/plapre-in-a-browser/)** — enter
+some Danish text, pick a voice, generate, download, or clone a voice from a clip.
+Everything runs client-side; the model weights stream from Hugging Face on first use.
 
 ## What is Plapre, and what does this add?
 
 [**Plapre**](https://syv.ai/produkter/plapre) is an open-source (CC BY 4.0) Danish
-TTS model from [syv.ai](https://syv.ai/): natural Danish speech and voice cloning
+TTS model from [syv.ai](https://syv.ai/produkter/plapre): natural Danish speech and voice cloning
 from a short clip. Upstream it runs in **Python** (PyTorch / GGUF) on a CPU or GPU.
 
 This project makes that same model run **in the browser**, with no Python and no
@@ -54,6 +54,10 @@ app that already speaks the OpenAI or ElevenLabs API.
 ```bash
 npm install plapre-in-a-browser
 ```
+
+`onnxruntime-web`, `@huggingface/transformers`, and `@breezystack/lamejs` are
+declared as dependencies and left external in the bundle, so your own bundler
+controls and dedupes them.
 
 ```ts
 import { loadPlapreEngine } from "plapre-in-a-browser";
@@ -89,9 +93,23 @@ if (engine.canCloneVoice()) {
 }
 ```
 
-Full library docs (adapters, formats, caching, and the cross-origin-isolation
-requirement for the WASM backend) are in **[web/README.md](web/README.md)**; the
-engine contract and adapter mapping are in [docs/INTERFACE.md](docs/INTERFACE.md).
+The full engine contract, adapter mapping, supported output formats, and caching
+options are documented in
+**[docs/API.md](https://github.com/elgehelge/plapre-in-a-browser/blob/main/docs/API.md)**.
+
+### Cross-origin isolation (WASM backend)
+
+Threaded WASM needs `SharedArrayBuffer`, which requires the page to be
+**cross-origin isolated**. Serve it with:
+
+```
+Cross-Origin-Opener-Policy: same-origin
+Cross-Origin-Embedder-Policy: require-corp
+```
+
+WebGPU does not require this, but the WASM backend (and the `"auto"` LM stage)
+does. In a Chrome MV3 extension, mirror these in the manifest (see
+[docs/EXTENSION.md](https://github.com/elgehelge/plapre-in-a-browser/blob/main/docs/EXTENSION.md)).
 
 ## Features
 
@@ -177,7 +195,8 @@ compares against a PyTorch "golden" reference:
 | LM decode loop    | golden token ids (greedy)               | 30 / 30 exact          |
 | Clone encoder     | speaker-embedding cosine vs PyTorch     | 1.000                  |
 
-**Performance** (Pico, ~2 s utterance, **warm**, real-time factor = audio ÷ wall):
+**Performance** — measured on a MacBook Air (M4, 2025), Chrome (Pico, ~2 s
+utterance, **warm**, real-time factor = audio ÷ wall):
 
 | Stage                          | WASM† | WebGPU |
 | ------------------------------ | ----- | ------ |
@@ -187,10 +206,10 @@ compares against a PyTorch "golden" reference:
 
 The LM is the bottleneck, and because it runs **one token at a time** it benefits
 less from WebGPU (per-dispatch overhead) than the fully parallel decoder/vocoder —
-on this machine threaded WASM is actually faster for the LM. That is exactly what
+on this hardware threaded WASM is actually faster for the LM. That is exactly what
 the default (`backend_lm`/`backend_codec` both `"auto"`) exploits: it runs the
-**LM on threaded WASM and the decoder+vocoder on WebGPU** (~2.3× end-to-end here),
-falling back per stage to whatever the environment supports. Set either stage to
+**LM on threaded WASM and the decoder+vocoder on WebGPU** (~2.3× end-to-end on the
+same machine), falling back per stage to whatever the environment supports. Set either stage to
 `"webgpu"` or `"wasm"` to force it. Measure your own with
 `web/bench.html?backend=webgpu&iters=5` (`window.__bench`).
 
@@ -210,8 +229,18 @@ separately and fetched at runtime from `modelsBaseUrl`. Three ways to get them:
    on Hugging Face.
 3. **A GitHub Release bundle** for self-hosting (`scripts/models.sh`).
 
+Probe what's reachable before loading the engine:
+
+```ts
+import { setModelsBaseUrl, reportArtifacts } from "plapre-in-a-browser";
+
+setModelsBaseUrl("https://huggingface.co/elgehelge/plapre-onnx-web/resolve/main");
+console.log(await reportArtifacts()); // { lm: true, kanadeDecoder: true, ... }
+```
+
 > The Plapre weights are CC BY 4.0, so the converted artifacts are redistributed
-> here under the same license with attribution (see [NOTICE](NOTICE)).
+> here under the same license with attribution (see
+> [NOTICE](https://github.com/elgehelge/plapre-in-a-browser/blob/main/NOTICE)).
 
 ## Repository layout
 
@@ -223,7 +252,7 @@ conversion/   Python (uv): export the 3 models to ONNX, precompute speaker
               embeddings, and produce golden reference outputs. prepare_artifacts.py
               runs the stages in dependency order.
 scripts/      models.sh (GitHub-Release bundle) + hf-model-card.md.
-docs/         INTERFACE.md (engine + adapter contract), ARCHITECTURE.md (data flow),
+docs/         API.md (engine + adapter contract), ARCHITECTURE.md (data flow),
               PLAN.md (build log + recorded numbers), EXTENSION.md (Chrome MV3).
 LICENSE       CC BY 4.0 (matches upstream Plapre). NOTICE — third-party attribution.
 ```
@@ -245,16 +274,18 @@ uv run python prepare_artifacts.py --gated    # + Plapre LM (needs `hf auth logi
 ```
 
 `prepare_artifacts.py --list` shows every stage; the full recipe (incl. gated
-weights) is in [conversion/README.md](conversion/README.md).
+weights) is in
+[conversion/README.md](https://github.com/elgehelge/plapre-in-a-browser/blob/main/conversion/README.md).
 
 ## License & attribution
 
-Licensed under **CC BY 4.0** ([LICENSE](LICENSE)), matching upstream
+Licensed under **CC BY 4.0**
+([LICENSE](https://github.com/elgehelge/plapre-in-a-browser/blob/main/LICENSE)), matching upstream
 [Plapre](https://syv.ai/produkter/plapre) ([model](https://huggingface.co/syvai/plapre-pico),
-[code](https://github.com/syv-ai/plapre)) by [syv.ai](https://syv.ai/). Use, modify,
+[code](https://github.com/syv-ai/plapre)) by [syv.ai](https://syv.ai/produkter/plapre). Use, modify,
 and redistribute it — including commercially — with appropriate credit.
 
-[NOTICE](NOTICE) lists every incorporated work, including the
+[NOTICE](https://github.com/elgehelge/plapre-in-a-browser/blob/main/NOTICE) lists every incorporated work, including the
 [Kanade tokenizer](https://github.com/frothywater/kanade-tokenizer), the HiFT
 vocoder (from CosyVoice 2), WavLM, and the bundled `lamejs` MP3 encoder.
 Redistributed ONNX artifacts must keep that attribution.

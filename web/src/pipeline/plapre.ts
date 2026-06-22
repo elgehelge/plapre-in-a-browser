@@ -2,7 +2,7 @@
 // vocoder), the tokenizer, and the built-in speaker embeddings, and turns one
 // normalized sentence into mono PCM. Text orchestration (splitting, streaming,
 // cancellation) lives in the provider-neutral Engine above this; see
-// docs/INTERFACE.md and src/engine/.
+// docs/API.md and src/engine/.
 
 import { PlapreTokenizer } from "./tokenizer.js";
 import { PlapreLM } from "./lm.js";

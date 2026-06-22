@@ -1,7 +1,7 @@
 // Drop-in replacement for the ElevenLabs text-to-speech API
 // (textToSpeech.convert / textToSpeech.stream), backed by the local engine.
 // Mirrors the SDK's (voiceId, request) shape so existing call sites work
-// unchanged against local, server-free synthesis. See docs/INTERFACE.md.
+// unchanged against local, server-free synthesis. See docs/API.md.
 
 import { NATIVE_SAMPLE_RATE, type Engine, type SynthesisRequest } from "../engine/engine.js";
 import { encodeMp3, pcmToInt16LE, UnsupportedFormatError } from "../audio/format.js";
