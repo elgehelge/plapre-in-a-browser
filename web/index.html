@@ -32,27 +32,50 @@
       </header>
 
       <section class="card setup">
+        <h2>Compute backend <span class="tag">where it runs</span></h2>
+        <p class="muted">
+          The model can run on the GPU (WebGPU) or the CPU (WASM). “Auto” picks the
+          fastest your browser supports — hover the badges to see what's available.
+        </p>
         <div class="setup__row">
-          <div class="badge" id="backend-badge">backend: …</div>
-          <div class="badge" id="isolated-badge">isolation: …</div>
+          <div
+            class="badge"
+            id="backend-badge"
+            title="Whether your browser exposes a WebGPU GPU adapter. WebGPU greatly speeds up the decoder + vocoder. If unavailable, those stages fall back to WASM (CPU)."
+          >
+            <span class="badge__text">WebGPU: …</span><span class="badge__info" aria-hidden="true">ⓘ</span>
+          </div>
+          <div
+            class="badge"
+            id="isolated-badge"
+            title="Whether the page is cross-origin isolated (COOP/COEP headers), which lets WASM use several CPU threads (via SharedArrayBuffer). Multi-threaded WASM is the fastest option for the LM. If not possible, WASM runs single-threaded (slower)."
+          >
+            <span class="badge__text">multi-threading: …</span><span class="badge__info" aria-hidden="true">ⓘ</span>
+          </div>
           <div class="spacer"></div>
           <label class="field field--inline">
             <span>LM</span>
-            <select id="backend-lm">
-              <option value="auto">auto</option>
+            <select id="backend-lm" title="Backend for the autoregressive language model (token generation).">
+              <option value="auto">Auto (recommended)</option>
+              <option value="webgpu">WebGPU (fallback to WASM)</option>
               <option value="wasm">WASM</option>
-              <option value="webgpu">WebGPU</option>
             </select>
           </label>
           <label class="field field--inline">
             <span>Decoder+vocoder</span>
-            <select id="backend-codec">
-              <option value="auto">auto</option>
-              <option value="webgpu">WebGPU</option>
+            <select id="backend-codec" title="Backend for the decoder + vocoder (turning tokens into audio).">
+              <option value="auto">Auto (recommended)</option>
+              <option value="webgpu">WebGPU (fallback to WASM)</option>
               <option value="wasm">WASM</option>
             </select>
           </label>
         </div>
+        <small class="muted setup__hint">
+          <b>Auto</b> = the decoder+vocoder run on WebGPU when available; the LM runs
+          on multi-threaded WASM when possible (it's faster there), otherwise WebGPU.
+          <b>WebGPU (fallback to WASM)</b> uses the GPU but drops to CPU if absent.
+          <b>WASM</b> always uses the CPU (multi-threaded when possible).
+        </small>
         <label class="field">
           <span>Models base URL</span>
           <input id="models-base" type="text" value="/models" spellcheck="false" />

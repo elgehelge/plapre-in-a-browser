@@ -133,6 +133,11 @@ input[type="range"] { width: 100%; accent-color: var(--accent-strong); }
 }
 .badge.ok { color: var(--good); border-color: rgba(54, 211, 153, 0.4); }
 .badge.no { color: var(--bad); border-color: rgba(248, 114, 114, 0.4); }
+.badge[title] { cursor: help; }
+.badge__info { margin-left: 0.3rem; opacity: 0.55; font-size: 0.9em; }
+
+.setup__hint { display: block; line-height: 1.5; }
+.setup__hint b { color: var(--text); font-weight: 600; }
 
 .tag {
   font-size: 0.65rem;

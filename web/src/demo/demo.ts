@@ -97,8 +97,11 @@ function log(msg: string): void {
 }
 
 function setBadge(el: HTMLElement, label: string, state: "ok" | "no" | "") {
-  el.textContent = label;
-  el.className = `badge${state ? ` ${state}` : ""}`;
+  // Update only the text span so the trailing ⓘ tooltip hint survives.
+  const text = el.querySelector<HTMLElement>(".badge__text") ?? el;
+  text.textContent = label;
+  el.classList.remove("ok", "no");
+  if (state) el.classList.add(state);
 }
 
 async function checkEnvironment(): Promise<void> {
@@ -106,7 +109,7 @@ async function checkEnvironment(): Promise<void> {
   setBadge(els.backendBadge, `WebGPU: ${webgpu ? "yes" : "no"}`, webgpu ? "ok" : "no");
   setBadge(
     els.isolatedBadge,
-    `isolation: ${crossOriginIsolated ? "on" : "off"}`,
+    `multi-threading: ${crossOriginIsolated ? "yes" : "no"}`,
     crossOriginIsolated ? "ok" : "no",
   );
   await refreshArtifacts();
