@@ -229,11 +229,14 @@ separately and fetched at runtime from `modelsBaseUrl`. Three ways to get them:
 1. **Hugging Face (default for the demo):**
    [`elgehelge/plapre-onnx-web`](https://huggingface.co/elgehelge/plapre-onnx-web)
    — CORS-enabled per-file fetch, the simplest option for the browser.
-2. **Produce them yourself** with the conversion toolchain (`conversion/`); the
+2. **Into `web/public/models/` for local dev:** `npm run fetch:models` downloads
+   the same Hugging Face artifacts via the `hf` CLI (`scripts/models.sh`). Defaults
+   to the Pico variant; `bash scripts/models.sh fetch nano` (or `all`) pulls the
+   others.
+3. **Produce them yourself** with the conversion toolchain (`conversion/`); the
    decoder, vocoder, and clone encoder are public, the Plapre LM is license-gated
    on Hugging Face. Pass `--model nano` to the gated stages to build the Nano
    variant alongside Pico.
-3. **A GitHub Release bundle** for self-hosting (`scripts/models.sh`).
 
 Variant-specific files load from the variant's sub-path under `modelsBaseUrl`
 (`pico/`, `nano/`); the shared Kanade decoder/vocoder sit at the root regardless
@@ -251,7 +254,7 @@ web/          Publishable TypeScript library (web/src/index.ts) + the interactiv
 conversion/   Python (uv): export the 3 models to ONNX, precompute speaker
               embeddings, and produce golden reference outputs. prepare_artifacts.py
               runs the stages in dependency order.
-scripts/      models.sh (GitHub-Release bundle) + hf-model-card.md.
+scripts/      models.sh (fetch artifacts from Hugging Face) + hf-model-card.md.
 docs/         API.md (engine + adapter contract), ARCHITECTURE.md (data flow),
               EXTENSION.md (Chrome MV3 hosting), TUNING.md (sampling knobs).
 LICENSE       CC BY 4.0 (matches upstream Plapre). NOTICE — third-party attribution.
@@ -262,6 +265,7 @@ LICENSE       CC BY 4.0 (matches upstream Plapre). NOTICE — third-party attrib
 ```bash
 # Library + demo + tests
 npm run setup       # installs web/ deps
+npm run fetch:models # download the ONNX artifacts from Hugging Face into web/public/models
 npm test            # 120 vitest unit tests
 npm run dev         # demo at http://localhost:5173 (uses local /models)
 npm run build:lib   # build the publishable library (dist/ + types)

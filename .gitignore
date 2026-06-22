@@ -17,6 +17,7 @@ conversion/build/
 
 # Model artifacts (large / generated; not committed — see conversion/README.md).
 # Recursive so model subdirs (lm/, lm_toy/, …) are covered too.
+web/public/models/.cache/
 web/public/models/**/*.onnx
 web/public/models/**/*.onnx_data
 web/public/models/**/*.onnx.data

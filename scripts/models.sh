@@ -1,110 +1,63 @@
 #!/usr/bin/env bash
-# Pack / upload / fetch the converted model artifacts as a GitHub Release bundle.
+# Fetch the converted Plapre ONNX artifacts into web/public/models for local dev.
 #
-# The artifacts are large and git-ignored; GitHub Releases host the binary
-# bundle so apps and CI can fetch a known-good set without re-running the torch
-# exports. Two tiers:
+# The runtime artifacts live in the Hugging Face model repo
+# elgehelge/plapre-onnx-web — the same base URL the deployed demo fetches from.
+# That repo is the single source of truth: the shared Kanade
+# decoder/vocoder/clone-encoder sit at the root, and each model variant's LM-side
+# files (LM graph + meta, tokenizer, speaker tables) live under its own sub-dir
+# (pico/, nano/). The npm package ships code only; these weights are git-ignored
+# and only needed to run the demo and tests locally.
 #
-#   public  Kanade decoder + HiFT vocoder + clone encoder + their goldens, plus
-#           the synthetic toy LM. Safe to attach to a public release.
-#   full    additionally the Plapre LM, tokenizer, and speaker embeddings, which
-#           are derived from the license-gated syvai/plapre-* weights. Only use
-#           --full for private/self-hosted distribution; do not attach to a
-#           public release unless you are entitled to redistribute those weights.
+# Golden/test fixtures (phase0_golden.json, clone_golden.json,
+# phase1_toy_golden.json, lm_toy/) are NOT distributed here — they are reference
+# outputs produced by the conversion toolchain. See conversion/README.md.
 #
 # Usage:
-#   scripts/models.sh pack   [--full] [OUTFILE]      # -> plapre-models[-full].tar.gz
-#   scripts/models.sh upload <tag> [--full]          # pack + gh release upload
-#   scripts/models.sh fetch  [tag]                   # download + extract into web/public/models
+#   scripts/models.sh fetch [pico|nano|all]    # default: pico
 #
-# Requires: bash, tar, and (for upload/fetch) the GitHub CLI `gh`.
+# Requires the Hugging Face CLI `hf` (pip install -U huggingface_hub).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MODELS_DIR="$ROOT/web/public/models"
-
-PUBLIC_PATHS=(
-  kanade_decoder.onnx kanade_decoder.onnx.data
-  hift_vocoder.onnx hift_vocoder.onnx.data
-  clone_encoder.onnx
-  phase0_golden.json clone_golden.json phase1_toy_golden.json
-  lm_toy
-)
-# Variant-specific (LM-side) artifacts. Each variant lives under its own
-# sub-directory (pico/, nano/). Missing entries are skipped, so this stays valid
-# whether or not a given variant has been produced.
-GATED_PATHS=(
-  pico/lm pico/tokenizer.json pico/config.json pico/speakers.json pico/speaker_proj.json
-  nano/lm nano/tokenizer.json nano/config.json nano/speakers.json nano/speaker_proj.json
-)
+HF_REPO="elgehelge/plapre-onnx-web"
 
 die() { echo "error: $*" >&2; exit 1; }
 
-# Collect the existing members for the requested tier into the global array PRESENT.
-collect() {
-  local tier="$1"; shift
-  local -a wanted=("${PUBLIC_PATHS[@]}")
-  [ "$tier" = full ] && wanted+=("${GATED_PATHS[@]}")
-  PRESENT=()
-  local p
-  for p in "${wanted[@]}"; do
-    if [ -e "$MODELS_DIR/$p" ]; then PRESENT+=("$p"); else echo "  (skip, missing) $p" >&2; fi
-  done
-  [ "${#PRESENT[@]}" -gt 0 ] || die "no artifacts found in $MODELS_DIR — produce them first (see conversion/)"
-}
-
-cmd_pack() {
-  local tier=public out=""
-  while [ $# -gt 0 ]; do
-    case "$1" in
-      --full) tier=full ;;
-      *) out="$1" ;;
-    esac; shift
-  done
-  [ -n "$out" ] || out="$ROOT/plapre-models$([ "$tier" = full ] && echo -full).tar.gz"
-  collect "$tier"
-  echo "Packing ${#PRESENT[@]} member(s) ($tier) -> $out"
-  tar -czf "$out" -C "$MODELS_DIR" "${PRESENT[@]}"
-  echo "Wrote $out ($(du -h "$out" | cut -f1))"
-  PACKED_FILE="$out"
-}
-
-cmd_upload() {
-  command -v gh >/dev/null || die "gh (GitHub CLI) is required"
-  local tag="${1:-}"; shift || true
-  [ -n "$tag" ] || die "usage: models.sh upload <tag> [--full]"
-  cmd_pack "$@"
-  if ! gh release view "$tag" >/dev/null 2>&1; then
-    echo "Creating release $tag"
-    gh release create "$tag" --title "$tag" --notes "Model artifact bundle for $tag"
-  fi
-  gh release upload "$tag" "$PACKED_FILE" --clobber
-  echo "Uploaded $(basename "$PACKED_FILE") to release $tag"
-}
-
 cmd_fetch() {
-  command -v gh >/dev/null || die "gh (GitHub CLI) is required"
-  local tag="${1:-}"
+  command -v hf >/dev/null || die "the Hugging Face CLI 'hf' is required (pip install -U huggingface_hub)"
+  local variant="${1:-pico}"
+  case "$variant" in
+    pico|nano|all) ;;
+    *) die "unknown variant '$variant' (use pico|nano|all)" ;;
+  esac
+
+  # The shared decoder/vocoder/clone-encoder are always needed; each variant's
+  # LM-side files live under its own sub-dir. Only pull what's asked for, and
+  # leave the repo's own README/.gitattributes behind so they can't clobber the
+  # local models/ doc.
+  local -a patterns=(
+    clone_encoder.onnx
+    hift_vocoder.onnx hift_vocoder.onnx.data
+    kanade_decoder.onnx kanade_decoder.onnx.data
+  )
+  case "$variant" in
+    pico) patterns+=("pico/*") ;;
+    nano) patterns+=("nano/*") ;;
+    all)  patterns+=("pico/*" "nano/*") ;;
+  esac
+  local -a include=()
+  local p
+  for p in "${patterns[@]}"; do include+=(--include "$p"); done
+
   mkdir -p "$MODELS_DIR"
-  local tmp; tmp="$(mktemp -d)"
-  trap 'rm -rf "$tmp"' EXIT
-  echo "Downloading model bundle from release ${tag:-<latest>}"
-  if [ -n "$tag" ]; then
-    gh release download "$tag" --pattern 'plapre-models*.tar.gz' --dir "$tmp"
-  else
-    gh release download --pattern 'plapre-models*.tar.gz' --dir "$tmp"
-  fi
-  local f
-  for f in "$tmp"/*.tar.gz; do
-    echo "Extracting $(basename "$f") -> $MODELS_DIR"
-    tar -xzf "$f" -C "$MODELS_DIR"
-  done
+  echo "Fetching '$variant' artifacts from https://huggingface.co/$HF_REPO -> $MODELS_DIR"
+  hf download "$HF_REPO" --repo-type model --local-dir "$MODELS_DIR" "${include[@]}"
   echo "Done. Artifacts in $MODELS_DIR"
 }
 
 case "${1:-}" in
-  pack)   shift; cmd_pack "$@" ;;
-  upload) shift; cmd_upload "$@" ;;
-  fetch)  shift; cmd_fetch "$@" ;;
-  *) echo "usage: $0 {pack|upload|fetch} ..." >&2; exit 2 ;;
+  fetch) shift; cmd_fetch "$@" ;;
+  *) echo "usage: $0 fetch [pico|nano|all]" >&2; exit 2 ;;
 esac
