@@ -59,6 +59,9 @@ npm install plapre-in-a-browser
 import { loadPlapreEngine } from "plapre-in-a-browser";
 
 const engine = await loadPlapreEngine({
+  // Which Plapre variant to load: "pico" (default) or "nano". See "Model
+  // variants" below.
+  model: "pico",
   // Per-stage backend. Each is "auto" (default), "webgpu", or "wasm".
   // "auto" → LM on threaded WASM, decoder+vocoder on WebGPU, with graceful fallback.
   backend_lm: "auto",
@@ -138,6 +141,26 @@ PCM audio (24 kHz, mono, float32)
 Built-in voices (`tor, ida, liv, ask, kaj`) ship as precomputed embeddings, so
 only the decoder is needed for them; the clone encoder is loaded on demand.
 
+### Model variants
+
+Plapre comes in two sizes, selected with the `model` option (default `"pico"`):
+
+| Variant | LM hidden size | Upstream checkpoint  |
+| ------- | -------------- | -------------------- |
+| `pico`  | 576            | `syvai/plapre-pico`  |
+| `nano`  | 960            | `syvai/plapre-nano`  |
+
+Only the **LM-side artifacts** differ between variants (the LM graph + `meta.json`,
+tokenizer, and speaker tables); the Kanade decoder, HiFT vocoder, and clone encoder
+are **shared**. The runtime reads the hidden size from `lm/meta.json`, so switching
+is purely a matter of pointing at the right artifacts — variant-specific files are
+served from the variant's sub-path under `modelsBaseUrl` (`pico/`, `nano/`; see
+`web/src/pipeline/models.ts`).
+
+```ts
+const nano = await loadPlapreEngine({ model: "nano" });
+```
+
 ### Making it run as ONNX in the browser
 
 Most of the work was getting these models to export and run correctly under
@@ -208,8 +231,13 @@ separately and fetched at runtime from `modelsBaseUrl`. Three ways to get them:
    — CORS-enabled per-file fetch, the simplest option for the browser.
 2. **Produce them yourself** with the conversion toolchain (`conversion/`); the
    decoder, vocoder, and clone encoder are public, the Plapre LM is license-gated
-   on Hugging Face.
+   on Hugging Face. Pass `--model nano` to the gated stages to build the Nano
+   variant alongside Pico.
 3. **A GitHub Release bundle** for self-hosting (`scripts/models.sh`).
+
+Variant-specific files load from the variant's sub-path under `modelsBaseUrl`
+(`pico/`, `nano/`); the shared Kanade decoder/vocoder sit at the root regardless
+of variant.
 
 > The Plapre weights are CC BY 4.0, so the converted artifacts are redistributed
 > here under the same license with attribution (see [NOTICE](NOTICE)).
@@ -242,7 +270,8 @@ npm run build:lib   # build the publishable library (dist/ + types)
 cd conversion
 uv sync
 uv run python prepare_artifacts.py            # public stages (decoder, vocoder, clone)
-uv run python prepare_artifacts.py --gated    # + Plapre LM (needs `hf auth login`)
+uv run python prepare_artifacts.py --gated    # + Plapre Pico LM (needs `hf auth login`)
+uv run python prepare_artifacts.py --model nano  # + Nano LM-side artifacts (gated)
 ```
 
 `prepare_artifacts.py --list` shows every stage; the full recipe (incl. gated
@@ -251,8 +280,10 @@ weights) is in [conversion/README.md](conversion/README.md).
 ## License & attribution
 
 Licensed under **CC BY 4.0** ([LICENSE](LICENSE)), matching upstream
-[Plapre](https://syv.ai/produkter/plapre) ([model](https://huggingface.co/syvai/plapre-pico),
-[code](https://github.com/syv-ai/plapre)) by [syv.ai](https://syv.ai/produkter/plapre). Use, modify,
+[Plapre](https://syv.ai/produkter/plapre) (models:
+[Pico](https://huggingface.co/syvai/plapre-pico) /
+[Nano](https://huggingface.co/syvai/plapre-nano),
+[code](https://github.com/syv-ai/plapre)) by [syv.ai](https://syv.ai/). Use, modify,
 and redistribute it — including commercially — with appropriate credit.
 
 [NOTICE](NOTICE) lists every incorporated work, including the

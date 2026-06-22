@@ -36,9 +36,7 @@ from pathlib import Path
 import torch
 import torch.nn as nn
 
-from _gated import CHECKPOINT, ensure_access
-
-OUT_DIR = Path(__file__).parent.parent / "web" / "public" / "models" / "lm"
+from _gated import checkpoint_for, ensure_access, parse_model, variant_dir
 
 
 class LmExportWrapper(nn.Module):
@@ -88,14 +86,17 @@ def _names(prefix: str, n: int) -> list[str]:
 
 
 def main() -> None:
-    ensure_access()
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    model_id = parse_model()
+    checkpoint = checkpoint_for(model_id)
+    ensure_access(checkpoint)
+    out_dir = variant_dir(model_id) / "lm"
+    out_dir.mkdir(parents=True, exist_ok=True)
 
     from transformers import AutoModelForCausalLM
 
     # eager attention exports far more cleanly than SDPA/flash for our wrapper.
     model = AutoModelForCausalLM.from_pretrained(
-        CHECKPOINT, torch_dtype=torch.float32, attn_implementation="eager"
+        checkpoint, torch_dtype=torch.float32, attn_implementation="eager"
     ).eval()
     cfg = model.config
     layers = cfg.num_hidden_layers
@@ -122,7 +123,7 @@ def main() -> None:
     for nme in _names("present", layers):
         dynamic[nme] = {2: "total"}
 
-    out_path = OUT_DIR / "model.onnx"
+    out_path = out_dir / "model.onnx"
     torch.onnx.export(
         wrapper,
         example,
@@ -139,14 +140,17 @@ def main() -> None:
     # it (ORT-Web needs it explicitly). Pico usually stays inline.
     sidecar = out_path.name + ".data"
     meta = {"numLayers": layers, "kvHeads": kv_heads, "headDim": head_dim, "hidden": hidden}
-    if (OUT_DIR / sidecar).exists():
+    if (out_dir / sidecar).exists():
         meta["externalData"] = sidecar
-    (OUT_DIR / "meta.json").write_text(json.dumps(meta))
-    print(f"exported LM -> {out_path}")
+    (out_dir / "meta.json").write_text(json.dumps(meta))
+    print(f"exported {model_id} LM -> {out_path}")
     print(f"meta: layers={layers} kvHeads={kv_heads} headDim={head_dim} hidden={hidden}")
 
     _validate_cpu(wrapper, out_path, layers, kv_heads, head_dim, hidden, cfg.vocab_size)
-    print("NOTE: copy tokenizer.json via fetch_tokenizer.py; then run smoke_reference.py.")
+    print(
+        f"NOTE: copy tokenizer.json via fetch_tokenizer.py --model {model_id}; "
+        f"then run smoke_reference.py --model {model_id}."
+    )
 
 
 def _validate_cpu(

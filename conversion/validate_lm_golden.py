@@ -26,20 +26,18 @@ import numpy as np
 import onnxruntime as ort
 from tokenizers import Tokenizer
 
+from _gated import golden_dir, parse_model, variant_dir
 from smoke_reference import SENTENCE, SPEAKER, _normalize
 
-MODELS = Path(__file__).parent.parent / "web" / "public" / "models"
-GOLDEN = Path(__file__).parent / "golden"
 
-
-def _speaker_hidden() -> np.ndarray:
+def _speaker_hidden(models: Path) -> np.ndarray:
     """The speaker's precomputed hidden vector (what the browser feeds as the
     prefix), cross-checked against applying speaker_proj.json to the raw emb."""
-    spk = json.loads((MODELS / "speakers.json").read_text())[SPEAKER]
+    spk = json.loads((models / "speakers.json").read_text())[SPEAKER]
     hidden = np.asarray(spk["hidden"], dtype=np.float32)
 
     raw = np.asarray(spk["raw"], dtype=np.float32)
-    proj = json.loads((MODELS / "speaker_proj.json").read_text())
+    proj = json.loads((models / "speaker_proj.json").read_text())
     weight = np.asarray(proj["weight"], dtype=np.float32)  # [out, in]
     bias = np.asarray(proj["bias"], dtype=np.float32)
     projected = weight @ raw + bias
@@ -62,20 +60,24 @@ def _prompt_ids(tok: Tokenizer) -> tuple[list[int], int]:
 
 
 def main() -> None:
-    meta = json.loads((MODELS / "lm" / "meta.json").read_text())
+    model_id = parse_model()
+    models = variant_dir(model_id)
+    golden_path = golden_dir(model_id) / "tokens.json"
+
+    meta = json.loads((models / "lm" / "meta.json").read_text())
     layers, kv_heads, head_dim, hidden = (
         meta["numLayers"],
         meta["kvHeads"],
         meta["headDim"],
         meta["hidden"],
     )
-    golden = json.loads((GOLDEN / "tokens.json").read_text())["ids"]
+    golden = json.loads(golden_path.read_text())["ids"]
 
-    tok = Tokenizer.from_file(str(MODELS / "tokenizer.json"))
+    tok = Tokenizer.from_file(str(models / "tokenizer.json"))
     prompt, eos = _prompt_ids(tok)
-    speaker_hidden = _speaker_hidden().reshape(1, hidden).astype(np.float32)
+    speaker_hidden = _speaker_hidden(models).reshape(1, hidden).astype(np.float32)
 
-    sess = ort.InferenceSession(str(MODELS / "lm" / "model.onnx"), providers=["CPUExecutionProvider"])
+    sess = ort.InferenceSession(str(models / "lm" / "model.onnx"), providers=["CPUExecutionProvider"])
     past_names = [f"past_key_values.{i}.{kv}" for i in range(layers) for kv in ("key", "value")]
     present_names = [f"present.{i}.{kv}" for i in range(layers) for kv in ("key", "value")]
 

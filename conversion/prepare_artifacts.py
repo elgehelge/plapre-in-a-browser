@@ -28,6 +28,8 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
+from _gated import DEFAULT_MODEL, MODELS
+
 HERE = Path(__file__).parent
 
 
@@ -66,10 +68,15 @@ STAGES: tuple[Stage, ...] = (
 )
 
 
-def run_stage(stage: Stage) -> None:
+def run_stage(stage: Stage, model: str) -> None:
     print(f"\n=== {stage.name} -> {stage.produces} ===", flush=True)
     started = time.monotonic()
-    subprocess.run([sys.executable, stage.script], cwd=HERE, check=True)
+    # Only the gated (LM-side) stages are variant-specific; the public Kanade
+    # stages produce artifacts shared across variants and take no --model.
+    cmd = [sys.executable, stage.script]
+    if stage.gated:
+        cmd += ["--model", model]
+    subprocess.run(cmd, cwd=HERE, check=True)
     print(f"--- {stage.name} done in {time.monotonic() - started:.1f}s", flush=True)
 
 
@@ -78,6 +85,10 @@ def main() -> int:
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--gated", action="store_true",
                         help="also run gated stages (requires Hugging Face login)")
+    parser.add_argument("--model", choices=MODELS, default=DEFAULT_MODEL,
+                        help=f"which Plapre variant the gated stages convert (default: {DEFAULT_MODEL}). "
+                             "Non-default variants run only the (variant-specific) gated stages, since "
+                             "the public Kanade artifacts are shared across variants.")
     parser.add_argument("--only", nargs="+", metavar="STAGE",
                         help="run only these stage names (implies their credential needs)")
     parser.add_argument("--list", action="store_true", help="list stages and exit")
@@ -93,17 +104,21 @@ def main() -> int:
         if unknown:
             parser.error(f"unknown stage(s): {', '.join(unknown)}")
         selected = [s for s in STAGES if s.name in set(args.only)]
+    elif args.model != DEFAULT_MODEL:
+        # A non-default variant reuses the shared public artifacts; only its
+        # gated LM-side stages need (re-)running.
+        selected = [s for s in STAGES if s.gated]
     else:
         selected = [s for s in STAGES if not s.gated or args.gated]
 
     gated = [s for s in selected if s.gated]
     if gated and not args.only:
-        print("Running GATED stages — these need an authenticated Hugging Face "
-              "session (huggingface-cli login) and accepted model terms.")
+        print(f"Running GATED stages for model '{args.model}' — these need an authenticated "
+              "Hugging Face session (huggingface-cli login) and accepted model terms.")
 
     for stage in selected:
         try:
-            run_stage(stage)
+            run_stage(stage, args.model)
         except subprocess.CalledProcessError as exc:
             print(f"\nFAILED at stage '{stage.name}' (exit {exc.returncode}).",
                   file=sys.stderr)

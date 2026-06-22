@@ -6,7 +6,10 @@
 // `caches` is unavailable (e.g. Node tests). It streams the body so callers can
 // render a download progress bar for the multi-hundred-MB weights.
 
-export type ProgressFn = (loaded: number, total: number) => void;
+// `url` identifies which artifact the bytes belong to, so a UI can aggregate
+// progress across the several files that download concurrently. Older callers
+// that only take (loaded, total) keep working.
+export type ProgressFn = (loaded: number, total: number, url?: string) => void;
 
 export interface FetchCachedOptions {
   cacheName?: string;
@@ -52,22 +55,26 @@ async function readWithProgress(res: Response, onProgress?: ProgressFn): Promise
  * back to a streamed fetch (still reporting progress).
  */
 export async function fetchCached(url: string, opts: FetchCachedOptions = {}): Promise<ArrayBuffer> {
+  const report: ProgressFn | undefined = opts.onProgress
+    ? (loaded, total) => opts.onProgress!(loaded, total, url)
+    : undefined;
+
   const storage = cacheStorage();
   if (!storage) {
     const res = await fetch(url, { signal: opts.signal });
     if (!res.ok) throw new Error(`fetch ${url} failed: ${res.status}`);
-    return readWithProgress(res, opts.onProgress);
+    return readWithProgress(res, report);
   }
 
   const cache = await storage.open(opts.cacheName ?? DEFAULT_CACHE);
   const hit = await cache.match(url);
-  if (hit) return readWithProgress(hit, opts.onProgress);
+  if (hit) return readWithProgress(hit, report);
 
   const res = await fetch(url, { signal: opts.signal });
   if (!res.ok) throw new Error(`fetch ${url} failed: ${res.status}`);
   // Cache a clone before consuming the body for the caller.
   await cache.put(url, res.clone());
-  return readWithProgress(res, opts.onProgress);
+  return readWithProgress(res, report);
 }
 
 /** Remove the model cache (e.g. to free space or force re-download). */

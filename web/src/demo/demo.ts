@@ -8,7 +8,9 @@ import {
   loadPlapreEngine,
   reportArtifacts,
   setModelsBaseUrl,
+  setModel,
   ARTIFACTS,
+  artifactUrl,
   encodeAudio,
   decodeWithWebAudio,
   resolveBackends,
@@ -17,6 +19,7 @@ import {
   type Voice,
   type ArtifactKey,
   type BackendChoice,
+  type PlapreModelId,
   type ResolvedBackends,
 } from "../index.js";
 import { normalizeText } from "../pipeline/normalize.js";
@@ -28,6 +31,7 @@ const els = {
   isolatedBadge: $("isolated-badge"),
   backendLm: $<HTMLSelectElement>("backend-lm"),
   backendCodec: $<HTMLSelectElement>("backend-codec"),
+  model: $<HTMLSelectElement>("model"),
   modelsBase: $<HTMLInputElement>("models-base"),
   artifacts: $("artifacts"),
   cloneArtifacts: $("clone-artifacts"),
@@ -92,10 +96,70 @@ let controller: AbortController | null = null;
 let resolvedBackends: ResolvedBackends | null = null;
 // Artifact checklist rows, so dots can flip grey -> green once actually loaded.
 let artifactRows: Partial<Record<ArtifactKey, HTMLElement>> = {};
+// Total bytes that will stream during load (the ONNX models + their sidecars),
+// and the per-file tally used to show a single aggregate progress bar — these
+// files download concurrently, so progress is summed across them by URL.
+let plannedBytes = 0;
+const downloadedBytes = new Map<string, number>();
+// True while an engine load is streaming, so an async size estimate (triggered
+// by a model/base change) can't reset the live progress bar mid-download.
+let loading = false;
 
 function log(msg: string): void {
   els.log.textContent += `${msg}\n`;
   els.log.scrollTop = els.log.scrollHeight;
+}
+
+const fmtMB = (bytes: number): string => `${(bytes / 1e6).toFixed(0)} MB`;
+
+// The files that actually stream download progress: each ONNX model plus its
+// external-data sidecar (the bulk of the bytes). The tokenizer/speaker JSON are
+// tiny and fetched without progress, so they're left out — keeping the summed
+// progress equal to this planned total at completion.
+async function plannedDownloadUrls(): Promise<string[]> {
+  const urls = [artifactUrl("lm")];
+  try {
+    const meta = await (await fetch(artifactUrl("lmMeta"))).json();
+    if (meta.externalData) {
+      const lm = artifactUrl("lm");
+      urls.push(lm.slice(0, lm.lastIndexOf("/") + 1) + meta.externalData);
+    }
+  } catch {
+    // meta is optional for sizing; the LM graph itself is still counted.
+  }
+  for (const key of ["kanadeDecoder", "vocoder"] as const) {
+    urls.push(artifactUrl(key), `${artifactUrl(key)}.data`);
+  }
+  return urls;
+}
+
+async function headSize(url: string): Promise<number> {
+  try {
+    const res = await fetch(url, { method: "HEAD" });
+    return res.ok ? Number(res.headers.get("content-length") ?? 0) : 0;
+  } catch {
+    return 0;
+  }
+}
+
+// Sum the download sizes up front so the bar can show "0 / N MB" before loading.
+async function estimateDownload(): Promise<void> {
+  const sizes = await Promise.all((await plannedDownloadUrls()).map(headSize));
+  plannedBytes = sizes.reduce((a, b) => a + b, 0);
+  // A load may have started while the HEAD requests were in flight; never reset
+  // the live bar or the byte tally out from under it.
+  if (loading) return;
+  downloadedBytes.clear();
+  els.progress.hidden = false;
+  els.progressBar.style.width = "0%";
+  els.progressLabel.textContent = plannedBytes ? `0 / ${fmtMB(plannedBytes)}` : "";
+}
+
+function renderProgress(): void {
+  const done = [...downloadedBytes.values()].reduce((a, b) => a + b, 0);
+  const denom = plannedBytes || done || 1;
+  els.progressBar.style.width = `${Math.min(100, Math.round((done / denom) * 100))}%`;
+  els.progressLabel.textContent = `${fmtMB(done)} / ${fmtMB(denom)}`;
 }
 
 function setBadge(el: HTMLElement, label: string, state: "ok" | "no" | "") {
@@ -117,8 +181,13 @@ async function checkEnvironment(): Promise<void> {
   await refreshArtifacts();
 }
 
+function selectedModel(): PlapreModelId {
+  return els.model.value as PlapreModelId;
+}
+
 async function refreshArtifacts(): Promise<boolean> {
   setModelsBaseUrl(els.modelsBase.value.trim() || "/models");
+  setModel(selectedModel());
   els.artifacts.textContent = "Checking artifacts…";
   let present: Record<ArtifactKey, boolean>;
   try {
@@ -148,7 +217,11 @@ async function refreshArtifacts(): Promise<boolean> {
   const ready = REQUIRED.every((k) => present[k]);
   els.load.disabled = !ready;
   els.load.textContent = ready ? "Load engine" : "Load engine (artifacts missing)";
-  if (!ready) {
+  if (ready) {
+    // Show the download size up front, so the bar starts at "0 / N MB".
+    void estimateDownload();
+  } else {
+    els.progress.hidden = true;
     log(
       "Some required artifacts are missing. Produce them with the conversion " +
         "toolchain (see conversion/) or set the models base URL to a bundle.",
@@ -157,15 +230,17 @@ async function refreshArtifacts(): Promise<boolean> {
   return ready;
 }
 
-function showProgress(on: boolean): void {
-  els.progress.hidden = !on;
-  if (!on) els.progressBar.style.width = "0%";
-}
-
 async function loadEngine(): Promise<void> {
+  loading = true;
   els.load.disabled = true;
-  showProgress(true);
-  els.progressLabel.textContent = "Loading…";
+  // Freeze the variant/source while loading so a change event can't recompute
+  // the planned total or kick off a competing estimate mid-download.
+  els.model.disabled = true;
+  els.modelsBase.disabled = true;
+  downloadedBytes.clear();
+  els.progress.hidden = false;
+  els.progressBar.style.width = "0%";
+  els.progressLabel.textContent = plannedBytes ? `0 / ${fmtMB(plannedBytes)}` : "Loading…";
   const backend_lm = els.backendLm.value as BackendChoice;
   const backend_codec = els.backendCodec.value as BackendChoice;
   resolvedBackends = await resolveBackends({ lm: backend_lm, codec: backend_codec });
@@ -173,31 +248,36 @@ async function loadEngine(): Promise<void> {
     engine = await loadPlapreEngine({
       backend_lm,
       backend_codec,
+      model: selectedModel(),
       modelsBaseUrl: els.modelsBase.value.trim() || "/models",
       cache: {
-        onProgress: (loaded, total) => {
-          const pct = total ? Math.round((loaded / total) * 100) : 0;
-          els.progressBar.style.width = `${pct}%`;
-          els.progressLabel.textContent = `${(loaded / 1e6).toFixed(0)} MB${
-            total ? ` / ${(total / 1e6).toFixed(0)} MB` : ""
-          }`;
+        onProgress: (loaded, _total, url) => {
+          // Files download concurrently; track each by URL and show the sum.
+          if (url) downloadedBytes.set(url, loaded);
+          renderProgress();
         },
       },
     });
     for (const key of REQUIRED) artifactRows[key]?.classList.add("loaded");
+    els.progressBar.style.width = "100%";
+    if (plannedBytes) els.progressLabel.textContent = `${fmtMB(plannedBytes)} — loaded`;
     populateVoices(engine.listVoices());
     els.synth.setAttribute("aria-disabled", "false");
     els.speak.disabled = false;
     els.cloneBtn.disabled = !engine.canCloneVoice();
     log(
-      `Engine loaded — LM on ${resolvedBackends.lm}, decoder+vocoder on ` +
-        `${resolvedBackends.codec}. ${engine.listVoices().length} voice(s) ready.`,
+      `Engine loaded — ${selectedModel()} on LM ${resolvedBackends.lm}, ` +
+        `decoder+vocoder on ${resolvedBackends.codec}. ` +
+        `${engine.listVoices().length} voice(s) ready.`,
     );
   } catch (err) {
     log(`Load failed: ${err instanceof Error ? err.message : String(err)}`);
     els.load.disabled = false;
+    els.progress.hidden = true;
   } finally {
-    showProgress(false);
+    loading = false;
+    els.model.disabled = false;
+    els.modelsBase.disabled = false;
   }
 }
 
@@ -330,6 +410,7 @@ els.rate.addEventListener("input", () => {
 els.temp.addEventListener("input", () => {
   els.tempOut.textContent = Number(els.temp.value).toFixed(2);
 });
+els.model.addEventListener("change", () => void refreshArtifacts());
 els.modelsBase.addEventListener("change", () => void refreshArtifacts());
 els.load.addEventListener("click", () => void loadEngine());
 els.speak.addEventListener("click", () => void synthesize());

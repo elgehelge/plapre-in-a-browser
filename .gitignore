@@ -25,19 +25,22 @@ artifacts/
 *.safetensors
 *.gguf
 
-# Generated artifact metadata / goldens (regenerable via conversion/).
+# Generated artifact metadata / goldens (regenerable via conversion/). The
+# meta/speaker-projection files are per-variant, so match them recursively
+# (web/public/models/lm/…, pico/lm/…, nano/lm/…).
 web/public/models/phase0_golden.json
-web/public/models/lm/meta.json
-web/public/models/speaker_proj.json
+web/public/models/**/meta.json
+web/public/models/**/speaker_proj.json
 web/public/models/lm_toy/
 web/public/models/phase1_toy_golden.json
 web/public/models/clone_golden.json
 
 # Gated-repo files copied locally (regenerable via fetch_tokenizer.py /
-# precompute_speakers.py; derived from the gated Plapre weights).
-web/public/models/tokenizer.json
-web/public/models/config.json
-web/public/models/speakers.json
+# precompute_speakers.py; derived from the gated Plapre weights). Recursive so
+# the per-variant copies (pico/…, nano/…) are covered too.
+web/public/models/**/tokenizer.json
+web/public/models/**/config.json
+web/public/models/**/speakers.json
 
 # Golden fixtures derived from the gated weights (regenerable via
 # smoke_reference.py); audio + token oracles.

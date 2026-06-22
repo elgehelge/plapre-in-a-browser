@@ -28,9 +28,12 @@ import numpy as np
 import onnxruntime as ort
 from tokenizers import Tokenizer
 
+from _gated import MODELS_ROOT, golden_dir, parse_model, variant_dir
 from smoke_reference import SENTENCE, SPEAKER, _normalize
 
-MODELS = Path(__file__).parent.parent / "web" / "public" / "models"
+# Shared (Kanade) artifacts live at the models root; LM-side files live under the
+# active variant's sub-path (resolved in main / passed into _run_lm).
+SHARED = MODELS_ROOT
 SR = 24000
 
 # Browser engine defaults (web/src/engine/engine.ts DEFAULT_GENERATION).
@@ -93,10 +96,10 @@ def _sess(path: Path) -> ort.InferenceSession:
     return ort.InferenceSession(str(path), providers=["CPUExecutionProvider"])
 
 
-def _run_lm(tok: Tokenizer, greedy: bool) -> list[int]:
-    meta = json.loads((MODELS / "lm" / "meta.json").read_text())
+def _run_lm(tok: Tokenizer, greedy: bool, variant: Path) -> list[int]:
+    meta = json.loads((variant / "lm" / "meta.json").read_text())
     L, KV, HD, H = meta["numLayers"], meta["kvHeads"], meta["headDim"], meta["hidden"]
-    spk = json.loads((MODELS / "speakers.json").read_text())[SPEAKER]
+    spk = json.loads((variant / "speakers.json").read_text())[SPEAKER]
     hidden = np.asarray(spk["hidden"], np.float32).reshape(1, H)
 
     def tid(t: str) -> int:
@@ -105,7 +108,7 @@ def _run_lm(tok: Tokenizer, greedy: bool) -> list[int]:
     prompt = [tid("<text>"), *tok.encode(_normalize(SENTENCE), add_special_tokens=False).ids, tid("<audio>")]
     eos = tid("<eos>")
 
-    sess = _sess(MODELS / "lm" / "model.onnx")
+    sess = _sess(variant / "lm" / "model.onnx")
     pn = [f"past_key_values.{i}.{k}" for i in range(L) for k in ("key", "value")]
     prn = [f"present.{i}.{k}" for i in range(L) for k in ("key", "value")]
 
@@ -131,29 +134,33 @@ def _run_lm(tok: Tokenizer, greedy: bool) -> list[int]:
 
 def main() -> None:
     global SEED, TEMPERATURE
+    model_id = parse_model()
+    variant = variant_dir(model_id)
+    golden = golden_dir(model_id)
     greedy = "--greedy" in sys.argv
     if "--seed" in sys.argv:
         SEED = int(sys.argv[sys.argv.index("--seed") + 1])
     if "--temp" in sys.argv:
         TEMPERATURE = float(sys.argv[sys.argv.index("--temp") + 1])
     if greedy:
-        out_wav = Path(__file__).parent / "golden" / "e2e.wav"
+        out_wav = golden / "e2e.wav"
     else:
-        out_wav = Path(__file__).parent / "golden" / f"e2e_seed{SEED}_t{TEMPERATURE}.wav"
+        out_wav = golden / f"e2e_seed{SEED}_t{TEMPERATURE}.wav"
+    print(f"model: {model_id}")
     print(f"mode: {'greedy' if greedy else f'sampled (T={TEMPERATURE} topK={TOP_K} topP={TOP_P} seed={SEED})'}")
-    tok = Tokenizer.from_file(str(MODELS / "tokenizer.json"))
+    tok = Tokenizer.from_file(str(variant / "tokenizer.json"))
     audio0 = tok.token_to_id("<audio_0>")
     audio_end = tok.token_to_id("<audio_12799>")
 
-    audio_tokens = _run_lm(tok, greedy)
+    audio_tokens = _run_lm(tok, greedy, variant)
     kanade = [t - audio0 for t in audio_tokens if audio0 <= t <= audio_end]
     print(f"LM: {len(audio_tokens)} tokens -> {len(kanade)} kanade indices")
     if not kanade:
         raise SystemExit("no audio tokens generated")
 
-    raw = np.asarray(json.loads((MODELS / "speakers.json").read_text())[SPEAKER]["raw"], np.float32)
+    raw = np.asarray(json.loads((variant / "speakers.json").read_text())[SPEAKER]["raw"], np.float32)
 
-    dec = _sess(MODELS / "kanade_decoder.onnx")
+    dec = _sess(SHARED / "kanade_decoder.onnx")
     mel = dec.run(["mel"], {
         "content_token_indices": np.asarray(kanade, np.int64),
         "global_embedding": raw,
@@ -161,7 +168,7 @@ def main() -> None:
     print(f"decoder: mel shape {mel.shape}")
 
     mel_b = mel[None] if mel.ndim == 2 else mel  # ensure (B, n_mels, T)
-    voc = _sess(MODELS / "hift_vocoder.onnx")
+    voc = _sess(SHARED / "hift_vocoder.onnx")
     wav = np.asarray(voc.run(["wav"], {"mel": mel_b.astype(np.float32)})[0]).reshape(-1)
     dur = len(wav) / SR
     print(f"vocoder: {len(wav)} samples = {dur:.2f}s @ {SR} Hz")
@@ -171,7 +178,7 @@ def main() -> None:
     rms = float(np.sqrt(np.mean(wav**2))) if len(wav) else 0.0
     print(f"audio: finite={finite} peak={peak:.3f} rms={rms:.4f}")
 
-    out_wav.parent.mkdir(exist_ok=True)
+    out_wav.parent.mkdir(parents=True, exist_ok=True)
     pcm16 = np.clip(wav, -1.0, 1.0)
     pcm16 = (pcm16 * 32767.0).astype("<i2")
     with wave.open(str(out_wav), "wb") as w:

@@ -14,7 +14,8 @@ Primary upstream work
 
 Plapre (Danish TTS model + reference pipeline)
   syv.ai — https://syv.ai/produkter/plapre
-  Model:  https://huggingface.co/syvai/plapre-pico
+  Models: https://huggingface.co/syvai/plapre-pico
+          https://huggingface.co/syvai/plapre-nano
   Code:   https://github.com/syv-ai/plapre
   License: CC BY 4.0
   Role: This repository converts the Plapre model (language model, speaker

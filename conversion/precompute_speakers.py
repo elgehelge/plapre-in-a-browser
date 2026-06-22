@@ -20,26 +20,34 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from _gated import CHECKPOINT, SPEAKER_DIM, ensure_access
-
-MODELS = Path(__file__).parent.parent / "web" / "public" / "models"
-OUT = MODELS / "speakers.json"
-PROJ_OUT = MODELS / "speaker_proj.json"  # for runtime voice cloning
+from _gated import (
+    SPEAKER_DIM,
+    checkpoint_for,
+    ensure_access,
+    parse_model,
+    speakers_json,
+    variant_dir,
+)
 
 
 def main() -> None:
-    ensure_access()
-    OUT.parent.mkdir(parents=True, exist_ok=True)
+    model_id = parse_model()
+    checkpoint = checkpoint_for(model_id)
+    ensure_access(checkpoint)
+    out_dir = variant_dir(model_id)
+    out = out_dir / "speakers.json"
+    proj_out = out_dir / "speaker_proj.json"  # for runtime voice cloning
+    out.parent.mkdir(parents=True, exist_ok=True)
 
     import torch
     import torch.nn as nn
     from huggingface_hub import hf_hub_download
 
     # config.json holds hidden_size (Pico 576, Nano 960)
-    cfg = json.loads(Path(hf_hub_download(CHECKPOINT, "config.json")).read_text())
+    cfg = json.loads(Path(hf_hub_download(checkpoint, "config.json")).read_text())
     hidden = cfg["hidden_size"]
 
-    speakers_path = hf_hub_download(CHECKPOINT, "speakers.json")
+    speakers_path = speakers_json(checkpoint)
     raw = json.loads(Path(speakers_path).read_text())
 
     # speakers.json may map name -> [floats] or name -> {"embedding"/"emb": [...]}.
@@ -54,7 +62,7 @@ def main() -> None:
     # speaker_proj.pt may be an nn.Linear state_dict ({weight,bias}) or a bare
     # weight tensor; handle both.
     proj = nn.Linear(SPEAKER_DIM, hidden)
-    sd = torch.load(hf_hub_download(CHECKPOINT, "speaker_proj.pt"), map_location="cpu")
+    sd = torch.load(hf_hub_download(checkpoint, "speaker_proj.pt"), map_location="cpu")
     if isinstance(sd, dict) and any(k.endswith("weight") for k in sd):
         # tolerate prefixed keys (e.g. "speaker_proj.weight")
         clean = {k.split(".")[-1]: v for k, v in sd.items() if k.split(".")[-1] in ("weight", "bias")}
@@ -67,16 +75,16 @@ def main() -> None:
         proj.load_state_dict(sd)
     proj = proj.float().eval()
 
-    out: dict[str, dict[str, list[float]]] = {}
+    speakers: dict[str, dict[str, list[float]]] = {}
     with torch.no_grad():
         for name, emb in raw.items():
             t = torch.tensor(to_vec(emb), dtype=torch.float32)
             hidden_vec = proj(t)
-            out[name] = {"raw": t.tolist(), "hidden": hidden_vec.tolist()}
+            speakers[name] = {"raw": t.tolist(), "hidden": hidden_vec.tolist()}
 
-    OUT.write_text(json.dumps(out))
-    print(f"Wrote {len(out)} speakers ({', '.join(out)}) -> {OUT}")
-    print(f"hidden_size={hidden}")
+    out.write_text(json.dumps(speakers))
+    print(f"Wrote {len(speakers)} speakers ({', '.join(speakers)}) -> {out}")
+    print(f"model={model_id} hidden_size={hidden}")
 
     # Ship speaker_proj (128 -> hidden) for RUNTIME voice cloning: the clone
     # encoder yields a raw 128-dim embedding, and the LM prompt needs the
@@ -84,7 +92,7 @@ def main() -> None:
     # JSON and apply y = W·x + b in JS (web/src/pipeline/clone.ts) — no extra
     # ONNX session. Built-in speakers already have `hidden` precomputed; this is
     # only for voices cloned at runtime.
-    PROJ_OUT.write_text(
+    proj_out.write_text(
         json.dumps(
             {
                 "in": SPEAKER_DIM,
@@ -94,7 +102,7 @@ def main() -> None:
             }
         )
     )
-    print(f"Wrote speaker_proj ({SPEAKER_DIM}->{hidden}) -> {PROJ_OUT}")
+    print(f"Wrote speaker_proj ({SPEAKER_DIM}->{hidden}) -> {proj_out}")
 
 
 if __name__ == "__main__":

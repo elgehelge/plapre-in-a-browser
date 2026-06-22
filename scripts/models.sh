@@ -30,8 +30,12 @@ PUBLIC_PATHS=(
   phase0_golden.json clone_golden.json phase1_toy_golden.json
   lm_toy
 )
+# Variant-specific (LM-side) artifacts. Each variant lives under its own
+# sub-directory (pico/, nano/). Missing entries are skipped, so this stays valid
+# whether or not a given variant has been produced.
 GATED_PATHS=(
-  lm tokenizer.json config.json speakers.json speaker_proj.json
+  pico/lm pico/tokenizer.json pico/config.json pico/speakers.json pico/speaker_proj.json
+  nano/lm nano/tokenizer.json nano/config.json nano/speakers.json nano/speaker_proj.json
 )
 
 die() { echo "error: $*" >&2; exit 1; }
