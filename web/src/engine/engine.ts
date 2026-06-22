@@ -2,7 +2,7 @@
 // (`synthesize`) and a buffered convenience over it (`synthesizeToPcm`), emitting
 // canonical mono PCM at NATIVE_SAMPLE_RATE. Provider-specific concerns (OpenAI /
 // ElevenLabs request shapes, format encoding) live in adapters above this; the
-// model runtime lives in the SpeechModel below it. See docs/INTERFACE.md.
+// model runtime lives in the SpeechModel below it. See docs/API.md.
 
 import { SAMPLE_RATE } from "../pipeline/types.js";
 import { splitSentences } from "../pipeline/normalize.js";

@@ -200,9 +200,10 @@ npm run dev                        # serves http://localhost:5173
 
 `phase0.html` loads both ONNX models via onnxruntime-web, runs decoder → vocoder
 on the golden inputs, and prints mel/wav `max|diff|` vs the golden (also on
-`window.__phase0`). Expected: both backends PASS (mel ≈ 1e-5, wav ≈ 1e-7). See
-`docs/PLAN.md` for the recorded numbers and the WebGPU `SkipLayerNormalization`
-caveat (`ort.ts` uses `graphOptimizationLevel: "basic"` on WebGPU to avoid it).
+`window.__phase0`). Expected: both backends PASS (mel ≈ 1e-5, wav ≈ 1e-7). The
+WebGPU `SkipLayerNormalization` fusion rejects our LayerNorm bias, so `ort.ts`
+uses `graphOptimizationLevel: "basic"` on WebGPU to avoid it; see the root
+`README.md` ("Verified correctness") for the recorded numbers.
 
 ## Phase 0 gate findings (2026-06)
 
@@ -254,5 +255,5 @@ Then in a browser (from `../web`, `npm run dev`):
 - **Phase 5 (voice cloning)** — cleared: `clone_encoder.onnx` runs under
   onnxruntime-web reproducing the torch embedding (cosine 1.0).
 
-See `docs/PLAN.md` for recorded numbers and the WebGPU `SkipLayerNormalization`
-caveat.
+See the root `README.md` ("Verified correctness" and "Making it run as ONNX in
+the browser") for recorded numbers and the WebGPU `SkipLayerNormalization` caveat.

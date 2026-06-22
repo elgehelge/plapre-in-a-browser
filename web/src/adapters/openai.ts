@@ -2,7 +2,7 @@
 // backed by the local engine. Mirrors the request body and returns a web
 // Response, so existing call sites — `await client.audio.speech.create(body)`
 // then `response.arrayBuffer()` / streaming via `response.body` — work unchanged
-// against local, server-free synthesis. See docs/INTERFACE.md.
+// against local, server-free synthesis. See docs/API.md.
 
 import type { Engine, SynthesisRequest } from "../engine/engine.js";
 import { type AudioFormat, encodeAudio, UnsupportedFormatError } from "../audio/format.js";

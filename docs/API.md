@@ -1,4 +1,4 @@
-# Interface
+# API
 
 The public contract of the in-browser TTS module. The goal is a single
 **provider-neutral engine** that emits canonical PCM, plus thin **adapters** that
@@ -86,7 +86,7 @@ ElevenLabs audio parity.
 `cloneVoice` derives the same 128-dim speaker embedding the built-in voices ship
 as, from arbitrary reference audio, and registers a `Voice` usable in
 `synthesize()` like any other. It runs fully local — the audio never leaves the
-browser. See [docs/PLAN.md](PLAN.md) Phase 5 for the encoder and risks; the
+browser. See [docs/ARCHITECTURE.md](ARCHITECTURE.md) for the encoder pipeline; the
 ElevenLabs adapter maps Instant Voice Cloning onto it, OpenAI has no analogue.
 
 ## Adapters

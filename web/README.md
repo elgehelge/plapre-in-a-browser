@@ -87,7 +87,7 @@ for await (const chunk of engine.synthesize({ text, voice: "tor" })) {
 
 `listVoices()`, an `AbortSignal` (`request.signal`), pitch-preserving playback
 speed (`request.rate`), and sampling knobs (`request.generation`) are all
-supported. See [docs/INTERFACE.md](https://github.com/elgehelge/plapre-in-a-browser/blob/main/docs/INTERFACE.md).
+supported. See [docs/API.md](https://github.com/elgehelge/plapre-in-a-browser/blob/main/docs/API.md).
 
 ## Drop-in API adapters
 
