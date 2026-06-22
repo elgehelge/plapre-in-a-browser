@@ -29,11 +29,9 @@ import onnxruntime as ort
 import torch
 import torch.nn as nn
 
-from _gated import CHECKPOINT, SPEAKER_DIM
+from _gated import MODELS_ROOT, SPEAKER_DIM, checkpoint_for, golden_dir, parse_model, variant_dir
 from smoke_reference import SENTENCE, SPEAKER
 
-MODELS = Path(__file__).parent.parent / "web" / "public" / "models"
-GOLDEN = Path(__file__).parent / "golden"
 KANADE_REPO = "frothywater/kanade-25hz-clean"
 SR = 24000
 # Overridable via --seed N / --temp F; defaults match plapre.inference.speak().
@@ -109,22 +107,26 @@ def _write_wav(path: Path, wav: np.ndarray) -> None:
 
 def main() -> None:
     global SEED, TEMPERATURE
+    model_id = parse_model()
+    checkpoint = checkpoint_for(model_id)
+    variant = variant_dir(model_id)
+    golden = golden_dir(model_id)
     if "--seed" in sys.argv:
         SEED = int(sys.argv[sys.argv.index("--seed") + 1])
     if "--temp" in sys.argv:
         TEMPERATURE = float(sys.argv[sys.argv.index("--temp") + 1])
     suffix = f"_seed{SEED}_t{TEMPERATURE}"
-    print(f"reference: seed={SEED} temperature={TEMPERATURE}")
-    GOLDEN.mkdir(exist_ok=True)
+    print(f"reference ({model_id}): seed={SEED} temperature={TEMPERATURE}")
+    golden.mkdir(parents=True, exist_ok=True)
     from kanade_tokenizer import KanadeModel, load_vocoder, vocode
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
     from export_kanade_decoder import _disable_attention_dropout
 
     model = AutoModelForCausalLM.from_pretrained(
-        CHECKPOINT, torch_dtype=torch.float32, attn_implementation="eager"
+        checkpoint, torch_dtype=torch.float32, attn_implementation="eager"
     ).eval()
-    tok = AutoTokenizer.from_pretrained(CHECKPOINT)
+    tok = AutoTokenizer.from_pretrained(checkpoint)
     embed = model.get_input_embeddings()
     hidden_size = model.config.hidden_size
 
@@ -135,11 +137,11 @@ def main() -> None:
     eos = tok.eos_token_id
 
     # Speaker: raw 128-dim emb + learned projection -> hidden (as in inference.py).
-    raw = torch.tensor(json.loads((MODELS / "speakers.json").read_text())[SPEAKER]["raw"], dtype=torch.float32)
+    raw = torch.tensor(json.loads((variant / "speakers.json").read_text())[SPEAKER]["raw"], dtype=torch.float32)
     proj = nn.Linear(SPEAKER_DIM, hidden_size)
     from huggingface_hub import hf_hub_download
 
-    proj.load_state_dict(torch.load(hf_hub_download(CHECKPOINT, "speaker_proj.pt"), map_location="cpu"))
+    proj.load_state_dict(torch.load(hf_hub_download(checkpoint, "speaker_proj.pt"), map_location="cpu"))
     speaker_hidden = proj.eval()(raw)
 
     prompt = [tid("<text>"), *tok.encode(_normalize_text(SENTENCE), add_special_tokens=False), tid("<audio>")]
@@ -154,19 +156,19 @@ def main() -> None:
     with torch.no_grad():
         mel_ref = kanade.decode(content_token_indices=torch.tensor(kanade_idx), global_embedding=raw)
         wav_ref = vocode(vocoder, mel_ref.unsqueeze(0)).squeeze().cpu().numpy()
-    _write_wav(GOLDEN / f"reference_torch{suffix}.wav", wav_ref)
-    print(f"reference (real torch): mel{tuple(mel_ref.shape)} -> {len(wav_ref) / SR:.2f}s -> golden/reference_torch{suffix}.wav")
+    _write_wav(golden / f"reference_torch{suffix}.wav", wav_ref)
+    print(f"reference (real torch): mel{tuple(mel_ref.shape)} -> {len(wav_ref) / SR:.2f}s -> {golden / f'reference_torch{suffix}.wav'}")
 
     # --- Ours: the SAME tokens through the exported ONNX decoder + vocoder ---
-    dec = ort.InferenceSession(str(MODELS / "kanade_decoder.onnx"), providers=["CPUExecutionProvider"])
-    voc = ort.InferenceSession(str(MODELS / "hift_vocoder.onnx"), providers=["CPUExecutionProvider"])
+    dec = ort.InferenceSession(str(MODELS_ROOT / "kanade_decoder.onnx"), providers=["CPUExecutionProvider"])
+    voc = ort.InferenceSession(str(MODELS_ROOT / "hift_vocoder.onnx"), providers=["CPUExecutionProvider"])
     mel_onnx = dec.run(["mel"], {
         "content_token_indices": np.asarray(kanade_idx, np.int64),
         "global_embedding": raw.numpy(),
     })[0]
     mel_b = mel_onnx[None] if mel_onnx.ndim == 2 else mel_onnx
     wav_onnx = np.asarray(voc.run(["wav"], {"mel": mel_b.astype(np.float32)})[0]).reshape(-1)
-    _write_wav(GOLDEN / f"reference_onnx{suffix}.wav", wav_onnx)
+    _write_wav(golden / f"reference_onnx{suffix}.wav", wav_onnx)
 
     # --- Numerical fidelity: our ONNX decode+vocode vs the real torch one ---
     mel_ref_np = mel_ref.cpu().numpy()
@@ -176,7 +178,7 @@ def main() -> None:
     corr = float(np.corrcoef(wav_ref[:n], wav_onnx[:n])[0, 1])
     print(f"decoder mel  max|diff| (ONNX vs real torch) = {mel_diff:.4g}")
     print(f"vocoder wav  max|diff| (ONNX vs real torch) = {wav_diff:.4g}; corr = {corr:.6f}")
-    print(f"wrote golden/reference_torch{suffix}.wav (listen) and golden/reference_onnx{suffix}.wav (ours, same tokens)")
+    print(f"wrote {golden / f'reference_torch{suffix}.wav'} (listen) and {golden / f'reference_onnx{suffix}.wav'} (ours, same tokens)")
 
 
 if __name__ == "__main__":

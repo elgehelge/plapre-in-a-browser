@@ -27,7 +27,7 @@
         <nav class="hero__links">
           <a href="https://github.com/elgehelge/plapre-in-a-browser" target="_blank" rel="noreferrer">GitHub</a>
           <a href="https://www.npmjs.com/package/plapre-in-a-browser" target="_blank" rel="noreferrer">npm</a>
-          <a href="https://huggingface.co/syvai/plapre-pico" target="_blank" rel="noreferrer">Model</a>
+          <a href="https://syv.ai/produkter/plapre" target="_blank" rel="noreferrer">Model</a>
         </nav>
       </header>
 
@@ -82,8 +82,19 @@
       </section>
 
       <section class="card models">
-        <h2>Models base URL</h2>
+        <h2>Model &amp; artifacts</h2>
+        <label class="field field--inline">
+          <span>Model</span>
+          <select
+            id="model"
+            title="Which Plapre variant to load. Pico is smaller and faster; Nano is larger (hidden 960). Both share the Kanade decoder/vocoder; only the language-model artifacts differ."
+          >
+            <option value="pico">Pico — hidden 576 (~118M)</option>
+            <option value="nano">Nano — hidden 960</option>
+          </select>
+        </label>
         <label class="field">
+          <span>Models base URL</span>
           <input
             id="models-base"
             type="text"
@@ -93,8 +104,10 @@
           />
           <small>
             Where the converted ONNX artifacts are served from. Defaults to
-            <code>/models</code>. Point it at a release/CDN bundle to run without a
-            local copy.
+            <code>/models</code>. Variant-specific files (the LM, tokenizer, and
+            speaker tables) load from the model's sub-path; the shared Kanade
+            decoder/vocoder sit at the root. Point it at a release/CDN bundle to
+            run without a local copy.
           </small>
         </label>
         <div class="artifacts" id="artifacts"></div>

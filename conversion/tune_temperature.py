@@ -29,12 +29,12 @@ from pathlib import Path
 
 import numpy as np
 
+from _gated import GOLDEN_ROOT, MODELS_ROOT, golden_dir, parse_model, variant_dir
 from gen_reference_audio import _normalize_text
-from validate_e2e import MODELS, SR, TOP_K, TOP_P, _sess, make_rng, sample_token
+from validate_e2e import SR, TOP_K, TOP_P, _sess, make_rng, sample_token
 
 from tokenizers import Tokenizer
 
-GOLDEN = Path(__file__).parent / "golden"
 SILENCE_SEC = 0.1
 MAX_TOKENS = 500
 
@@ -56,17 +56,21 @@ def _arg(name: str, default: str) -> str:
 
 
 def main() -> None:
-    text_file = Path(_arg("--text-file", str(GOLDEN / "demo_text.txt")))
+    model_id = parse_model()
+    variant = variant_dir(model_id)
+    golden = golden_dir(model_id)
+    golden.mkdir(parents=True, exist_ok=True)
+    text_file = Path(_arg("--text-file", str(GOLDEN_ROOT / "demo_text.txt")))
     seed = int(_arg("--seed", "0"))
     temps = [float(t) for t in _arg("--temps", "0.5,0.6,0.7").split(",")]
     speaker = _arg("--speaker", "tor")
 
     sentences = split_sentences(text_file.read_text())
-    print(f"{len(sentences)} sentence(s); speaker={speaker}; seed={seed}; temps={temps}")
+    print(f"model={model_id}; {len(sentences)} sentence(s); speaker={speaker}; seed={seed}; temps={temps}")
     for i, s in enumerate(sentences):
         print(f"  [{i}] {s[:70]}{'…' if len(s) > 70 else ''}")
 
-    tok = Tokenizer.from_file(str(MODELS / "tokenizer.json"))
+    tok = Tokenizer.from_file(str(variant / "tokenizer.json"))
     text_tag, audio_tag = tok.token_to_id("<text>"), tok.token_to_id("<audio>")
     audio0, audio_end, eos = (
         tok.token_to_id("<audio_0>"),
@@ -74,15 +78,15 @@ def main() -> None:
         tok.token_to_id("<eos>"),
     )
 
-    meta = json.loads((MODELS / "lm" / "meta.json").read_text())
+    meta = json.loads((variant / "lm" / "meta.json").read_text())
     L, KV, HD, H = meta["numLayers"], meta["kvHeads"], meta["headDim"], meta["hidden"]
-    spk = json.loads((MODELS / "speakers.json").read_text())[speaker]
+    spk = json.loads((variant / "speakers.json").read_text())[speaker]
     hidden = np.asarray(spk["hidden"], np.float32).reshape(1, H)
     raw = np.asarray(spk["raw"], np.float32)
 
-    lm = _sess(MODELS / "lm" / "model.onnx")
-    dec = _sess(MODELS / "kanade_decoder.onnx")
-    voc = _sess(MODELS / "hift_vocoder.onnx")
+    lm = _sess(variant / "lm" / "model.onnx")
+    dec = _sess(MODELS_ROOT / "kanade_decoder.onnx")
+    voc = _sess(MODELS_ROOT / "hift_vocoder.onnx")
     pn = [f"past_key_values.{i}.{k}" for i in range(L) for k in ("key", "value")]
     prn = [f"present.{i}.{k}" for i in range(L) for k in ("key", "value")]
 
@@ -124,7 +128,7 @@ def main() -> None:
                 if i < len(sentences) - 1:
                     chunks.append(silence)
         full = np.concatenate(chunks) if chunks else np.zeros(0, np.float32)
-        out = GOLDEN / f"demo_t{temp}.wav"
+        out = golden / f"demo_t{temp}.wav"
         pcm = (np.clip(full, -1, 1) * 32767).astype("<i2")
         with wave.open(str(out), "wb") as w:
             w.setnchannels(1)

@@ -23,8 +23,18 @@ export {
 } from "./pipeline/ort.js";
 export type { Backend } from "./pipeline/types.js";
 
+// Model variants (Pico / Nano) — registry + selection.
+export {
+  PLAPRE_MODELS,
+  DEFAULT_MODEL,
+  modelInfo,
+  type PlapreModelId,
+  type PlapreModelInfo,
+} from "./pipeline/models.js";
+
 // Artifact location + presence reporting (configure where models are served from,
-// and probe which converted files are available before loading).
+// which variant to resolve against, and probe which converted files are available
+// before loading).
 export {
   ARTIFACTS,
   artifactUrl,
@@ -32,6 +42,8 @@ export {
   reportArtifacts,
   setModelsBaseUrl,
   getModelsBaseUrl,
+  setModel,
+  getModel,
   type Artifact,
   type ArtifactKey,
 } from "./pipeline/assets.js";

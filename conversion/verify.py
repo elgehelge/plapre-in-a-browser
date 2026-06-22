@@ -37,7 +37,18 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
+from _gated import DEFAULT_MODEL, MODELS
+
 HERE = Path(__file__).parent
+
+
+def _selected_model() -> str:
+    if "--model" in sys.argv:
+        model = sys.argv[sys.argv.index("--model") + 1]
+        if model not in MODELS:
+            raise SystemExit(f"unknown model {model!r}; choose one of {', '.join(MODELS)}")
+        return model
+    return DEFAULT_MODEL
 
 
 @dataclass
@@ -81,11 +92,11 @@ CHECKS: list[Check] = [
 ]
 
 
-def run_check(check: Check) -> tuple[bool, str, float]:
+def run_check(check: Check, model: str) -> tuple[bool, str, float]:
     """Run one check as a subprocess. Returns (passed, metric_line, seconds)."""
     started = time.monotonic()
     proc = subprocess.run(
-        [sys.executable, str(HERE / check.script)],
+        [sys.executable, str(HERE / check.script), "--model", model],
         capture_output=True,
         text=True,
         cwd=HERE,
@@ -120,11 +131,12 @@ def main() -> None:
         if not selected:
             raise SystemExit(f"--only matched nothing; known: {[c.name for c in CHECKS]}")
 
-    print(f"Verifying {len(selected)} check(s) against the generated artifacts…\n")
+    model = _selected_model()
+    print(f"Verifying {len(selected)} check(s) for model '{model}' against the generated artifacts…\n")
     results: list[tuple[Check, bool, str, float]] = []
     for c in selected:
         print(f"  running {c.name} ({c.script}) …", flush=True)
-        passed, metric, secs = run_check(c)
+        passed, metric, secs = run_check(c, model)
         results.append((c, passed, metric, secs))
 
     print("\n" + "=" * 72)

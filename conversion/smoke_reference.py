@@ -29,9 +29,15 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from _gated import CHECKPOINT, SPEAKER_DIM, ensure_access
+from _gated import (
+    SPEAKER_DIM,
+    checkpoint_for,
+    ensure_access,
+    golden_dir,
+    parse_model,
+    speakers_json,
+)
 
-GOLDEN = Path(__file__).parent / "golden"
 SENTENCE = "Hej, hvordan har du det i dag?"
 SPEAKER = "tor"
 MAX_TOKENS = 500
@@ -94,17 +100,20 @@ def _generate_tokens(model, embed, prompt_ids, speaker_hidden, audio_start, audi
 
 
 def main() -> None:
-    ensure_access()
-    GOLDEN.mkdir(exist_ok=True)
+    model_id = parse_model()
+    checkpoint = checkpoint_for(model_id)
+    ensure_access(checkpoint)
+    golden = golden_dir(model_id)
+    golden.mkdir(parents=True, exist_ok=True)
 
     import torch.nn as nn
     from huggingface_hub import hf_hub_download
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
     model = AutoModelForCausalLM.from_pretrained(
-        CHECKPOINT, torch_dtype=torch.float32, attn_implementation="eager"
+        checkpoint, torch_dtype=torch.float32, attn_implementation="eager"
     ).eval()
-    tok = AutoTokenizer.from_pretrained(CHECKPOINT)
+    tok = AutoTokenizer.from_pretrained(checkpoint)
     embed = model.get_input_embeddings()
 
     def tid(t: str) -> int:
@@ -115,10 +124,10 @@ def main() -> None:
     eos = tok.eos_token_id if tok.eos_token_id is not None else tid("<|endoftext|>")
 
     # Speaker: raw 128-dim emb + speaker_proj(emb) hidden vector.
-    raw = json.loads(Path(hf_hub_download(CHECKPOINT, "speakers.json")).read_text())[SPEAKER]
+    raw = json.loads(Path(speakers_json(checkpoint)).read_text())[SPEAKER]
     raw_vec = torch.tensor(raw if isinstance(raw, list) else raw["embedding"], dtype=torch.float32)
     proj = nn.Linear(SPEAKER_DIM, model.config.hidden_size)
-    proj.load_state_dict(torch.load(hf_hub_download(CHECKPOINT, "speaker_proj.pt"), map_location="cpu"))
+    proj.load_state_dict(torch.load(hf_hub_download(checkpoint, "speaker_proj.pt"), map_location="cpu"))
     speaker_hidden = proj.eval()(raw_vec)
 
     norm = _normalize(SENTENCE)
@@ -129,23 +138,23 @@ def main() -> None:
         model, embed, prompt_ids, speaker_hidden, audio_start, audio_end, eos
     )
     kanade = [t - audio_start for t in tokens if audio_start <= t <= audio_end]
-    (GOLDEN / "tokens.json").write_text(json.dumps({"sentence": SENTENCE, "speaker": SPEAKER, "ids": tokens}))
-    (GOLDEN / "kanade.json").write_text(json.dumps(kanade))
-    print(f"LM: {len(tokens)} tokens ({len(kanade)} audio) for {SENTENCE!r}")
+    (golden / "tokens.json").write_text(json.dumps({"sentence": SENTENCE, "speaker": SPEAKER, "ids": tokens}))
+    (golden / "kanade.json").write_text(json.dumps(kanade))
+    print(f"LM ({model_id}): {len(tokens)} tokens ({len(kanade)} audio) for {SENTENCE!r}")
 
     # Stage 3: decoder + vocoder (reference, via the kanade + plapre stacks).
     try:
         from plapre import Plapre
 
-        tts = Plapre(CHECKPOINT, device="cpu")
+        tts = Plapre(checkpoint, device="cpu")
         mel = tts.kanade.decode(
             content_token_indices=torch.tensor(kanade), global_embedding=raw_vec
         )
-        np.save(GOLDEN / "mel.npy", mel.detach().cpu().numpy())
+        np.save(golden / "mel.npy", mel.detach().cpu().numpy())
         wav = tts.vocode(mel)
         from scipy.io import wavfile
 
-        wavfile.write(GOLDEN / "reference.wav", 24000, np.asarray(wav, dtype=np.float32))
+        wavfile.write(golden / "reference.wav", 24000, np.asarray(wav, dtype=np.float32))
         print(f"Stage 3: mel{tuple(mel.shape)} -> {len(wav) / 24000:.2f}s wav")
     except Exception as exc:  # noqa: BLE001
         print(f"Stage 3 skipped ({type(exc).__name__}: {exc}); tokens/kanade still written.")

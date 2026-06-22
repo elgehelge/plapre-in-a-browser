@@ -16,7 +16,8 @@ import {
   type LoadOptions,
   type ResolvedBackends,
 } from "./ort.js";
-import { setModelsBaseUrl } from "./assets.js";
+import { setModel, setModelsBaseUrl } from "./assets.js";
+import type { PlapreModelId } from "./models.js";
 import type { Backend, SpeakerTable } from "./types.js";
 import { createEngine, type Engine, type EngineOptions } from "../engine/engine.js";
 import type {
@@ -49,6 +50,12 @@ export interface PlapreConfig extends EngineOptions, LoadOptions {
    * consume the library without copying artifacts into your own `public/`.
    */
   modelsBaseUrl?: string;
+  /**
+   * Which Plapre variant to load. "pico" (default, ~118M, hidden 576) or "nano"
+   * (larger, hidden 960). Selects which LM-side artifacts are fetched; the
+   * Kanade decoder/vocoder are shared. See {@link PLAPRE_MODELS}.
+   */
+  model?: PlapreModelId;
 }
 
 export class PlapreSpeechModel implements SpeechModel, VoiceCloner {
@@ -133,6 +140,7 @@ export class PlapreSpeechModel implements SpeechModel, VoiceCloner {
 /** Load the full Plapre pipeline and expose it as a provider-neutral Engine. */
 export async function loadPlapreEngine(config: PlapreConfig = {}): Promise<Engine> {
   if (config.modelsBaseUrl) setModelsBaseUrl(config.modelsBaseUrl);
+  if (config.model) setModel(config.model);
   const backends = await resolveBackends({
     lm: config.backend_lm,
     codec: config.backend_codec,

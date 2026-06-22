@@ -48,6 +48,24 @@ So **Phase 0 (vocoder/decoder de-risk) needs no credentials** — the Kanade rep
 is public. Phase 1 (LM export + speaker precompute) is gated: accept the
 conditions on Hugging Face and `huggingface-cli login` first.
 
+### Model variants (Pico / Nano)
+
+The gated stages take `--model {pico,nano}` (default `pico`); `_gated.py` maps it
+to the upstream checkpoint (`syvai/plapre-pico` / `syvai/plapre-nano`). Only the
+LM-side artifacts are variant-specific — the Kanade decoder/vocoder/clone-encoder
+are shared — so a non-default variant only re-runs the gated stages and writes to
+the variant's sub-directory (`pico/`, `nano/`, mirroring
+`web/src/pipeline/models.ts`). Golden fixtures land under `golden/<variant>/`.
+
+```bash
+# Pico (default): public + gated stages
+uv run python prepare_artifacts.py --gated
+
+# Nano: the gated LM-side stages only (shared Kanade artifacts already produced)
+uv run python prepare_artifacts.py --model nano
+uv run python verify.py --model nano        # parity checks against nano artifacts
+```
+
 ### num2words parity tooling (no model downloads)
 
 `gen_num2words_fixtures.py` only needs `num2words`; it regenerates the golden
@@ -78,8 +96,9 @@ go to `../web/public/models/` (all git-ignored):
 | `export_clone_encoder.py` | `clone_encoder.onnx` + `clone_golden.json` (WavLM + GlobalEncoder → 128-dim; ORT-CPU cosine 1.0) |
 | `gen_toy_lm.py`           | `lm_toy/model.onnx` + `meta.json`, `phase1_toy_golden.json` — a toy LM matching the export contract, for the Phase 1 browser gate |
 
-**Gated — Phase 1 LM** (`syvai/plapre-pico`). Written to the contract the browser
-loop is already validated against; runs end-to-end once authenticated:
+**Gated — Phase 1 LM** (`syvai/plapre-pico` / `-nano`, via `--model`). Written to
+the contract the browser loop is already validated against; runs end-to-end once
+authenticated:
 
 | Script                   | Produces                                              |
 | ------------------------ | ----------------------------------------------------- |
@@ -134,6 +153,7 @@ actionable message. Unblock with:
 
 ```bash
 huggingface-cli login            # after clicking "Agree" on the model page
+# Add --model nano to any of these to target the Nano variant instead of Pico.
 python fetch_tokenizer.py && python export_lm.py && python precompute_speakers.py
 python smoke_reference.py        # golden token ids (greedy torch oracle)
 python verify.py                 # lm-parity + e2e-sanity + ref-compare (one interface)

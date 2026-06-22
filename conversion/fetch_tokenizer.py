@@ -8,23 +8,23 @@ export_lm.py is the runtime source of truth for model dims.
 from __future__ import annotations
 
 import shutil
-from pathlib import Path
 
-from _gated import CHECKPOINT, ensure_access
-
-OUT = Path(__file__).parent.parent / "web" / "public" / "models"
+from _gated import checkpoint_for, ensure_access, parse_model, variant_dir
 
 
 def main() -> None:
-    ensure_access()
+    model_id = parse_model()
+    checkpoint = checkpoint_for(model_id)
+    ensure_access(checkpoint)
     from huggingface_hub import hf_hub_download
 
-    OUT.mkdir(parents=True, exist_ok=True)
+    out = variant_dir(model_id)
+    out.mkdir(parents=True, exist_ok=True)
     for fname in ("tokenizer.json", "config.json"):
-        src = hf_hub_download(CHECKPOINT, fname)
-        dst = OUT / fname
+        src = hf_hub_download(checkpoint, fname)
+        dst = out / fname
         shutil.copyfile(src, dst)
-        print(f"copied {fname} -> {dst}")
+        print(f"copied {model_id} {fname} -> {dst}")
 
 
 if __name__ == "__main__":

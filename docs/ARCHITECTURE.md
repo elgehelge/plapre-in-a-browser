@@ -76,3 +76,15 @@ Dropped into `web/public/models/`:
 - `tokenizer.json` — BPE tokenizer (from the model repo).
 - `speakers.json` — built-in raw 128-dim embeddings (for the decoder) AND their
   precomputed hidden vectors (for the LM prompt).
+
+## Model variants (Pico / Nano)
+
+Plapre ships in two sizes that share this exact pipeline; only the LM differs
+(hidden 576 for Pico, 960 for Nano). Because the decoder consumes the raw 128-dim
+speaker embedding and the runtime reads the LM hidden size from `lm/meta.json`,
+the only variant-dependent pieces are the **LM graph + meta, tokenizer, and
+speaker tables** — the Kanade decoder/vocoder/clone-encoder are shared.
+
+Variant-specific artifacts live under the variant's sub-path
+(`web/src/pipeline/models.ts` `prefix`): `pico/` and `nano/`. The shared Kanade
+artifacts stay at the root. Select a variant with `loadPlapreEngine({ model })`.
