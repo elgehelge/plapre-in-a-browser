@@ -56,7 +56,7 @@
     "fetch:models": "bash ../scripts/models.sh fetch",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prepack": "cp ../LICENSE ../NOTICE ../README.md .",
+    "prepack": "cp ../LICENSE ../NOTICE .",
     "prepublishOnly": "npm run build:lib"
   },
   "dependencies": {

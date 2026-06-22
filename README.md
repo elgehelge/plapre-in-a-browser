@@ -1,7 +1,7 @@
 # plapre-in-a-browser
 
 [![npm](https://img.shields.io/npm/v/plapre-in-a-browser.svg)](https://www.npmjs.com/package/plapre-in-a-browser)
-[![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://github.com/elgehelge/plapre-in-a-browser/blob/main/LICENSE)
+[![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](LICENSE)
 [![Live demo](https://img.shields.io/badge/demo-GitHub%20Pages-blue.svg)](https://elgehelge.github.io/plapre-in-a-browser/)
 
 **Danish text-to-speech that runs entirely in the browser.** No server, no cloud,
@@ -55,10 +55,6 @@ app that already speaks the OpenAI or ElevenLabs API.
 npm install plapre-in-a-browser
 ```
 
-`onnxruntime-web`, `@huggingface/transformers`, and `@breezystack/lamejs` are
-declared as dependencies and left external in the bundle, so your own bundler
-controls and dedupes them.
-
 ```ts
 import { loadPlapreEngine } from "plapre-in-a-browser";
 
@@ -93,23 +89,9 @@ if (engine.canCloneVoice()) {
 }
 ```
 
-The full engine contract, adapter mapping, supported output formats, and caching
-options are documented in
-**[docs/API.md](https://github.com/elgehelge/plapre-in-a-browser/blob/main/docs/API.md)**.
-
-### Cross-origin isolation (WASM backend)
-
-Threaded WASM needs `SharedArrayBuffer`, which requires the page to be
-**cross-origin isolated**. Serve it with:
-
-```
-Cross-Origin-Opener-Policy: same-origin
-Cross-Origin-Embedder-Policy: require-corp
-```
-
-WebGPU does not require this, but the WASM backend (and the `"auto"` LM stage)
-does. In a Chrome MV3 extension, mirror these in the manifest (see
-[docs/EXTENSION.md](https://github.com/elgehelge/plapre-in-a-browser/blob/main/docs/EXTENSION.md)).
+Full library docs (adapters, formats, caching, and the cross-origin-isolation
+requirement for the WASM backend) are in **[web/README.md](web/README.md)**; the
+engine contract and adapter mapping are in [docs/API.md](docs/API.md).
 
 ## Features
 
@@ -229,18 +211,8 @@ separately and fetched at runtime from `modelsBaseUrl`. Three ways to get them:
    on Hugging Face.
 3. **A GitHub Release bundle** for self-hosting (`scripts/models.sh`).
 
-Probe what's reachable before loading the engine:
-
-```ts
-import { setModelsBaseUrl, reportArtifacts } from "plapre-in-a-browser";
-
-setModelsBaseUrl("https://huggingface.co/elgehelge/plapre-onnx-web/resolve/main");
-console.log(await reportArtifacts()); // { lm: true, kanadeDecoder: true, ... }
-```
-
 > The Plapre weights are CC BY 4.0, so the converted artifacts are redistributed
-> here under the same license with attribution (see
-> [NOTICE](https://github.com/elgehelge/plapre-in-a-browser/blob/main/NOTICE)).
+> here under the same license with attribution (see [NOTICE](NOTICE)).
 
 ## Repository layout
 
@@ -274,18 +246,16 @@ uv run python prepare_artifacts.py --gated    # + Plapre LM (needs `hf auth logi
 ```
 
 `prepare_artifacts.py --list` shows every stage; the full recipe (incl. gated
-weights) is in
-[conversion/README.md](https://github.com/elgehelge/plapre-in-a-browser/blob/main/conversion/README.md).
+weights) is in [conversion/README.md](conversion/README.md).
 
 ## License & attribution
 
-Licensed under **CC BY 4.0**
-([LICENSE](https://github.com/elgehelge/plapre-in-a-browser/blob/main/LICENSE)), matching upstream
+Licensed under **CC BY 4.0** ([LICENSE](LICENSE)), matching upstream
 [Plapre](https://syv.ai/produkter/plapre) ([model](https://huggingface.co/syvai/plapre-pico),
 [code](https://github.com/syv-ai/plapre)) by [syv.ai](https://syv.ai/produkter/plapre). Use, modify,
 and redistribute it — including commercially — with appropriate credit.
 
-[NOTICE](https://github.com/elgehelge/plapre-in-a-browser/blob/main/NOTICE) lists every incorporated work, including the
+[NOTICE](NOTICE) lists every incorporated work, including the
 [Kanade tokenizer](https://github.com/frothywater/kanade-tokenizer), the HiFT
 vocoder (from CosyVoice 2), WavLM, and the bundled `lamejs` MP3 encoder.
 Redistributed ONNX artifacts must keep that attribution.
