@@ -32,12 +32,12 @@
       </header>
 
       <section class="card setup">
-        <h2>Compute backend <span class="tag">where it runs</span></h2>
+        <h2>Compute backend</h2>
         <p class="muted">
-          The model can run on the GPU (WebGPU) or the CPU (WASM). “Auto” picks the
-          fastest your browser supports — hover the badges to see what's available.
+          The model can run on the GPU (WebGPU) or the CPU (WASM).
         </p>
         <div class="setup__row">
+          <span class="setup__avail">Detected availability</span>
           <div
             class="badge"
             id="backend-badge"
@@ -56,7 +56,7 @@
           <label class="field field--inline">
             <span>LM</span>
             <select id="backend-lm" title="Backend for the autoregressive language model (token generation).">
-              <option value="auto">Auto (recommended)</option>
+              <option value="auto">Auto (use fastest)</option>
               <option value="webgpu">WebGPU (fallback to WASM)</option>
               <option value="wasm">WASM</option>
             </select>
@@ -64,20 +64,22 @@
           <label class="field field--inline">
             <span>Decoder+vocoder</span>
             <select id="backend-codec" title="Backend for the decoder + vocoder (turning tokens into audio).">
-              <option value="auto">Auto (recommended)</option>
+              <option value="auto">Auto (use fastest)</option>
               <option value="webgpu">WebGPU (fallback to WASM)</option>
               <option value="wasm">WASM</option>
             </select>
           </label>
         </div>
-        <small class="muted setup__hint">
-          <b>Auto</b> = the decoder+vocoder run on WebGPU when available; the LM runs
-          on multi-threaded WASM when possible (it's faster there), otherwise WebGPU.
-          <b>WebGPU (fallback to WASM)</b> uses the GPU but drops to CPU if absent.
-          <b>WASM</b> always uses the CPU (multi-threaded when possible).
-        </small>
+        <div class="infobox">
+          <span class="infobox__icon" aria-hidden="true">ⓘ</span>
+          <p>
+            <b>Auto</b> = the decoder+vocoder run on WebGPU when available; the LM
+            runs on multi-threaded WASM when possible (it's faster there), otherwise
+            WebGPU.
+          </p>
+        </div>
         <label class="field">
-          <span>Models base URL</span>
+          <span class="field__heading">Models base URL</span>
           <input id="models-base" type="text" value="/models" spellcheck="false" />
           <small>
             Where the converted ONNX artifacts are served from. Defaults to

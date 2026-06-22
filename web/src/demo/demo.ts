@@ -90,6 +90,8 @@ let engine: Engine | null = null;
 let lastPcm: { samples: Float32Array; sampleRate: number } | null = null;
 let controller: AbortController | null = null;
 let resolvedBackends: ResolvedBackends | null = null;
+// Artifact checklist rows, so dots can flip grey -> green once actually loaded.
+let artifactRows: Partial<Record<ArtifactKey, HTMLElement>> = {};
 
 function log(msg: string): void {
   els.log.textContent += `${msg}\n`;
@@ -127,13 +129,17 @@ async function refreshArtifacts(): Promise<boolean> {
   }
 
   els.artifacts.innerHTML = "";
+  artifactRows = {};
   for (const key of Object.keys(ARTIFACTS) as ArtifactKey[]) {
     const ok = present[key];
     const row = document.createElement("div");
-    row.className = `art${ok ? " ok" : ""}`;
+    // Grey by default (present but not loaded), red if missing; green once the
+    // engine actually loads it (see loadEngine / cloneVoice).
+    row.className = `art${ok ? "" : " missing"}`;
     const optional = key === "cloneEncoder" ? " (optional)" : "";
     row.innerHTML = `<span class="dot"></span><code>${ARTIFACTS[key].file}</code>${optional}`;
     els.artifacts.appendChild(row);
+    artifactRows[key] = row;
   }
 
   const ready = REQUIRED.every((k) => present[k]);
@@ -175,6 +181,7 @@ async function loadEngine(): Promise<void> {
         },
       },
     });
+    for (const key of REQUIRED) artifactRows[key]?.classList.add("loaded");
     populateVoices(engine.listVoices());
     els.synth.setAttribute("aria-disabled", "false");
     els.speak.disabled = false;
@@ -284,6 +291,7 @@ async function cloneVoice(): Promise<void> {
     const decoded = await decodeWithWebAudio(await file.arrayBuffer());
     const name = els.cloneName.value.trim() || file.name.replace(/\.[^.]+$/, "");
     const voice = await engine.cloneVoice(decoded.pcm, decoded.sampleRate, { displayName: name });
+    artifactRows.cloneEncoder?.classList.add("loaded");
     populateVoices(engine.listVoices());
     els.voice.value = voice.id;
     els.meta.textContent = `Cloned "${voice.displayName}" — selected as the active voice.`;
