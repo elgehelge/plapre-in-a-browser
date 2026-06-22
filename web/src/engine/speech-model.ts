@@ -42,12 +42,6 @@ export interface VoiceCloner {
     sampleRate: number,
     opts?: CloneVoiceOptions,
   ): Promise<Voice>;
-  /**
-   * Optionally pre-load the cloning weights (e.g. the clone encoder) ahead of
-   * the first {@link cloneVoice}, so that call is instant. Safe to call more
-   * than once; a no-op if already loaded.
-   */
-  prepareCloning?(): Promise<void>;
 }
 
 export function supportsCloning(model: SpeechModel): model is SpeechModel & VoiceCloner {

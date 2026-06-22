@@ -90,25 +90,16 @@ export class PlapreSpeechModel implements SpeechModel, VoiceCloner {
     }));
   }
 
-  private async ensureCloner(): Promise<VoiceClonerImpl> {
-    return (this.cloner ??= await VoiceClonerImpl.load(this.codecBackend, this.loadOpts));
-  }
-
-  /** Pre-load the clone encoder so the first cloneVoice() is instant. */
-  async prepareCloning(): Promise<void> {
-    await this.ensureCloner();
-  }
-
   /** Clone a voice from reference audio and register it in the speaker table. */
   async cloneVoice(
     audio: Float32Array,
     sampleRate: number,
     opts: CloneVoiceOptions = {},
   ): Promise<Voice> {
-    const cloner = await this.ensureCloner();
+    this.cloner ??= await VoiceClonerImpl.load(this.codecBackend, this.loadOpts);
     const id = opts.id ?? `cloned-${++this.cloneCounter}`;
     if (this.speakers[id]) throw new Error(`voice id "${id}" already exists`);
-    this.speakers[id] = await cloner.embedSpeaker(audio, sampleRate);
+    this.speakers[id] = await this.cloner.embedSpeaker(audio, sampleRate);
     const displayName = opts.displayName ?? id;
     this.displayNames.set(id, displayName);
     return { id, displayName, lang: opts.lang ?? DANISH };

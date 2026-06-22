@@ -30,6 +30,7 @@ const els = {
   backendCodec: $<HTMLSelectElement>("backend-codec"),
   modelsBase: $<HTMLInputElement>("models-base"),
   artifacts: $("artifacts"),
+  cloneArtifacts: $("clone-artifacts"),
   check: $<HTMLButtonElement>("check"),
   load: $<HTMLButtonElement>("load"),
   progress: $("progress"),
@@ -129,16 +130,19 @@ async function refreshArtifacts(): Promise<boolean> {
   }
 
   els.artifacts.innerHTML = "";
+  els.cloneArtifacts.innerHTML = "";
   artifactRows = {};
   for (const key of Object.keys(ARTIFACTS) as ArtifactKey[]) {
     const ok = present[key];
     const row = document.createElement("div");
-    // Grey by default (present but not loaded), red if missing; green once the
-    // engine actually loads it (see loadEngine / cloneVoice).
+    // Grey by default (present but not loaded), red if missing; green once it's
+    // actually loaded — required files on engine load, the clone encoder lazily
+    // on the first cloneVoice().
     row.className = `art${ok ? "" : " missing"}`;
-    const optional = key === "cloneEncoder" ? " (optional)" : "";
-    row.innerHTML = `<span class="dot"></span><code>${ARTIFACTS[key].file}</code>${optional}`;
-    els.artifacts.appendChild(row);
+    row.innerHTML = `<span class="dot"></span><code>${ARTIFACTS[key].file}</code>`;
+    // The clone encoder lives next to the file chooser it powers, not in the
+    // engine-load checklist.
+    (key === "cloneEncoder" ? els.cloneArtifacts : els.artifacts).appendChild(row);
     artifactRows[key] = row;
   }
 
@@ -190,18 +194,6 @@ async function loadEngine(): Promise<void> {
       `Engine loaded — LM on ${resolvedBackends.lm}, decoder+vocoder on ` +
         `${resolvedBackends.codec}. ${engine.listVoices().length} voice(s) ready.`,
     );
-    // Eagerly load the (optional) clone encoder too, so cloning is instant and
-    // the checklist greens everything that's loaded.
-    if (engine.canCloneVoice() && !artifactRows.cloneEncoder?.classList.contains("missing")) {
-      try {
-        els.progressLabel.textContent = "Loading voice cloning…";
-        await engine.prepareCloning();
-        artifactRows.cloneEncoder?.classList.add("loaded");
-        log("Voice cloning ready.");
-      } catch (err) {
-        log(`Voice cloning unavailable: ${err instanceof Error ? err.message : String(err)}`);
-      }
-    }
   } catch (err) {
     log(`Load failed: ${err instanceof Error ? err.message : String(err)}`);
     els.load.disabled = false;

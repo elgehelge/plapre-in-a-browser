@@ -25,7 +25,6 @@ function fakeEngine(pcm = new Float32Array([0.5, -0.5])) {
     },
     canCloneVoice: () => false,
     cloneVoice: () => Promise.reject(new Error("not supported")),
-    prepareCloning: () => Promise.resolve(),
   };
   return { engine, requests };
 }

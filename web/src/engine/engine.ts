@@ -51,11 +51,6 @@ export interface Engine {
   /** Whether {@link cloneVoice} is available for this engine's model. */
   canCloneVoice(): boolean;
   /**
-   * Pre-load cloning weights so the first {@link cloneVoice} is instant. No-op
-   * if the model can't clone or has nothing extra to load.
-   */
-  prepareCloning(): Promise<void>;
-  /**
    * Clone a voice from reference audio (fully local). The returned Voice is
    * usable in synthesize()/synthesizeToPcm() exactly like a built-in one.
    * Throws {@link CloningUnsupportedError} if the model can't clone.
@@ -132,17 +127,12 @@ export function createEngine(model: SpeechModel, options: EngineOptions = {}): E
     return model.cloneVoice(audio, sampleRate, opts);
   }
 
-  async function prepareCloning(): Promise<void> {
-    if (supportsCloning(model)) await model.prepareCloning?.();
-  }
-
   return {
     listVoices: () => model.voices(),
     synthesize,
     synthesizeToPcm,
     canCloneVoice: () => supportsCloning(model),
     cloneVoice,
-    prepareCloning,
   };
 }
 
