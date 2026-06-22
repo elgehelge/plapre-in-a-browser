@@ -225,7 +225,7 @@ conversion/   Python (uv): export the 3 models to ONNX, precompute speaker
               runs the stages in dependency order.
 scripts/      models.sh (GitHub-Release bundle) + hf-model-card.md.
 docs/         API.md (engine + adapter contract), ARCHITECTURE.md (data flow),
-              PLAN.md (build log + recorded numbers), EXTENSION.md (Chrome MV3).
+              EXTENSION.md (Chrome MV3 hosting), TUNING.md (sampling knobs).
 LICENSE       CC BY 4.0 (matches upstream Plapre). NOTICE — third-party attribution.
 ```
 
