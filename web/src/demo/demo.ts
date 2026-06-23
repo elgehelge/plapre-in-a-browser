@@ -143,13 +143,21 @@ async function headSize(url: string): Promise<number> {
   }
 }
 
+// HEAD every file that will stream and sum their sizes, so the bar measures
+// against the real total for the *currently selected* model (pico ≈ 974 MB,
+// nano ≈ 1.9 GB) rather than a stale estimate from a previously selected one.
+async function computePlannedBytes(): Promise<number> {
+  const sizes = await Promise.all((await plannedDownloadUrls()).map(headSize));
+  return sizes.reduce((a, b) => a + b, 0);
+}
+
 // Sum the download sizes up front so the bar can show "0 / N MB" before loading.
 async function estimateDownload(): Promise<void> {
-  const sizes = await Promise.all((await plannedDownloadUrls()).map(headSize));
-  plannedBytes = sizes.reduce((a, b) => a + b, 0);
+  const bytes = await computePlannedBytes();
   // A load may have started while the HEAD requests were in flight; never reset
   // the live bar or the byte tally out from under it.
   if (loading) return;
+  plannedBytes = bytes;
   downloadedBytes.clear();
   els.progress.hidden = false;
   els.progressBar.style.width = "0%";
@@ -160,7 +168,11 @@ function renderProgress(): void {
   const done = [...downloadedBytes.values()].reduce((a, b) => a + b, 0);
   const denom = plannedBytes || done || 1;
   els.progressBar.style.width = `${Math.min(100, Math.round((done / denom) * 100))}%`;
-  els.progressLabel.textContent = `${fmtMB(done)} / ${fmtMB(denom)}`;
+  // Once every byte is in, the engine still has to build the ONNX sessions
+  // (uploading weights to WebGPU/WASM) — slow for the big nano LM. Say so,
+  // rather than parking at "N / N MB" looking finished while it's still working.
+  els.progressLabel.textContent =
+    plannedBytes && done >= plannedBytes ? "Initializing model…" : `${fmtMB(done)} / ${fmtMB(denom)}`;
 }
 
 // A live stopwatch shown beside the Synthesize button: it ticks from the click
@@ -271,6 +283,11 @@ async function loadEngine(): Promise<void> {
   downloadedBytes.clear();
   els.progress.hidden = false;
   els.progressBar.style.width = "0%";
+  // Lock in the real total for the selected model before the bytes start
+  // flowing, so the bar can't measure nano's ~1.9 GB against a stale pico
+  // estimate (which made it hit "100%" at the halfway point).
+  els.progressLabel.textContent = "Estimating download…";
+  plannedBytes = await computePlannedBytes();
   els.progressLabel.textContent = plannedBytes ? `0 / ${fmtMB(plannedBytes)}` : "Loading…";
   const backend_lm = els.backendLm.value as BackendChoice;
   const backend_codec = els.backendCodec.value as BackendChoice;
