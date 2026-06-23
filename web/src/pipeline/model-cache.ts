@@ -51,16 +51,8 @@ async function readWithProgress(res: Response, onProgress?: ProgressFn): Promise
 
 /**
  * Fetch `url` as bytes, cache-first. On a miss the response is streamed (with
- * progress) and returned; the downloaded bytes are then stored in the Cache for
- * instant repeat loads. Without a Cache API it falls back to a streamed fetch.
- *
- * The body is read exactly once and cached from the assembled bytes — never via
- * `response.clone()` + `await cache.put(clone)` before reading. Teeing a
- * multi-hundred-MB response and only consuming one branch makes the browser
- * buffer the entire unread branch in memory (and reports no progress until the
- * whole file lands); with the large LM + decoder + vocoder downloading at once
- * that stalls badly. Streaming once keeps memory bounded and the progress bar
- * live throughout the download.
+ * progress), stored in the Cache, and returned. Without a Cache API it falls
+ * back to a streamed fetch (still reporting progress).
  */
 export async function fetchCached(url: string, opts: FetchCachedOptions = {}): Promise<ArrayBuffer> {
   const report: ProgressFn | undefined = opts.onProgress
@@ -68,33 +60,21 @@ export async function fetchCached(url: string, opts: FetchCachedOptions = {}): P
     : undefined;
 
   const storage = cacheStorage();
-  const cache = storage ? await storage.open(opts.cacheName ?? DEFAULT_CACHE) : undefined;
-
-  if (cache) {
-    const hit = await cache.match(url);
-    if (hit) return readWithProgress(hit, report);
+  if (!storage) {
+    const res = await fetch(url, { signal: opts.signal });
+    if (!res.ok) throw new Error(`fetch ${url} failed: ${res.status}`);
+    return readWithProgress(res, report);
   }
+
+  const cache = await storage.open(opts.cacheName ?? DEFAULT_CACHE);
+  const hit = await cache.match(url);
+  if (hit) return readWithProgress(hit, report);
 
   const res = await fetch(url, { signal: opts.signal });
   if (!res.ok) throw new Error(`fetch ${url} failed: ${res.status}`);
-  const contentType = res.headers.get("content-type") ?? "application/octet-stream";
-  const buf = await readWithProgress(res, report);
-
-  if (cache) {
-    // Store from the bytes we already have (no second download, no tee). A
-    // failed write is non-fatal — the caller still gets the bytes.
-    try {
-      await cache.put(
-        url,
-        new Response(buf, {
-          headers: { "content-type": contentType, "content-length": String(buf.byteLength) },
-        }),
-      );
-    } catch {
-      /* cache write is best-effort (e.g. storage quota); ignore. */
-    }
-  }
-  return buf;
+  // Cache a clone before consuming the body for the caller.
+  await cache.put(url, res.clone());
+  return readWithProgress(res, report);
 }
 
 /** Remove the model cache (e.g. to free space or force re-download). */
