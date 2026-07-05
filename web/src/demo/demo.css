@@ -146,8 +146,85 @@ input[type="range"] { width: 100%; accent-color: var(--accent-strong); }
 }
 .badge.ok { color: var(--good); border-color: rgba(54, 211, 153, 0.4); }
 .badge.no { color: var(--bad); border-color: rgba(248, 114, 114, 0.4); }
-.badge[title] { cursor: help; }
+.badge[data-tip] { cursor: default; }
 .badge__info { margin-left: 0.3rem; opacity: 0.55; font-size: 0.9em; }
+
+/* Modern hover/focus tooltip — replaces the native `title` bubble, which is
+   slow to appear and forces a "help" (question-mark) cursor. Shown on hover and
+   on keyboard focus; a small arrow points at the element. */
+[data-tip] {
+  position: relative;
+}
+[data-tip]::after,
+[data-tip]::before {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, 4px);
+  transition:
+    opacity 0.14s ease,
+    transform 0.14s ease,
+    visibility 0s linear 0.14s;
+  pointer-events: none;
+  z-index: 30;
+}
+[data-tip]::after {
+  content: attr(data-tip);
+  width: max-content;
+  max-width: 260px;
+  padding: 0.5rem 0.7rem;
+  border-radius: 10px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.72rem;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: left;
+  white-space: normal;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.32);
+}
+/* Little arrow: a rotated square tucked under the bubble. */
+[data-tip]::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  bottom: calc(100% + 6px);
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  border-radius: 0 0 2px 0;
+  transform: translate(-50%, 4px) rotate(45deg);
+}
+[data-tip]:hover::after,
+[data-tip]:focus-visible::after,
+[data-tip]:hover::before,
+[data-tip]:focus-visible::before {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+[data-tip]:hover::after,
+[data-tip]:focus-visible::after {
+  transform: translate(-50%, 0);
+}
+[data-tip]:hover::before,
+[data-tip]:focus-visible::before {
+  transform: translate(-50%, 0) rotate(45deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-tip]::after,
+  [data-tip]::before {
+    transition: opacity 0.14s ease, visibility 0s linear 0.14s;
+    transform: translate(-50%, 0);
+  }
+  [data-tip]:hover::before,
+  [data-tip]:focus-visible::before {
+    transform: translate(-50%, 0) rotate(45deg);
+  }
+}
 
 .setup__avail { font-size: 0.8rem; color: var(--muted); font-weight: 500; }
 

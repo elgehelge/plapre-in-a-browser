@@ -41,14 +41,16 @@
           <div
             class="badge"
             id="backend-badge"
-            title="Whether your browser exposes a WebGPU GPU adapter. WebGPU greatly speeds up the decoder + vocoder. If unavailable, those stages fall back to WASM (CPU)."
+            tabindex="0"
+            data-tip="Whether your browser exposes a WebGPU GPU adapter. WebGPU greatly speeds up the decoder + vocoder. If unavailable, those stages fall back to WASM (CPU)."
           >
             <span class="badge__text">WebGPU: …</span><span class="badge__info" aria-hidden="true">ⓘ</span>
           </div>
           <div
             class="badge"
             id="isolated-badge"
-            title="Whether the page is cross-origin isolated (COOP/COEP headers), which lets WASM use several CPU threads (via SharedArrayBuffer). Multi-threaded WASM is the fastest option for the LM. If not possible, WASM runs single-threaded (slower)."
+            tabindex="0"
+            data-tip="Whether the page is cross-origin isolated (COOP/COEP headers), which lets WASM use several CPU threads (via SharedArrayBuffer). Multi-threaded WASM is the fastest option for the LM. If not possible, WASM runs single-threaded (slower)."
           >
             <span class="badge__text">multi-threading: …</span><span class="badge__info" aria-hidden="true">ⓘ</span>
           </div>
