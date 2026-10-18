@@ -11,8 +11,10 @@ be checked for parity:
 
 The token loop here intentionally mirrors web/src/pipeline/lm.ts exactly
 (inputs_embeds = [speaker_hidden, embed(prompt)], KV cache, greedy argmax, stop
-at EOS / max_tokens) instead of using vLLM, so the JS ids must match bit-for-bit
-under greedy decoding. This doubles as the cross-language oracle for Phase 1.
+at a stop token / max_tokens) instead of using vLLM, so the JS ids must match
+bit-for-bit under greedy decoding. This doubles as the cross-language oracle for
+Phase 1. Stop tokens are <eos> plus </audio> where the tokenizer has it
+(Plapre 3 ends generation "</audio> <eos>" and upstream stops on both).
 
 STATUS: VALIDATED for the LM stage. tokens.json/kanade.json are produced from the
 gated weights and the exported lm.onnx reproduces them bit-for-bit under greedy
@@ -62,7 +64,7 @@ def _normalize(text: str) -> str:
 
 
 @torch.no_grad()
-def _generate_tokens(model, embed, prompt_ids, speaker_hidden, audio_start, audio_end, eos):
+def _generate_tokens(model, embed, prompt_ids, speaker_hidden, audio_start, audio_end, stops):
     """Greedy decode mirroring PlapreLM.generate. Returns audio-token ids."""
     from transformers.cache_utils import DynamicCache
 
@@ -83,7 +85,7 @@ def _generate_tokens(model, embed, prompt_ids, speaker_hidden, audio_start, audi
     ids: list[int] = []
     for _ in range(MAX_TOKENS):
         nxt = int(logits[0, -1].argmax())
-        if nxt == eos:
+        if nxt in stops:
             break
         ids.append(nxt)
         step = embed(torch.tensor([nxt], dtype=torch.long)).unsqueeze(0)
@@ -122,6 +124,9 @@ def main() -> None:
     text_tag, audio_tag = tid("<text>"), tid("<audio>")
     audio_start, audio_end = tid("<audio_0>"), tid("<audio_12799>")
     eos = tok.eos_token_id if tok.eos_token_id is not None else tid("<|endoftext|>")
+    # Mirror lm.ts: stop on <eos>, and on </audio> where the tokenizer has it.
+    audio_close = tok.get_vocab().get("</audio>")
+    stops = {eos} if audio_close is None else {eos, audio_close}
 
     # Speaker: raw 128-dim emb + speaker_proj(emb) hidden vector.
     raw = json.loads(Path(speakers_json(checkpoint)).read_text())[SPEAKER]
@@ -135,7 +140,7 @@ def main() -> None:
     prompt_ids = [text_tag, *text_ids, audio_tag]
 
     tokens = _generate_tokens(
-        model, embed, prompt_ids, speaker_hidden, audio_start, audio_end, eos
+        model, embed, prompt_ids, speaker_hidden, audio_start, audio_end, stops
     )
     kanade = [t - audio_start for t in tokens if audio_start <= t <= audio_end]
     (golden / "tokens.json").write_text(json.dumps({"sentence": SENTENCE, "speaker": SPEAKER, "ids": tokens}))

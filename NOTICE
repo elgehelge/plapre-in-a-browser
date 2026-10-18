@@ -16,13 +16,14 @@ Plapre (Danish TTS model + reference pipeline)
   syv.ai — https://syv.ai/produkter/plapre
   Models: https://huggingface.co/syvai/plapre-pico
           https://huggingface.co/syvai/plapre-nano
+          https://huggingface.co/syvai/plapre-3
   Code:   https://github.com/syv-ai/plapre
   License: CC BY 4.0
   Role: This repository converts the Plapre model (language model, speaker
         projection, built-in speaker embeddings) to ONNX and reimplements its
         inference pipeline (tokenization, normalization, autoregressive sampling)
-        in TypeScript. The Plapre weights themselves are license-gated on
-        Hugging Face and are NOT redistributed here.
+        in TypeScript. The Plapre weights themselves are NOT redistributed here
+        (Pico/Nano are license-gated on Hugging Face; Plapre 3 is public).
 
 ================================================================================
 Models and components incorporated by Plapre / this port

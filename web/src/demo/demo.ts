@@ -145,7 +145,7 @@ async function headSize(url: string): Promise<number> {
 
 // HEAD every file that will stream and sum their sizes, so the bar measures
 // against the real total for the *currently selected* model (pico ≈ 974 MB,
-// nano ≈ 1.9 GB) rather than a stale estimate from a previously selected one.
+// nano/v3 ≈ 1.9 GB) rather than a stale estimate from a previously selected one.
 async function computePlannedBytes(): Promise<number> {
   const sizes = await Promise.all((await plannedDownloadUrls()).map(headSize));
   return sizes.reduce((a, b) => a + b, 0);

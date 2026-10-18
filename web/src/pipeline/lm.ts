@@ -71,7 +71,8 @@ interface LmMeta {
 /** The slice of the tokenizer the decode loop needs (PlapreTokenizer satisfies it). */
 export interface PromptTokenizer {
   buildPrompt(text: string): number[];
-  readonly special: { readonly eos: number };
+  /** `stops`: generation stop ids — <eos>, plus </audio> where the tokenizer has it. */
+  readonly special: { readonly stops: readonly number[] };
 }
 
 export class PlapreLM {
@@ -112,7 +113,7 @@ export class PlapreLM {
       );
     }
     const promptIds = this.tokenizer.buildPrompt(normalizedText);
-    const { eos } = this.tokenizer.special;
+    const { stops } = this.tokenizer.special;
     const rng = makeRng(opts.seed);
     const noPrefix = new Float32Array(0);
 
@@ -126,7 +127,7 @@ export class PlapreLM {
       // not only between sentences.
       signal?.throwIfAborted();
       const id = sample(step.logits, opts, rng);
-      if (id === eos) break;
+      if (stops.includes(id)) break;
       ids.push(id);
       // Decode step: feed the single new token back, no prefix (prefixLen=0).
       step = await this.graph.forward([id], noPrefix, 0, step.present);

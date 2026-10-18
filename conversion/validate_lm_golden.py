@@ -48,15 +48,17 @@ def _speaker_hidden(models: Path) -> np.ndarray:
     return hidden  # [hidden]
 
 
-def _prompt_ids(tok: Tokenizer) -> tuple[list[int], int]:
-    def tid(t: str) -> int:
-        return tok.token_to_id(t)
-
+def _prompt_ids(tok: Tokenizer) -> tuple[list[int], set[int]]:
     norm = _normalize(SENTENCE)
     text_ids = tok.encode(norm, add_special_tokens=False).ids
-    prompt = [tid("<text>"), *text_ids, tid("<audio>")]
-    eos = tid("<eos>")  # AutoTokenizer.eos_token_id == 0 == "<eos>" for this model
-    return prompt, eos
+    prompt = [tok.token_to_id("<text>"), *text_ids, tok.token_to_id("<audio>")]
+    # Mirror lm.ts: stop on <eos> (id 0), and on </audio> where the tokenizer
+    # has it (Plapre 3 ends generation "</audio> <eos>").
+    stops = {tok.token_to_id("<eos>")}
+    audio_close = tok.token_to_id("</audio>")
+    if audio_close is not None:
+        stops.add(audio_close)
+    return prompt, stops
 
 
 def main() -> None:
@@ -74,7 +76,7 @@ def main() -> None:
     golden = json.loads(golden_path.read_text())["ids"]
 
     tok = Tokenizer.from_file(str(models / "tokenizer.json"))
-    prompt, eos = _prompt_ids(tok)
+    prompt, stops = _prompt_ids(tok)
     speaker_hidden = _speaker_hidden(models).reshape(1, hidden).astype(np.float32)
 
     sess = ort.InferenceSession(str(models / "lm" / "model.onnx"), providers=["CPUExecutionProvider"])
@@ -97,7 +99,7 @@ def main() -> None:
     no_prefix = np.zeros((0, hidden), np.float32)
     for _ in range(len(golden) + 5):
         nxt = int(logits[0, -1].argmax())
-        if nxt == eos:
+        if nxt in stops:
             break
         ids.append(nxt)
         logits, present = run([nxt], no_prefix, present)

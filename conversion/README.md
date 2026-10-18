@@ -43,19 +43,25 @@ picks the right one and self-checks parity.
 | ------------------------------- | ------------------------------- | ------------- |
 | `frothywater/kanade-25hz-clean` | decoder + vocoder (**Phase 0**) | **public**    |
 | `syvai/plapre-pico` / `-nano`   | LM, `speaker_proj.pt`, `speakers.json` (**Phase 1**) | **gated** (`gated: auto`) |
+| `syvai/plapre-3`                | Plapre 3 (`--model v3`) LM + `speaker_proj.pt` | **public** |
 
 So **Phase 0 (vocoder/decoder de-risk) needs no credentials** — the Kanade repo
 is public. Phase 1 (LM export + speaker precompute) is gated: accept the
-conditions on Hugging Face and `huggingface-cli login` first.
+conditions on Hugging Face and `huggingface-cli login` first. Exception: the
+Plapre 3 checkpoint itself is public, but its conversion still needs the gated
+Pico repo once — Plapre 3 ships no `speakers.json`, so the built-in raw speaker
+embeddings are reused from `syvai/plapre-pico` (they are Kanade identities,
+independent of the LM).
 
-### Model variants (Pico / Nano)
+### Model variants (Pico / Nano / Plapre 3)
 
-The gated stages take `--model {pico,nano}` (default `pico`); `_gated.py` maps it
-to the upstream checkpoint (`syvai/plapre-pico` / `syvai/plapre-nano`). Only the
-LM-side artifacts are variant-specific — the Kanade decoder/vocoder/clone-encoder
-are shared — so a non-default variant only re-runs the gated stages and writes to
-the variant's sub-directory (`pico/`, `nano/`, mirroring
-`web/src/pipeline/models.ts`). Golden fixtures land under `golden/<variant>/`.
+The gated stages take `--model {pico,nano,v3}` (default `pico`); `_gated.py` maps
+it to the upstream checkpoint (`syvai/plapre-pico` / `syvai/plapre-nano` /
+`syvai/plapre-3`). Only the LM-side artifacts are variant-specific — the Kanade
+decoder/vocoder/clone-encoder are shared — so a non-default variant only re-runs
+the gated stages and writes to the variant's sub-directory (`pico/`, `nano/`,
+`v3/`, mirroring `web/src/pipeline/models.ts`). Golden fixtures land under
+`golden/<variant>/`.
 
 ```bash
 # Pico (default): public + gated stages
@@ -64,7 +70,17 @@ uv run python prepare_artifacts.py --gated
 # Nano: the gated LM-side stages only (shared Kanade artifacts already produced)
 uv run python prepare_artifacts.py --model nano
 uv run python verify.py --model nano        # parity checks against nano artifacts
+
+# Plapre 3 (public checkpoint; needs the gated Pico speakers.json once, see above)
+uv run python prepare_artifacts.py --model v3
+uv run python verify.py --model v3
 ```
+
+Plapre 3's tokenizer additionally contains `</audio>`: the model ends generation
+`</audio>` then `<eos>`, and both are stop tokens. The oracle
+(`smoke_reference.py`), the ONNX validator (`validate_lm_golden.py`), and the
+browser loop (`web/src/pipeline/lm.ts`) all resolve `</audio>` optionally, so the
+pico/nano behavior (stop on `<eos>` only) is unchanged.
 
 ### num2words parity tooling (no model downloads)
 
@@ -153,7 +169,7 @@ actionable message. Unblock with:
 
 ```bash
 huggingface-cli login            # after clicking "Agree" on the model page
-# Add --model nano to any of these to target the Nano variant instead of Pico.
+# Add --model nano (or --model v3) to any of these to target another variant.
 python fetch_tokenizer.py && python export_lm.py && python precompute_speakers.py
 python smoke_reference.py        # golden token ids (greedy torch oracle)
 python verify.py                 # lm-parity + e2e-sanity + ref-compare (one interface)

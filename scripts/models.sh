@@ -6,7 +6,7 @@
 # That repo is the single source of truth: the shared Kanade
 # decoder/vocoder/clone-encoder sit at the root, and each model variant's LM-side
 # files (LM graph + meta, tokenizer, speaker tables) live under its own sub-dir
-# (pico/, nano/). The npm package ships code only; these weights are git-ignored
+# (pico/, nano/, v3/). The npm package ships code only; these weights are git-ignored
 # and only needed to run the demo and tests locally.
 #
 # Golden/test fixtures (phase0_golden.json, clone_golden.json,
@@ -14,7 +14,7 @@
 # outputs produced by the conversion toolchain. See conversion/README.md.
 #
 # Usage:
-#   scripts/models.sh fetch [pico|nano|all]    # default: pico
+#   scripts/models.sh fetch [pico|nano|v3|all]    # default: pico
 #
 # Requires the Hugging Face CLI `hf` (pip install -U huggingface_hub).
 set -euo pipefail
@@ -29,8 +29,8 @@ cmd_fetch() {
   command -v hf >/dev/null || die "the Hugging Face CLI 'hf' is required (pip install -U huggingface_hub)"
   local variant="${1:-pico}"
   case "$variant" in
-    pico|nano|all) ;;
-    *) die "unknown variant '$variant' (use pico|nano|all)" ;;
+    pico|nano|v3|all) ;;
+    *) die "unknown variant '$variant' (use pico|nano|v3|all)" ;;
   esac
 
   # The shared decoder/vocoder/clone-encoder are always needed; each variant's
@@ -45,7 +45,8 @@ cmd_fetch() {
   case "$variant" in
     pico) patterns+=("pico/*") ;;
     nano) patterns+=("nano/*") ;;
-    all)  patterns+=("pico/*" "nano/*") ;;
+    v3)   patterns+=("v3/*") ;;
+    all)  patterns+=("pico/*" "nano/*" "v3/*") ;;
   esac
   local -a include=()
   local p
@@ -59,5 +60,5 @@ cmd_fetch() {
 
 case "${1:-}" in
   fetch) shift; cmd_fetch "$@" ;;
-  *) echo "usage: $0 fetch [pico|nano|all]" >&2; exit 2 ;;
+  *) echo "usage: $0 fetch [pico|nano|v3|all]" >&2; exit 2 ;;
 esac

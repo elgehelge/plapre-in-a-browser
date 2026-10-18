@@ -6,6 +6,7 @@ pipeline_tag: text-to-speech
 base_model:
 - syvai/plapre-pico
 - syvai/plapre-nano
+- syvai/plapre-3
 tags:
 - onnx
 - onnxruntime-web
@@ -29,7 +30,7 @@ retraining — verified to reproduce the PyTorch reference to float precision.
 
 ## Files
 
-`<variant>` is `pico` or `nano` (see below); the Kanade files are shared.
+`<variant>` is `pico`, `nano`, or `v3` (see below); the Kanade files are shared.
 
 | File | Stage | Notes |
 | ---- | ----- | ----- |
@@ -42,12 +43,14 @@ retraining — verified to reproduce the PyTorch reference to float precision.
 
 ### Model variants
 
-The repo hosts both Plapre sizes. The LM-side files above are variant-specific
-and live under each variant's directory: **Pico** (hidden 576) under `pico/` and
-**Nano** (hidden 960) under `nano/` (e.g. `pico/lm/model.onnx`,
-`nano/lm/model.onnx`). The Kanade `kanade_decoder.*`, `hift_vocoder.*`, and
-`clone_encoder.onnx` are shared across variants and stay at the root. Select a
-variant with `loadPlapreEngine({ model: "pico" | "nano" })`.
+The repo hosts every supported Plapre variant. The LM-side files above are
+variant-specific and live under each variant's directory: **Pico** (hidden 576)
+under `pico/`, **Nano** (hidden 960) under `nano/`, and **Plapre 3** (hidden 960,
+RL-tuned upstream for clearly better intelligibility) under `v3/` (e.g.
+`pico/lm/model.onnx`, `v3/lm/model.onnx`). The Kanade `kanade_decoder.*`,
+`hift_vocoder.*`, and `clone_encoder.onnx` are shared across variants and stay at
+the root. Select a variant with
+`loadPlapreEngine({ model: "pico" | "nano" | "v3" })`.
 
 ## Usage
 
@@ -70,7 +73,7 @@ Each artifact derives from a permissively licensed work:
 
 | Artifact | Upstream | License |
 | -------- | -------- | ------- |
-| `<variant>/lm/*`, `tokenizer.json`, `config.json`, `speakers.json`, `speaker_proj.json` | Plapre [Pico](https://huggingface.co/syvai/plapre-pico) / [Nano](https://huggingface.co/syvai/plapre-nano) by [syv.ai](https://syv.ai/produkter/plapre) | CC BY 4.0 |
+| `<variant>/lm/*`, `tokenizer.json`, `config.json`, `speakers.json`, `speaker_proj.json` | Plapre [Pico](https://huggingface.co/syvai/plapre-pico) / [Nano](https://huggingface.co/syvai/plapre-nano) / [Plapre 3](https://huggingface.co/syvai/plapre-3) by [syv.ai](https://syv.ai/produkter/plapre) | CC BY 4.0 |
 | `kanade_decoder.*`, `clone_encoder.onnx` | [Kanade](https://huggingface.co/frothywater/kanade-25hz-clean) (frothywater) | MIT |
 | `hift_vocoder.*` | HiFT, from [CosyVoice 2](https://github.com/FunAudioLLM/CosyVoice) | Apache-2.0 |
 | clone-encoder SSL frontend | [WavLM](https://github.com/microsoft/unilm/tree/master/wavlm) (Microsoft) | MIT |

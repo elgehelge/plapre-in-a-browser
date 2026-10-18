@@ -79,12 +79,16 @@ Dropped into `web/public/models/`:
 
 ## Model variants (Pico / Nano)
 
-Plapre ships in two sizes that share this exact pipeline; only the LM differs
-(hidden 576 for Pico, 960 for Nano). Because the decoder consumes the raw 128-dim
-speaker embedding and the runtime reads the LM hidden size from `lm/meta.json`,
-the only variant-dependent pieces are the **LM graph + meta, tokenizer, and
-speaker tables** — the Kanade decoder/vocoder/clone-encoder are shared.
+Plapre ships in several variants that share this exact pipeline; only the LM
+differs (hidden 576 for Pico, 960 for Nano and Plapre 3). Because the decoder
+consumes the raw 128-dim speaker embedding and the runtime reads the LM hidden
+size from `lm/meta.json`, the only variant-dependent pieces are the **LM graph +
+meta, tokenizer, and speaker tables** — the Kanade decoder/vocoder/clone-encoder
+are shared.
 
 Variant-specific artifacts live under the variant's sub-path
-(`web/src/pipeline/models.ts` `prefix`): `pico/` and `nano/`. The shared Kanade
-artifacts stay at the root. Select a variant with `loadPlapreEngine({ model })`.
+(`web/src/pipeline/models.ts` `prefix`): `pico/`, `nano/`, and `v3/` (Plapre 3).
+The shared Kanade artifacts stay at the root. Select a variant with
+`loadPlapreEngine({ model })`. Plapre 3's tokenizer has a `</audio>` tag the LM
+emits before `<eos>`; both act as stop tokens in the decode loop (resolved from
+the tokenizer, so pico/nano behavior is unchanged).
