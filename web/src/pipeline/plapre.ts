@@ -52,10 +52,11 @@ export interface PlapreConfig extends EngineOptions, LoadOptions {
   modelsBaseUrl?: string;
   /**
    * Which Plapre variant to load. "pico" (default, ~118M, hidden 576), "nano"
-   * (larger, hidden 960), or "v3-nano" (Plapre 3 — nano-sized, RL-tuned upstream for
-   * clearly better intelligibility; the recommended choice when download size
-   * is not the constraint). Selects which LM-side artifacts are fetched; the
-   * Kanade decoder/vocoder are shared. See {@link PLAPRE_MODELS}.
+   * (larger, hidden 960), "v2-nano" (Plapre 2 — retrained nano), or "v3-nano"
+   * (Plapre 3 — v2 RL-tuned upstream for clearly better intelligibility; the
+   * recommended choice when download size is not the constraint). Selects which
+   * LM-side artifacts are fetched; the Kanade decoder/vocoder are shared. See
+   * {@link PLAPRE_MODELS}.
    */
   model?: PlapreModelId;
 }
