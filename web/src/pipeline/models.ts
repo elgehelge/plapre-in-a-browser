@@ -26,14 +26,14 @@ export interface PlapreModelInfo {
 export const PLAPRE_MODELS: Record<PlapreModelId, PlapreModelInfo> = {
   pico: {
     id: "pico",
-    displayName: "Pico",
+    displayName: "Plapre 1 Pico",
     hidden: 576,
     checkpoint: "syvai/plapre-pico",
     prefix: "pico/",
   },
   nano: {
     id: "nano",
-    displayName: "Nano",
+    displayName: "Plapre 1 Nano",
     hidden: 960,
     checkpoint: "syvai/plapre-nano",
     prefix: "nano/",
