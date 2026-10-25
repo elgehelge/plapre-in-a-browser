@@ -45,8 +45,8 @@ Get the artifacts one of three ways:
   and serve its contents (preserving the directory layout) from your
   `modelsBaseUrl`.
 - **Produce them yourself** with the Python conversion toolchain (`conversion/`).
-  The Plapre Pico/Nano language-model weights are license-gated on Hugging Face
-  (Plapre 3 is public); the decoder, vocoder, and clone encoder are public.
+  The Plapre 1 Pico/Nano language-model weights are license-gated on Hugging Face
+  (Plapre 2 and 3 are public); the decoder, vocoder, and clone encoder are public.
 
 Probe what's reachable before loading:
 
@@ -63,7 +63,7 @@ console.log(await reportArtifacts()); // { lm: true, kanadeDecoder: true, ... }
 import { loadPlapreEngine } from "plapre-in-a-browser";
 
 const engine = await loadPlapreEngine({
-  model: "pico",                     // "pico" (default) | "nano" | "v3-nano" (Plapre 3, best quality)
+  model: "pico",                     // "pico" (default) | "nano" | "v2-nano" | "v3-nano" (Plapre 3, best quality)
   backend_lm: "auto",                // "auto" | "webgpu" | "wasm"  (auto → threaded WASM)
   backend_codec: "auto",             // "auto" | "webgpu" | "wasm"  (auto → WebGPU)
   modelsBaseUrl: "/models",          // where you host the artifacts

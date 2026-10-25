@@ -10,7 +10,7 @@
 // `nano/`, `v3-nano/`). The shared Kanade decoder/vocoder/clone-encoder sit at the
 // root.
 
-export type PlapreModelId = "pico" | "nano" | "v3-nano";
+export type PlapreModelId = "pico" | "nano" | "v2-nano" | "v3-nano";
 
 export interface PlapreModelInfo {
   readonly id: PlapreModelId;
@@ -38,10 +38,19 @@ export const PLAPRE_MODELS: Record<PlapreModelId, PlapreModelInfo> = {
     checkpoint: "syvai/plapre-nano",
     prefix: "nano/",
   },
+  // Plapre 2: the generation-2 nano. Same architecture and Kanade codec as
+  // Nano; its tokenizer additionally contains "</audio>", which the LM emits
+  // before "<eos>" — both are stop tokens (resolved per-tokenizer in
+  // tokenizer.ts, not per-variant here).
+  "v2-nano": {
+    id: "v2-nano",
+    displayName: "Plapre 2 Nano",
+    hidden: 960,
+    checkpoint: "syvai/plapre-nano-v2",
+    prefix: "v2-nano/",
+  },
   // Plapre 3: plapre-nano-v2 further trained with RL (GRPO) for intelligibility.
-  // Same architecture and Kanade codec as Nano; its tokenizer additionally
-  // contains "</audio>", which the LM emits before "<eos>" — both are stop
-  // tokens (resolved per-tokenizer in tokenizer.ts, not per-variant here).
+  // Drop-in replacement for v2 (same architecture, codec, and tokenizer).
   "v3-nano": {
     id: "v3-nano",
     displayName: "Plapre 3 Nano",

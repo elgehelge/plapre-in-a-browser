@@ -14,7 +14,7 @@
 # outputs produced by the conversion toolchain. See conversion/README.md.
 #
 # Usage:
-#   scripts/models.sh fetch [pico|nano|v3-nano|all]    # default: pico
+#   scripts/models.sh fetch [pico|nano|v2-nano|v3-nano|all]    # default: pico
 #
 # Requires the Hugging Face CLI `hf` (pip install -U huggingface_hub).
 set -euo pipefail
@@ -29,8 +29,8 @@ cmd_fetch() {
   command -v hf >/dev/null || die "the Hugging Face CLI 'hf' is required (pip install -U huggingface_hub)"
   local variant="${1:-pico}"
   case "$variant" in
-    pico|nano|v3-nano|all) ;;
-    *) die "unknown variant '$variant' (use pico|nano|v3-nano|all)" ;;
+    pico|nano|v2-nano|v3-nano|all) ;;
+    *) die "unknown variant '$variant' (use pico|nano|v2-nano|v3-nano|all)" ;;
   esac
 
   # The shared decoder/vocoder/clone-encoder are always needed; each variant's
@@ -45,8 +45,9 @@ cmd_fetch() {
   case "$variant" in
     pico) patterns+=("pico/*") ;;
     nano) patterns+=("nano/*") ;;
-    v3-nano)   patterns+=("v3-nano/*") ;;
-    all)  patterns+=("pico/*" "nano/*" "v3-nano/*") ;;
+    v2-nano) patterns+=("v2-nano/*") ;;
+    v3-nano) patterns+=("v3-nano/*") ;;
+    all)  patterns+=("pico/*" "nano/*" "v2-nano/*" "v3-nano/*") ;;
   esac
   local -a include=()
   local p
@@ -60,5 +61,5 @@ cmd_fetch() {
 
 case "${1:-}" in
   fetch) shift; cmd_fetch "$@" ;;
-  *) echo "usage: $0 fetch [pico|nano|v3-nano|all]" >&2; exit 2 ;;
+  *) echo "usage: $0 fetch [pico|nano|v2-nano|v3-nano|all]" >&2; exit 2 ;;
 esac
