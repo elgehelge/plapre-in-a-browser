@@ -59,8 +59,8 @@ npm install plapre-in-a-browser
 import { loadPlapreEngine } from "plapre-in-a-browser";
 
 const engine = await loadPlapreEngine({
-  // Which Plapre variant to load: "pico" (default) or "nano". See "Model
-  // variants" below.
+  // Which Plapre variant to load: "pico" (default), "nano", or "v3" (Plapre 3,
+  // best quality). See "Model variants" below.
   model: "pico",
   // Per-stage backend. Each is "auto" (default), "webgpu", or "wasm".
   // "auto" → LM on threaded WASM, decoder+vocoder on WebGPU, with graceful fallback.
@@ -143,22 +143,25 @@ only the decoder is needed for them; the clone encoder is loaded on demand.
 
 ### Model variants
 
-Plapre comes in two sizes, selected with the `model` option (default `"pico"`):
+Plapre comes in three variants, selected with the `model` option (default `"pico"`):
 
-| Variant | LM hidden size | Upstream checkpoint  |
-| ------- | -------------- | -------------------- |
-| `pico`  | 576            | `syvai/plapre-pico`  |
-| `nano`  | 960            | `syvai/plapre-nano`  |
+| Variant | LM hidden size | Upstream checkpoint  | Notes |
+| ------- | -------------- | -------------------- | ----- |
+| `pico`  | 576            | `syvai/plapre-pico`  | smallest / fastest |
+| `nano`  | 960            | `syvai/plapre-nano`  | larger |
+| `v3`    | 960            | `syvai/plapre-3`     | **Plapre 3** — nano-sized, RL-tuned upstream for clearly better intelligibility (held-out WER roughly halved vs. v2); best quality |
 
 Only the **LM-side artifacts** differ between variants (the LM graph + `meta.json`,
 tokenizer, and speaker tables); the Kanade decoder, HiFT vocoder, and clone encoder
 are **shared**. The runtime reads the hidden size from `lm/meta.json`, so switching
 is purely a matter of pointing at the right artifacts — variant-specific files are
-served from the variant's sub-path under `modelsBaseUrl` (`pico/`, `nano/`; see
-`web/src/pipeline/models.ts`).
+served from the variant's sub-path under `modelsBaseUrl` (`pico/`, `nano/`, `v3/`;
+see `web/src/pipeline/models.ts`). Plapre 3 ends generation with `</audio>`
+followed by `<eos>`; the decode loop stops on both (the tag is resolved from the
+tokenizer, so pico/nano are unaffected).
 
 ```ts
-const nano = await loadPlapreEngine({ model: "nano" });
+const v3 = await loadPlapreEngine({ model: "v3" });
 ```
 
 ### Making it run as ONNX in the browser
@@ -234,13 +237,13 @@ separately and fetched at runtime from `modelsBaseUrl`. Three ways to get them:
    to the Pico variant; `bash scripts/models.sh fetch nano` (or `all`) pulls the
    others.
 3. **Produce them yourself** with the conversion toolchain (`conversion/`); the
-   decoder, vocoder, and clone encoder are public, the Plapre LM is license-gated
-   on Hugging Face. Pass `--model nano` to the gated stages to build the Nano
-   variant alongside Pico.
+   decoder, vocoder, and clone encoder are public, the Plapre Pico/Nano LMs are
+   license-gated on Hugging Face (Plapre 3 is public). Pass `--model nano` or
+   `--model v3` to the gated stages to build those variants alongside Pico.
 
 Variant-specific files load from the variant's sub-path under `modelsBaseUrl`
-(`pico/`, `nano/`); the shared Kanade decoder/vocoder sit at the root regardless
-of variant.
+(`pico/`, `nano/`, `v3/`); the shared Kanade decoder/vocoder sit at the root
+regardless of variant.
 
 > The Plapre weights are CC BY 4.0, so the converted artifacts are redistributed
 > here under the same license with attribution (see [NOTICE](NOTICE)).
@@ -286,7 +289,8 @@ weights) is in [conversion/README.md](conversion/README.md).
 Licensed under **CC BY 4.0** ([LICENSE](LICENSE)), matching upstream
 [Plapre](https://syv.ai/produkter/plapre) (models:
 [Pico](https://huggingface.co/syvai/plapre-pico) /
-[Nano](https://huggingface.co/syvai/plapre-nano),
+[Nano](https://huggingface.co/syvai/plapre-nano) /
+[Plapre 3](https://huggingface.co/syvai/plapre-3),
 [code](https://github.com/syv-ai/plapre)) by [syv.ai](https://syv.ai/). Use, modify,
 and redistribute it — including commercially — with appropriate credit.
 

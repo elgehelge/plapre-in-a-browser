@@ -37,7 +37,7 @@ async function run(): Promise<void> {
     // exactly as in the reference greedy decode.
     const tokenizer: PromptTokenizer = {
       buildPrompt: () => golden.prompt,
-      special: { eos: golden.eos },
+      special: { stops: [golden.eos] },
     };
     const lm = PlapreLM.withGraph(graph, tokenizer);
 

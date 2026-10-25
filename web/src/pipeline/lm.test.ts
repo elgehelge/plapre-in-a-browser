@@ -5,11 +5,12 @@ import type { GenerateOptions } from "./lm.js";
 const HIDDEN = 4;
 const VOCAB = 12;
 const EOS = 11;
+const AUDIO_CLOSE = 10; // a second stop id, like Plapre 3's </audio>
 
 const tokenizer: PromptTokenizer = {
   // [<text>=0] + ids + [<audio>=1]; the ids are the text bytes for determinism.
   buildPrompt: (text) => [0, ...Array.from(text, (c) => c.charCodeAt(0) % 10), 1],
-  special: { eos: EOS },
+  special: { stops: [EOS] },
 };
 
 interface ForwardCall {
@@ -47,6 +48,14 @@ describe("PlapreLM.generate decode loop", () => {
     const lm = PlapreLM.withGraph(graph, tokenizer);
     const ids = await lm.generate("hej", new Float32Array(HIDDEN), GREEDY);
     expect(ids).toEqual([5, 6, 7]); // EOS terminates, not included
+  });
+
+  it("stops at any stop id when the tokenizer has several (</audio> + <eos>)", async () => {
+    const { graph } = fakeGraph([5, 6, AUDIO_CLOSE, EOS]);
+    const twoStops: PromptTokenizer = { ...tokenizer, special: { stops: [EOS, AUDIO_CLOSE] } };
+    const lm = PlapreLM.withGraph(graph, twoStops);
+    const ids = await lm.generate("hej", new Float32Array(HIDDEN), GREEDY);
+    expect(ids).toEqual([5, 6]); // </audio> terminates without being emitted
   });
 
   it("prepends the speaker hidden only on prefill, then feeds tokens back", async () => {

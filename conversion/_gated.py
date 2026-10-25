@@ -7,11 +7,13 @@ GatedRepoError / 401 into a single, actionable message so the one human step is
 obvious.
 
 This module is also the single source of truth for the **model variants** we
-convert (Pico, Nano). They share the Kanade decoder/vocoder/clone-encoder; only
-the LM-side artifacts differ, and each comes from its own gated checkpoint. The
-variant-specific outputs go to a per-model sub-directory that mirrors the web
-layout (`web/src/pipeline/models.ts` `prefix`): each variant under its own id
-(`pico/`, `nano/`), with the shared Kanade artifacts at the models root.
+convert (Pico, Nano, Plapre 3 as `v3`). They share the Kanade
+decoder/vocoder/clone-encoder; only the LM-side artifacts differ, and each comes
+from its own upstream checkpoint (Pico/Nano are license-gated; `syvai/plapre-3`
+is public). The variant-specific outputs go to a per-model sub-directory that
+mirrors the web layout (`web/src/pipeline/models.ts` `prefix`): each variant
+under its own id (`pico/`, `nano/`, `v3/`), with the shared Kanade artifacts at
+the models root.
 """
 
 from __future__ import annotations
@@ -23,6 +25,7 @@ from pathlib import Path
 CHECKPOINTS: dict[str, str] = {
     "pico": "syvai/plapre-pico",
     "nano": "syvai/plapre-nano",
+    "v3": "syvai/plapre-3",
 }
 MODELS: tuple[str, ...] = tuple(CHECKPOINTS)
 DEFAULT_MODEL = "pico"
@@ -36,7 +39,7 @@ GOLDEN_ROOT = Path(__file__).resolve().parent / "golden"
 
 
 def checkpoint_for(model: str) -> str:
-    """Resolve a variant id to its gated upstream checkpoint."""
+    """Resolve a variant id to its upstream checkpoint."""
     try:
         return CHECKPOINTS[model]
     except KeyError:
@@ -44,7 +47,7 @@ def checkpoint_for(model: str) -> str:
 
 
 def model_subdir(model: str) -> str:
-    """Sub-path for a variant's artifacts — its id (`pico`, `nano`)."""
+    """Sub-path for a variant's artifacts — its id (`pico`, `nano`, `v3`)."""
     if model not in CHECKPOINTS:
         raise SystemExit(f"unknown model {model!r}; choose one of {', '.join(MODELS)}")
     return model
