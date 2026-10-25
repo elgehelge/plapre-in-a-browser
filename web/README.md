@@ -63,7 +63,7 @@ console.log(await reportArtifacts()); // { lm: true, kanadeDecoder: true, ... }
 import { loadPlapreEngine } from "plapre-in-a-browser";
 
 const engine = await loadPlapreEngine({
-  model: "pico",                     // "pico" (default) | "nano" | "v3" (Plapre 3, best quality)
+  model: "pico",                     // "pico" (default) | "nano" | "v3-nano" (Plapre 3, best quality)
   backend_lm: "auto",                // "auto" | "webgpu" | "wasm"  (auto → threaded WASM)
   backend_codec: "auto",             // "auto" | "webgpu" | "wasm"  (auto → WebGPU)
   modelsBaseUrl: "/models",          // where you host the artifacts

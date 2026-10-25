@@ -87,7 +87,7 @@ meta, tokenizer, and speaker tables** — the Kanade decoder/vocoder/clone-encod
 are shared.
 
 Variant-specific artifacts live under the variant's sub-path
-(`web/src/pipeline/models.ts` `prefix`): `pico/`, `nano/`, and `v3/` (Plapre 3).
+(`web/src/pipeline/models.ts` `prefix`): `pico/`, `nano/`, and `v3-nano/` (Plapre 3).
 The shared Kanade artifacts stay at the root. Select a variant with
 `loadPlapreEngine({ model })`. Plapre 3's tokenizer has a `</audio>` tag the LM
 emits before `<eos>`; both act as stop tokens in the decode loop (resolved from

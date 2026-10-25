@@ -1,6 +1,6 @@
 {
   "name": "plapre-in-a-browser",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Open-source Danish text-to-speech (Plapre) running fully in the browser on onnxruntime-web (WebGPU + WASM). Provider-neutral engine with drop-in OpenAI and ElevenLabs adapters, plus local voice cloning.",
   "type": "module",
   "license": "CC-BY-4.0",
