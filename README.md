@@ -59,7 +59,7 @@ npm install plapre-in-a-browser
 import { loadPlapreEngine } from "plapre-in-a-browser";
 
 const engine = await loadPlapreEngine({
-  // Which Plapre variant to load: "pico" (default), "nano", or "v3" (Plapre 3,
+  // Which Plapre variant to load: "pico" (default), "nano", or "v3-nano" (Plapre 3,
   // best quality). See "Model variants" below.
   model: "pico",
   // Per-stage backend. Each is "auto" (default), "webgpu", or "wasm".
@@ -149,19 +149,19 @@ Plapre comes in three variants, selected with the `model` option (default `"pico
 | ------- | -------------- | -------------------- | ----- |
 | `pico`  | 576            | `syvai/plapre-pico`  | smallest / fastest |
 | `nano`  | 960            | `syvai/plapre-nano`  | larger |
-| `v3`    | 960            | `syvai/plapre-3`     | **Plapre 3** — nano-sized, RL-tuned upstream for clearly better intelligibility (held-out WER roughly halved vs. v2); best quality |
+| `v3-nano`    | 960            | `syvai/plapre-3`     | **Plapre 3** — nano-sized, RL-tuned upstream for clearly better intelligibility (held-out WER roughly halved vs. v2); best quality |
 
 Only the **LM-side artifacts** differ between variants (the LM graph + `meta.json`,
 tokenizer, and speaker tables); the Kanade decoder, HiFT vocoder, and clone encoder
 are **shared**. The runtime reads the hidden size from `lm/meta.json`, so switching
 is purely a matter of pointing at the right artifacts — variant-specific files are
-served from the variant's sub-path under `modelsBaseUrl` (`pico/`, `nano/`, `v3/`;
+served from the variant's sub-path under `modelsBaseUrl` (`pico/`, `nano/`, `v3-nano/`;
 see `web/src/pipeline/models.ts`). Plapre 3 ends generation with `</audio>`
 followed by `<eos>`; the decode loop stops on both (the tag is resolved from the
 tokenizer, so pico/nano are unaffected).
 
 ```ts
-const v3 = await loadPlapreEngine({ model: "v3" });
+const v3 = await loadPlapreEngine({ model: "v3-nano" });
 ```
 
 ### Making it run as ONNX in the browser
@@ -239,10 +239,10 @@ separately and fetched at runtime from `modelsBaseUrl`. Three ways to get them:
 3. **Produce them yourself** with the conversion toolchain (`conversion/`); the
    decoder, vocoder, and clone encoder are public, the Plapre Pico/Nano LMs are
    license-gated on Hugging Face (Plapre 3 is public). Pass `--model nano` or
-   `--model v3` to the gated stages to build those variants alongside Pico.
+   `--model v3-nano` to the gated stages to build those variants alongside Pico.
 
 Variant-specific files load from the variant's sub-path under `modelsBaseUrl`
-(`pico/`, `nano/`, `v3/`); the shared Kanade decoder/vocoder sit at the root
+(`pico/`, `nano/`, `v3-nano/`); the shared Kanade decoder/vocoder sit at the root
 regardless of variant.
 
 > The Plapre weights are CC BY 4.0, so the converted artifacts are redistributed

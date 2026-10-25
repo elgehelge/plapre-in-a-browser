@@ -7,10 +7,10 @@
 // `lm/meta.json` — so adding a variant is purely a matter of locating its
 // artifacts. `prefix` is the sub-path the variant-specific files are served from
 // under `modelsBaseUrl`; each variant lives in its own directory (`pico/`,
-// `nano/`, `v3/`). The shared Kanade decoder/vocoder/clone-encoder sit at the
+// `nano/`, `v3-nano/`). The shared Kanade decoder/vocoder/clone-encoder sit at the
 // root.
 
-export type PlapreModelId = "pico" | "nano" | "v3";
+export type PlapreModelId = "pico" | "nano" | "v3-nano";
 
 export interface PlapreModelInfo {
   readonly id: PlapreModelId;
@@ -42,12 +42,12 @@ export const PLAPRE_MODELS: Record<PlapreModelId, PlapreModelInfo> = {
   // Same architecture and Kanade codec as Nano; its tokenizer additionally
   // contains "</audio>", which the LM emits before "<eos>" — both are stop
   // tokens (resolved per-tokenizer in tokenizer.ts, not per-variant here).
-  v3: {
-    id: "v3",
-    displayName: "Plapre 3",
+  "v3-nano": {
+    id: "v3-nano",
+    displayName: "Plapre 3 Nano",
     hidden: 960,
     checkpoint: "syvai/plapre-3",
-    prefix: "v3/",
+    prefix: "v3-nano/",
   },
 } as const;
 

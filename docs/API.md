@@ -65,7 +65,7 @@ interface Engine {
 Model loading + caching is configured on the concrete loader, not the engine:
 `loadPlapreEngine({ model?, backend_lm?, backend_codec?, modelsBaseUrl?, generation?, cache?: { cacheName?, onProgress? } })`,
 where `onProgress(loaded, total)` reports the cache-first model download. `model`
-selects the variant (`"pico"` default | `"nano"` | `"v3"`); it controls which LM-side
+selects the variant (`"pico"` default | `"nano"` | `"v3-nano"`); it controls which LM-side
 artifacts are fetched (the Kanade decoder/vocoder are shared) — see
 `PLAPRE_MODELS` in `web/src/pipeline/models.ts`.
 

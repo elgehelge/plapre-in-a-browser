@@ -30,7 +30,7 @@ retraining — verified to reproduce the PyTorch reference to float precision.
 
 ## Files
 
-`<variant>` is `pico`, `nano`, or `v3` (see below); the Kanade files are shared.
+`<variant>` is `pico`, `nano`, or `v3-nano` (see below); the Kanade files are shared.
 
 | File | Stage | Notes |
 | ---- | ----- | ----- |
@@ -46,11 +46,11 @@ retraining — verified to reproduce the PyTorch reference to float precision.
 The repo hosts every supported Plapre variant. The LM-side files above are
 variant-specific and live under each variant's directory: **Pico** (hidden 576)
 under `pico/`, **Nano** (hidden 960) under `nano/`, and **Plapre 3** (hidden 960,
-RL-tuned upstream for clearly better intelligibility) under `v3/` (e.g.
-`pico/lm/model.onnx`, `v3/lm/model.onnx`). The Kanade `kanade_decoder.*`,
+RL-tuned upstream for clearly better intelligibility) under `v3-nano/` (e.g.
+`pico/lm/model.onnx`, `v3-nano/lm/model.onnx`). The Kanade `kanade_decoder.*`,
 `hift_vocoder.*`, and `clone_encoder.onnx` are shared across variants and stay at
 the root. Select a variant with
-`loadPlapreEngine({ model: "pico" | "nano" | "v3" })`.
+`loadPlapreEngine({ model: "pico" | "nano" | "v3-nano" })`.
 
 ## Usage
 
